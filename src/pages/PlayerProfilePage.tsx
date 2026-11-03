@@ -69,9 +69,11 @@ function PlayerProfilePage() {
       return () => { active = false }
     }
 
+    const safeClient = client
+
     async function load() {
       try {
-        const profileResult = await client.from('profiles')
+        const profileResult = await safeClient.from('profiles')
           .select('id, username, full_name, display_name, avatar_url, free_fire_ign, free_fire_uid, region, bio, profile_visibility, uid_visibility, match_history_visibility, created_at, updated_at')
           .eq('username', username)
           .maybeSingle()
@@ -96,8 +98,8 @@ function PlayerProfilePage() {
         setProfile(nextProfile)
 
         const [statsResult, historyResult] = await Promise.all([
-          client.from('player_stats_public').select('*').eq('user_id', nextProfile.id).maybeSingle(),
-          client.from('player_match_history_public').select('*').eq('user_id', nextProfile.id).order('match_date', { ascending: false }).limit(20),
+          safeClient.from('player_stats_public').select('*').eq('user_id', nextProfile.id).maybeSingle(),
+          safeClient.from('player_match_history_public').select('*').eq('user_id', nextProfile.id).order('match_date', { ascending: false }).limit(20),
         ])
 
         if (!active) return

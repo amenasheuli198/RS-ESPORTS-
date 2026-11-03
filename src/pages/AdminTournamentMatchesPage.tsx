@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react'
-import { CalendarClock, KeyRound, Plus, RotateCw, Save, Shield, Trash2, Users } from 'lucide-react'
+import { CalendarClock, KeyRound, RotateCw, Save, Shield, Trash2, Users } from 'lucide-react'
 import { Link, useParams } from 'react-router-dom'
 import { useAuth } from '../auth/AuthProvider'
 import { getSupabaseConfigurationError } from '../services/supabase/client'
@@ -149,16 +149,23 @@ function AdminTournamentMatchesPage() {
       if (roomResult.error) throw roomResult.error
       const nextAssignments = (assignmentResult.data ?? []) as MatchAssignment[]
       setAssignments((current) => ({ ...current, [match.match_id]: nextAssignments }))
-      const roomData = (roomResult.data?.[0] ?? { ...emptyRoom, match_id: match.match_id }) as typeof emptyRoom & { match_id: string }
-      setRooms((current) => ({ ...current, [match.match_id]: roomData as MatchRoomCredentials & { room_status: 'not_ready' | 'ready' | 'closed' } }))
+      const roomData = ((roomResult.data?.[0] ?? { ...emptyRoom, room_status: 'not_ready' }) as (typeof emptyRoom & { room_status?: 'not_ready' | 'ready' | 'closed'; match_id?: string }))
+      const normalizedRoom = {
+        room_id: roomData.room_id ?? '',
+        room_password: roomData.room_password ?? '',
+        release_at: roomData.release_at ?? '',
+        access_instructions: roomData.access_instructions ?? '',
+        room_status: roomData.room_status ?? 'not_ready',
+      } as MatchRoomCredentials & { room_status: 'not_ready' | 'ready' | 'closed' }
+      setRooms((current) => ({ ...current, [match.match_id]: normalizedRoom }))
       setRoomForms((current) => ({
         ...current,
         [match.match_id]: {
-          room_id: roomData.room_id ?? '',
-          room_password: roomData.room_password ?? '',
-          release_at: roomData.release_at ? toDateTimeLocal(roomData.release_at, match.timezone) : '',
-          access_instructions: roomData.access_instructions ?? '',
-          status: roomData.room_status ?? 'not_ready',
+          room_id: normalizedRoom.room_id,
+          room_password: normalizedRoom.room_password ?? '',
+          release_at: normalizedRoom.release_at ? toDateTimeLocal(normalizedRoom.release_at, match.timezone) : '',
+          access_instructions: normalizedRoom.access_instructions ?? '',
+          status: normalizedRoom.room_status,
         },
       }))
     } catch {

@@ -22,17 +22,22 @@ function AnnouncementDetailsPage() {
       setErrorMessage(configurationError ?? 'Announcement is unavailable.')
       return () => { active = false }
     }
-    void client.from('announcements_public').select('*').eq('id', id).maybeSingle()
-      .then(({ data, error }) => {
+
+    async function loadAnnouncement() {
+      try {
+        const { data, error } = await client.from('announcements_public').select('*').eq('id', id).maybeSingle()
         if (!active) return
         if (error) setErrorMessage('Announcement could not be loaded.')
         else setAnnouncement(data as PublicAnnouncement | null)
-        setIsLoading(false)
-      }).catch(() => {
+      } catch {
         if (!active) return
         setErrorMessage('Announcement could not be loaded.')
-        setIsLoading(false)
-      })
+      } finally {
+        if (active) setIsLoading(false)
+      }
+    }
+
+    void loadAnnouncement()
     return () => { active = false }
   }, [client, id, configurationError])
 

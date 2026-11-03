@@ -86,18 +86,22 @@ function TournamentArenaPage() {
   useEffect(() => {
     if (!client || configurationError) return
     let active = true
-    void client.from('tournaments_public')
-      .select('*')
-      .eq('is_featured', true)
-      .order('starts_at', { ascending: true })
-      .limit(1)
-      .maybeSingle()
-      .then(({ data }) => {
+
+    async function loadFeaturedTournament() {
+      try {
+        const { data } = await client.from('tournaments_public')
+          .select('*')
+          .eq('is_featured', true)
+          .order('starts_at', { ascending: true })
+          .limit(1)
+          .maybeSingle()
         if (active) setFeatured(data as PublicTournament | null)
-      })
-      .catch(() => {
+      } catch {
         if (active) setFeatured(null)
-      })
+      }
+    }
+
+    void loadFeaturedTournament()
     return () => { active = false }
   }, [client, configurationError])
 

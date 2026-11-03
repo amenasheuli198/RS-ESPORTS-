@@ -37,9 +37,11 @@ function NewsPage() {
       return () => { active = false }
     }
 
+    const supabaseClient = client
+
     async function load() {
       try {
-        let request = client.from('article_listing_public').select('*').eq('status', 'published').order('published_at', { ascending: false })
+        let request = supabaseClient.from('article_listing_public').select('*').eq('status', 'published').order('published_at', { ascending: false })
         if (slug) request = request.eq('category_slug', slug)
         const { data, error } = await request
         if (!active) return

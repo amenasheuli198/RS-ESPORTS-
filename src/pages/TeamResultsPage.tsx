@@ -36,17 +36,22 @@ function TeamResultsPage() {
       if (configurationError) setErrorMessage(configurationError)
       return () => { active = false }
     }
-    void client.from('team_results_public').select('*').eq('team_id', team.id).order('scheduled_at', { ascending: false })
-      .then(({ data, error }) => {
+
+    async function loadResults() {
+      try {
+        const { data, error } = await client.from('team_results_public').select('*').eq('team_id', team.id).order('scheduled_at', { ascending: false })
         if (!active) return
         if (error) setErrorMessage('Published team results could not be loaded.')
         else setRows((data ?? []) as TeamResultRow[])
-        setIsLoading(false)
-      }).catch(() => {
+      } catch {
         if (!active) return
         setErrorMessage('Published team results could not be loaded.')
-        setIsLoading(false)
-      })
+      } finally {
+        if (active) setIsLoading(false)
+      }
+    }
+
+    void loadResults()
     return () => { active = false }
   }, [client, team, configurationError])
 

@@ -26,9 +26,11 @@ function MatchesPage() {
       setErrorMessage(configurationError ?? 'Match schedule is unavailable.')
       return () => { active = false }
     }
-    setIsLoading(true)
-    void client.from('matches_public').select('*').order('scheduled_at', { ascending: true }).limit(200)
-      .then(({ data, error }) => {
+
+    async function loadMatches() {
+      try {
+        setIsLoading(true)
+        const { data, error } = await client.from('matches_public').select('*').order('scheduled_at', { ascending: true }).limit(200)
         if (!active) return
         if (error) {
           setErrorMessage('Match schedule could not be loaded. Please try again.')
@@ -37,14 +39,16 @@ function MatchesPage() {
           setMatches((data ?? []) as PublicMatch[])
           setErrorMessage('')
         }
-        setIsLoading(false)
-      })
-      .catch(() => {
+      } catch {
         if (!active) return
         setErrorMessage('Match schedule could not be loaded. Please try again.')
         setMatches([])
-        setIsLoading(false)
-      })
+      } finally {
+        if (active) setIsLoading(false)
+      }
+    }
+
+    void loadMatches()
     return () => { active = false }
   }, [client, configurationError])
 

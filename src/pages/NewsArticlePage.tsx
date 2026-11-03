@@ -53,9 +53,11 @@ function NewsArticlePage() {
       return () => { active = false }
     }
 
+    const safeClient = client
+
     async function load() {
       try {
-        const { data, error } = await client.from('article_detail_public').select('*').eq('slug', slug).maybeSingle()
+        const { data, error } = await safeClient.from('article_detail_public').select('*').eq('slug', slug).maybeSingle()
         if (!active) return
         if (error || !data) {
           setErrorMessage('This article is not available or is no longer public.')

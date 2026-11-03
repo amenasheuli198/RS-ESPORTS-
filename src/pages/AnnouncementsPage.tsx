@@ -36,12 +36,14 @@ function AnnouncementsPage() {
       setErrorMessage(configurationError ?? 'Announcements are unavailable.')
       return () => { active = false }
     }
-    setIsLoading(true)
-    let request = client.from('announcements_public').select('*', { count: 'exact' })
-    if (search.trim()) request = request.ilike('title', `%${search.trim().replace(/[%_]/g, '\\$&')}%`)
-    if (category !== 'all') request = request.eq('announcement_type', category)
-    void request.order('published_at', { ascending: false }).range(page * pageSize, page * pageSize + pageSize - 1)
-      .then(({ data, error, count }) => {
+
+    async function loadAnnouncements() {
+      try {
+        setIsLoading(true)
+        let request = client.from('announcements_public').select('*', { count: 'exact' })
+        if (search.trim()) request = request.ilike('title', `%${search.trim().replace(/[%_]/g, '\\$&')}%`)
+        if (category !== 'all') request = request.eq('announcement_type', category)
+        const { data, error, count } = await request.order('published_at', { ascending: false }).range(page * pageSize, page * pageSize + pageSize - 1)
         if (!active) return
         if (error) {
           setErrorMessage('Announcements could not be loaded. Please try again.')
@@ -52,14 +54,17 @@ function AnnouncementsPage() {
           setItems((data ?? []) as PublicAnnouncement[])
           setTotal(count ?? 0)
         }
-        setIsLoading(false)
-      }).catch(() => {
+      } catch {
         if (!active) return
         setErrorMessage('Announcements could not be loaded. Please try again.')
         setItems([])
         setTotal(0)
-        setIsLoading(false)
-      })
+      } finally {
+        if (active) setIsLoading(false)
+      }
+    }
+
+    void loadAnnouncements()
     return () => { active = false }
   }, [client, configurationError, search, category, page])
 

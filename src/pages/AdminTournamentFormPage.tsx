@@ -85,52 +85,57 @@ function AdminTournamentFormPage() {
       return () => { active = false }
     }
 
-    void client.from('tournaments').select('*').eq('id', id).maybeSingle().then(({ data, error }) => {
-      if (!active) return
-      if (error || !data) {
-        setErrorMessage('Tournament draft could not be loaded. Confirm administrator access and try again.')
-        setIsLoading(false)
-        return
-      }
+    async function loadTournament() {
+      try {
+        const { data, error } = await client.from('tournaments').select('*').eq('id', id).maybeSingle()
+        if (!active) return
+        if (error || !data) {
+          setErrorMessage('Tournament draft could not be loaded. Confirm administrator access and try again.')
+          setIsLoading(false)
+          return
+        }
 
-      const record = data as TournamentAdminRecord
-      const schedule = getScheduleLines(record.match_schedule).map((item) => ({ ...item, starts_at: toDateTimeLocal(item.starts_at, record.timezone) }))
-      setForm({
-        name: record.name,
-        slug: record.slug,
-        description: record.description,
-        game_code: record.game_code,
-        mode_code: record.mode_code,
-        format_code: record.format_code,
-        max_teams: String(record.max_teams),
-        starting_players_required: String(record.starting_players_required),
-        substitute_allowed: record.substitute_allowed,
-        entry_type: record.entry_type,
-        entry_fee: String(record.entry_fee),
-        prize_pool: String(record.prize_pool),
-        prize_distribution: record.prize_distribution,
-        eligibility: record.eligibility,
-        participation_requirements: record.participation_requirements,
-        match_rules: record.match_rules,
-        scoring_system: record.scoring_system,
-        disqualification_rules: record.disqualification_rules,
-        general_instructions: record.general_instructions,
-        timezone: record.timezone,
-        registration_opens_at: toDateTimeLocal(record.registration_opens_at, record.timezone),
-        registration_closes_at: toDateTimeLocal(record.registration_closes_at, record.timezone),
-        starts_at: toDateTimeLocal(record.starts_at, record.timezone),
-        ends_at: toDateTimeLocal(record.ends_at, record.timezone),
-        match_schedule: schedule,
-        is_featured: record.is_featured,
-      })
-      setBannerPath(record.banner_path)
-      setSlugTouched(true)
-      setIsLoading(false)
-    }).catch(() => {
-      if (!active) return
-      setErrorMessage('Tournament draft could not be loaded. Please try again.')
-      setIsLoading(false)
-    })
+        const record = data as TournamentAdminRecord
+        const schedule = getScheduleLines(record.match_schedule).map((item) => ({ ...item, starts_at: toDateTimeLocal(item.starts_at, record.timezone) }))
+        setForm({
+          name: record.name,
+          slug: record.slug,
+          description: record.description,
+          game_code: record.game_code,
+          mode_code: record.mode_code,
+          format_code: record.format_code,
+          max_teams: String(record.max_teams),
+          starting_players_required: String(record.starting_players_required),
+          substitute_allowed: record.substitute_allowed,
+          entry_type: record.entry_type,
+          entry_fee: String(record.entry_fee),
+          prize_pool: String(record.prize_pool),
+          prize_distribution: record.prize_distribution,
+          eligibility: record.eligibility,
+          participation_requirements: record.participation_requirements,
+          match_rules: record.match_rules,
+          scoring_system: record.scoring_system,
+          disqualification_rules: record.disqualification_rules,
+          general_instructions: record.general_instructions,
+          timezone: record.timezone,
+          registration_opens_at: toDateTimeLocal(record.registration_opens_at, record.timezone),
+          registration_closes_at: toDateTimeLocal(record.registration_closes_at, record.timezone),
+          starts_at: toDateTimeLocal(record.starts_at, record.timezone),
+          ends_at: toDateTimeLocal(record.ends_at, record.timezone),
+          match_schedule: schedule,
+          is_featured: record.is_featured,
+        })
+        setBannerPath(record.banner_path)
+        setSlugTouched(true)
+      } catch {
+        if (!active) return
+        setErrorMessage('Tournament draft could not be loaded. Please try again.')
+      } finally {
+        if (active) setIsLoading(false)
+      }
+    }
+
+    void loadTournament()
 
     return () => { active = false }
   }, [client, id])

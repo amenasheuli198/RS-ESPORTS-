@@ -23,8 +23,10 @@ function PublicMatchResultsPage() {
       setIsLoading(false)
       return () => { active = false }
     }
-    void client.from('match_results_public').select('*').eq('match_id', matchId).order('placement_rank', { ascending: true })
-      .then(({ data, error }) => {
+
+    async function loadResults() {
+      try {
+        const { data, error } = await client.from('match_results_public').select('*').eq('match_id', matchId).order('placement_rank', { ascending: true })
         if (!active) return
         if (error) setErrorMessage('Published match results could not be loaded.')
         else if (data?.length) {
@@ -42,12 +44,15 @@ function PublicMatchResultsPage() {
           })))
           setMatch({ tournament_slug: first.tournament_slug, tournament_name: first.tournament_name, match_number: first.match_number, round_name: first.round_name, scheduled_at: first.scheduled_at, timezone: first.timezone })
         }
-        setIsLoading(false)
-      }).catch(() => {
+      } catch {
         if (!active) return
         setErrorMessage('Published match results could not be loaded.')
-        setIsLoading(false)
-      })
+      } finally {
+        if (active) setIsLoading(false)
+      }
+    }
+
+    void loadResults()
     return () => { active = false }
   }, [client, matchId, configurationError])
 

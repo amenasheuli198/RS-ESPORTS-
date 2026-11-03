@@ -34,23 +34,22 @@ function TournamentDetailsPage() {
       return () => { active = false }
     }
 
-    setIsLoading(true)
-    void client.from('tournaments_public')
-      .select('*')
-      .eq('slug', slug)
-      .maybeSingle()
-      .then(({ data, error }) => {
+    async function loadTournament() {
+      try {
+        setIsLoading(true)
+        const { data, error } = await client.from('tournaments_public').select('*').eq('slug', slug).maybeSingle()
         if (!active) return
         if (error) setErrorMessage('Tournament information could not be loaded. Please try again.')
         else setTournament(data as PublicTournament | null)
-        setIsLoading(false)
-      })
-      .catch(() => {
+      } catch {
         if (!active) return
         setErrorMessage('Tournament information could not be loaded. Please try again.')
-        setIsLoading(false)
-      })
+      } finally {
+        if (active) setIsLoading(false)
+      }
+    }
 
+    void loadTournament()
     return () => { active = false }
   }, [client, configurationError, slug])
 

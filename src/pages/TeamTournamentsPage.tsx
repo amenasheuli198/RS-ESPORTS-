@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Bell, CalendarDays, CheckCircle2, CircleDollarSign, Clock3, ShieldAlert, UsersRound, X } from 'lucide-react'
+import { Bell, CalendarDays, CheckCircle2, ShieldAlert, X } from 'lucide-react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../auth/AuthProvider'
 import { useTeam } from '../teams/TeamContext'

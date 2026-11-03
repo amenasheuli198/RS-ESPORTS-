@@ -23,9 +23,11 @@ function TournamentLeaderboardPage() {
       setErrorMessage(configurationError ?? 'Tournament is unavailable.')
       return () => { active = false }
     }
-    setIsLoading(true)
-    void client.from('tournament_leaderboard').select('*').eq('tournament_slug', slug).order('rank', { ascending: true })
-      .then(({ data, error }) => {
+
+    async function loadStandings() {
+      try {
+        setIsLoading(true)
+        const { data, error } = await client.from('tournament_leaderboard').select('*').eq('tournament_slug', slug).order('rank', { ascending: true })
         if (!active) return
         if (error) {
           setErrorMessage('Tournament standings could not be loaded.')
@@ -35,12 +37,16 @@ function TournamentLeaderboardPage() {
           setRows(nextRows)
           setTournamentName(nextRows[0]?.tournament_name ?? 'Tournament standings')
         }
-        setIsLoading(false)
-      }).catch(() => {
+      } catch {
         if (!active) return
         setErrorMessage('Tournament standings could not be loaded.')
-        setIsLoading(false)
-      })
+        setRows([])
+      } finally {
+        if (active) setIsLoading(false)
+      }
+    }
+
+    void loadStandings()
     return () => { active = false }
   }, [client, slug, configurationError])
 

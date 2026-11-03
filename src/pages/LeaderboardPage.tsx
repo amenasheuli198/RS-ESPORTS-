@@ -24,11 +24,17 @@ function LeaderboardPage() {
   useEffect(() => {
     let active = true
     if (!client || configurationError) return () => { active = false }
-    void client.from('tournaments_public').select('id, name').order('starts_at', { ascending: false }).then(({ data }) => {
-      if (active) setTournaments((data ?? []) as Pick<PublicTournament, 'id' | 'name'>[])
-    }).catch(() => {
-      if (active) setTournaments([])
-    })
+
+    async function loadTournaments() {
+      try {
+        const { data } = await client.from('tournaments_public').select('id, name').order('starts_at', { ascending: false })
+        if (active) setTournaments((data ?? []) as Pick<PublicTournament, 'id' | 'name'>[])
+      } catch {
+        if (active) setTournaments([])
+      }
+    }
+
+    void loadTournaments()
     return () => { active = false }
   }, [client, configurationError])
 
@@ -39,35 +45,42 @@ function LeaderboardPage() {
       setErrorMessage(configurationError ?? 'Leaderboard data is unavailable.')
       return () => { active = false }
     }
-    setIsLoading(true)
-    let request = tournamentId === 'all'
-      ? client.from('global_leaderboard').select('*', { count: 'exact' })
-      : client.from('tournament_leaderboard').select('*', { count: 'exact' }).eq('tournament_id', tournamentId)
-    if (search.trim()) request = request.ilike('team_name', `%${search.trim().replace(/[%_]/g, '\\$&')}%`)
-    const sortColumns: Record<string, { column: string; ascending: boolean }> = {
-      rank: { column: 'rank', ascending: true },
-      points: { column: 'total_points', ascending: false },
-      wins: { column: 'first_place_finishes', ascending: false },
-      kills: { column: 'total_kills', ascending: false },
-      name: { column: 'team_name', ascending: true },
-    }
-    const ordering = sortColumns[sort] ?? sortColumns.rank
-    void request.order(ordering.column, { ascending: ordering.ascending }).range(page * pageSize, page * pageSize + pageSize - 1).then(({ data, error, count: resultCount }) => {
-      if (!active) return
-      if (error) {
+
+    async function loadLeaderboard() {
+      try {
+        setIsLoading(true)
+        let request = tournamentId === 'all'
+          ? client.from('global_leaderboard').select('*', { count: 'exact' })
+          : client.from('tournament_leaderboard').select('*', { count: 'exact' }).eq('tournament_id', tournamentId)
+        if (search.trim()) request = request.ilike('team_name', `%${search.trim().replace(/[%_]/g, '\\$&')}%`)
+        const sortColumns: Record<string, { column: string; ascending: boolean }> = {
+          rank: { column: 'rank', ascending: true },
+          points: { column: 'total_points', ascending: false },
+          wins: { column: 'first_place_finishes', ascending: false },
+          kills: { column: 'total_kills', ascending: false },
+          name: { column: 'team_name', ascending: true },
+        }
+        const ordering = sortColumns[sort] ?? sortColumns.rank
+        const { data, error, count: resultCount } = await request.order(ordering.column, { ascending: ordering.ascending }).range(page * pageSize, page * pageSize + pageSize - 1)
+        if (!active) return
+        if (error) {
+          setErrorMessage('Published leaderboard could not be loaded.')
+          setRows([])
+        } else {
+          setErrorMessage('')
+          setRows((data ?? []) as LeaderboardRow[])
+          setCount(resultCount ?? 0)
+        }
+      } catch {
+        if (!active) return
         setErrorMessage('Published leaderboard could not be loaded.')
         setRows([])
-      } else {
-        setErrorMessage('')
-        setRows((data ?? []) as LeaderboardRow[])
-        setCount(resultCount ?? 0)
+      } finally {
+        if (active) setIsLoading(false)
       }
-      setIsLoading(false)
-    }).catch(() => {
-      if (!active) return
-      setErrorMessage('Published leaderboard could not be loaded.')
-      setIsLoading(false)
-    })
+    }
+
+    void loadLeaderboard()
     return () => { active = false }
   }, [client, configurationError, search, page, tournamentId, sort])
 

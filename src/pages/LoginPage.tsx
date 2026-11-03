@@ -4,7 +4,7 @@ import { useAuth } from '../auth/AuthProvider'
 import { getSafeAuthErrorMessage } from '../auth/errorMessage'
 
 function LoginPage() {
-  const { signIn, configurationError, resendVerificationEmail } = useAuth()
+  const { signIn, configurationError } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
   const [email, setEmail] = useState('')

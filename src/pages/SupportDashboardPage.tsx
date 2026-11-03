@@ -33,9 +33,12 @@ function SupportDashboardPage() {
       return () => { active = false }
     }
 
+    const safeClient = client
+    const safeUser = user
+
     async function loadTickets() {
       try {
-        const { data, error } = await client.from('support_tickets').select('*').eq('user_id', user.id).order('created_at', { ascending: false })
+        const { data, error } = await safeClient.from('support_tickets').select('*').eq('user_id', safeUser.id).order('created_at', { ascending: false })
         if (!active) return
         if (error) throw error
         setTickets((data ?? []) as TicketRecord[])
