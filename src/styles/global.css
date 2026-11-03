@@ -5425,6 +5425,358 @@ h1 {
     color: var(--color-primary);
   }
 
+  .tournament-admin-header__nav {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .tournament-admin-header__nav a,
+  .tournament-admin-header__nav button {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 8px 10px;
+    border: 1px solid #3a4350;
+    background: transparent;
+    color: #e8ecf3;
+    font-size: 8px;
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .tournament-admin-header__nav a.active,
+  .tournament-admin-header__nav a:hover,
+  .tournament-admin-header__nav button:hover {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+  }
+
+  .admin-dashboard-page {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .admin-dashboard-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .admin-dashboard-header__actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .admin-dashboard-range {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    color: var(--color-text-muted);
+    font-size: 8px;
+  }
+
+  .admin-dashboard-range select {
+    min-height: 34px;
+    padding: 0 8px;
+    border: 1px solid #3b4350;
+    background: #10151d;
+    color: #edf0f5;
+    font-size: 8px;
+  }
+
+  .admin-dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 12px;
+  }
+
+  .admin-dashboard-card {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    padding: 16px;
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+  }
+
+  .admin-dashboard-card__head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--color-text-muted);
+    font-size: 8px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .admin-dashboard-card__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border: 1px solid rgba(255, 90, 31, 0.3);
+    background: rgba(255, 90, 31, 0.08);
+    color: var(--color-primary);
+  }
+
+  .admin-dashboard-card strong {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: clamp(24px, 4vw, 32px);
+    line-height: 1;
+  }
+
+  .admin-dashboard-card p {
+    margin: 0;
+    color: var(--color-text-muted);
+    font-size: 8px;
+    line-height: 1.6;
+  }
+
+  .admin-dashboard-card a {
+    color: var(--color-primary);
+    font-size: 8px;
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .admin-dashboard-panels {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+  }
+
+  .admin-dashboard-panels--wide {
+    grid-template-columns: 1.25fr 1fr;
+  }
+
+  .admin-dashboard-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 17px 18px;
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+  }
+
+  .admin-dashboard-panel__head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .admin-dashboard-panel__head h2 {
+    margin: 0;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 22px;
+  }
+
+  .admin-dashboard-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .admin-dashboard-list__item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  .admin-dashboard-list__item:last-child {
+    border-bottom: 0;
+  }
+
+  .admin-dashboard-list__item strong {
+    display: block;
+    font-size: 10px;
+  }
+
+  .admin-dashboard-list__item small {
+    color: var(--color-text-muted);
+    font-size: 8px;
+  }
+
+  .admin-dashboard-list__item a,
+  .admin-dashboard-list__item span {
+    font-size: 8px;
+    font-weight: 600;
+  }
+
+  .admin-dashboard-empty {
+    margin: 0;
+    color: var(--color-text-muted);
+    font-size: 9px;
+  }
+
+  .admin-dashboard-trends {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .admin-dashboard-trends > div {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px 14px;
+    border: 1px solid var(--color-border);
+    background: rgba(255, 255, 255, 0.02);
+  }
+
+  .admin-dashboard-trends > div span {
+    color: var(--color-text-muted);
+    font-size: 8px;
+  }
+
+  .admin-dashboard-trends > div strong {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 28px;
+  }
+
+  .notification-bell {
+    position: relative;
+  }
+
+  .notification-bell__toggle {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border: 1px solid #2f3640;
+    background: rgba(255, 255, 255, 0.02);
+    color: #edf1f6;
+    cursor: pointer;
+  }
+
+  .notification-bell__count {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    min-width: 16px;
+    height: 16px;
+    padding: 0 4px;
+    border-radius: 999px;
+    background: var(--color-primary);
+    color: #fff;
+    font-size: 7px;
+    font-weight: 800;
+    line-height: 16px;
+    text-align: center;
+  }
+
+  .notification-popover {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    width: min(360px, 82vw);
+    padding: 12px;
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+    box-shadow: 0 22px 48px rgba(0, 0, 0, 0.35);
+    z-index: 30;
+  }
+
+  .notification-popover__heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 9px;
+  }
+
+  .notification-popover__heading h2 {
+    margin: 0;
+    font-size: 14px;
+  }
+
+  .notification-popover__heading span {
+    color: var(--color-primary);
+    font-size: 8px;
+  }
+
+  .notification-popover__heading a,
+  .notification-popover__footer {
+    color: var(--color-primary);
+    font-size: 8px;
+    text-decoration: none;
+  }
+
+  .notification-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 9px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  .notification-item:last-child {
+    border-bottom: 0;
+  }
+
+  .notification-item a {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 3px;
+    color: #edf1f6;
+    font-size: 8px;
+    text-decoration: none;
+  }
+
+  .notification-item__type {
+    color: var(--color-primary);
+    font-size: 7px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .notification-item b {
+    font-size: 8px;
+  }
+
+  .notification-item p {
+    margin: 0;
+    color: var(--color-text-muted);
+    line-height: 1.5;
+  }
+
+  .notification-item small {
+    color: #b3bac5;
+  }
+
+  .notification-item.is-unread {
+    background: rgba(255, 90, 31, 0.04);
+  }
+
+  .notification-item button {
+    flex-shrink: 0;
+    width: 26px;
+    height: 26px;
+    border: 1px solid #3b4350;
+    background: transparent;
+    color: #edf1f6;
+    cursor: pointer;
+  }
+
+  .notification-popover__empty,
+  .notification-popover__error {
+    padding: 12px 0;
+    color: var(--color-text-muted);
+    font-size: 9px;
+  }
+
   .admin-tournament-list__items {
     display: flex;
     flex-direction: column;

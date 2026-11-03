@@ -35,6 +35,19 @@ import PublicMatchResultsPage from './pages/PublicMatchResultsPage'
 import TeamResultsPage from './pages/TeamResultsPage'
 import AdminTournamentScoringPage from './pages/AdminTournamentScoringPage'
 import AdminMatchResultsPage from './pages/AdminMatchResultsPage'
+import AnnouncementsPage from './pages/AnnouncementsPage'
+import AnnouncementDetailsPage from './pages/AnnouncementDetailsPage'
+import NotificationCenterPage from './pages/NotificationCenterPage'
+import AdminDashboardPage from './pages/AdminDashboardPage'
+import PlayerProfilePage from './pages/PlayerProfilePage'
+import NewsPage from './pages/NewsPage'
+import NewsArticlePage from './pages/NewsArticlePage'
+import AdminContentPage from './pages/AdminContentPage'
+import ContactPage from './pages/ContactPage'
+import SupportDashboardPage from './pages/SupportDashboardPage'
+import DisputesDashboardPage from './pages/DisputesDashboardPage'
+import AdminSettingsPage from './pages/AdminSettingsPage'
+import MaintenancePage from './pages/MaintenancePage'
 
 function App() {
   return (
@@ -44,7 +57,15 @@ function App() {
       <Route path="/matches" element={<MatchesPage />} />
       <Route path="/matches/:matchId/results" element={<PublicMatchResultsPage />} />
       <Route path="/leaderboard" element={<LeaderboardPage />} />
+      <Route path="/players/:username" element={<PlayerProfilePage />} />
+      <Route path="/news" element={<NewsPage />} />
+      <Route path="/news/category/:slug" element={<NewsPage />} />
+      <Route path="/news/:slug" element={<NewsArticlePage />} />
+      <Route path="/contact" element={<ContactPage />} />
+      <Route path="/maintenance" element={<MaintenancePage />} />
       <Route path="/tournaments/:slug/leaderboard" element={<TournamentLeaderboardPage />} />
+      <Route path="/announcements" element={<AnnouncementsPage />} />
+      <Route path="/announcements/:id" element={<AnnouncementDetailsPage />} />
       <Route path="/tournaments/:slug/registration" element={<TournamentRegistrationComingSoonPage />} />
       <Route path="/tournaments/:slug" element={<TournamentDetailsPage />} />
       <Route element={<AuthLayout />}>
@@ -58,6 +79,9 @@ function App() {
       </Route>
       <Route element={<ProtectedRoute />}>
         <Route path="/account" element={<AccountPage />} />
+        <Route path="/dashboard/profile" element={<AccountPage />} />
+        <Route path="/dashboard/support" element={<SupportDashboardPage />} />
+        <Route path="/dashboard/disputes" element={<DisputesDashboardPage />} />
         <Route element={<TeamProvider />}>
           <Route path="/teams" element={<TeamsPage />} />
           <Route path="/teams/create" element={<CreateTeamPage />} />
@@ -74,6 +98,9 @@ function App() {
         </Route>
         <Route element={<TournamentAdminRoute />}>
           <Route element={<TournamentAdminLayout />}>
+            <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
+            <Route path="/admin/content" element={<AdminContentPage />} />
+            <Route path="/admin/settings" element={<AdminSettingsPage />} />
             <Route path="/admin/tournaments" element={<AdminTournamentListPage />} />
             <Route path="/admin/tournaments/new" element={<AdminTournamentFormPage />} />
             <Route path="/admin/tournaments/:id/edit" element={<AdminTournamentFormPage />} />
@@ -83,6 +110,7 @@ function App() {
             <Route path="/admin/tournaments/:tournamentId/matches/:matchId/results" element={<AdminMatchResultsPage />} />
           </Route>
         </Route>
+        <Route path="/dashboard/notifications" element={<NotificationCenterPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
