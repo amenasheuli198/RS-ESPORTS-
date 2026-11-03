@@ -12,6 +12,7 @@ interface AuthContextValue {
   signUp: (fullName: string, email: string, password: string) => Promise<{ user: User | null; session: Session | null; error: AuthError | null }>
   signOut: () => Promise<AuthError | null>
   sendPasswordReset: (email: string) => Promise<AuthError | null>
+  resendVerificationEmail: (email: string) => Promise<AuthError | null>
   updatePassword: (password: string) => Promise<AuthError | null>
 }
 
@@ -50,7 +51,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       password,
       options: {
         data: { full_name: fullName },
-        emailRedirectTo: new URL('/login', window.location.origin).toString(),
+        emailRedirectTo: new URL('/auth/callback', window.location.origin).toString(),
       },
     })
     return { user: data.user, session: data.session, error }
@@ -66,6 +67,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!client) throw new Error('SUPABASE_NOT_CONFIGURED')
     const redirectTo = new URL('/reset-password', window.location.origin).toString()
     const { error } = await client.auth.resetPasswordForEmail(email, { redirectTo })
+    return error
+  }
+
+  async function resendVerificationEmail(email: string) {
+    if (!client) throw new Error('SUPABASE_NOT_CONFIGURED')
+    const { error } = await client.auth.resend({
+      type: 'signup',
+      email,
+    })
     return error
   }
 
@@ -85,6 +95,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     signUp,
     signOut,
     sendPasswordReset,
+    resendVerificationEmail,
     updatePassword,
   }
 

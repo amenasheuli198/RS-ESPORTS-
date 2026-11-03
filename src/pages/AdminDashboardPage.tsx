@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Activity, BellRing, CalendarRange, Gauge, LayoutDashboard, ShieldCheck, Trophy, UserRound, Users } from 'lucide-react'
+import { Activity, BellRing, CalendarRange, Gauge, ShieldCheck, Trophy, UserRound, Users } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../auth/AuthProvider'
 import { getSupabaseConfigurationError } from '../services/supabase/client'

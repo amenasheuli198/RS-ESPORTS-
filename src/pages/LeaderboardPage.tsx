@@ -15,6 +15,7 @@ function LeaderboardPage() {
   const [search, setSearch] = useState('')
   const [sort, setSort] = useState('rank')
   const [page, setPage] = useState(0)
+  const [count, setCount] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
   const [errorMessage, setErrorMessage] = useState('')
   const configurationError = getSupabaseConfigurationError()

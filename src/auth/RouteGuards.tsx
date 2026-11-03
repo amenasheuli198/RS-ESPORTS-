@@ -16,6 +16,7 @@ export function ProtectedRoute() {
 
   if (isLoading) return <AuthLoading />
   if (!user) return <Navigate to="/login" replace state={{ from: `${location.pathname}${location.search}${location.hash}` }} />
+  if (!user.email_confirmed_at) return <Navigate to="/auth/verify-email" replace state={{ from: `${location.pathname}${location.search}${location.hash}` }} />
   return <Outlet />
 }
 
@@ -23,6 +24,7 @@ export function GuestRoute() {
   const { user, isLoading } = useAuth()
 
   if (isLoading) return <AuthLoading />
-  if (user) return <Navigate to="/account" replace />
+  if (user && user.email_confirmed_at) return <Navigate to="/account" replace />
+  if (user && !user.email_confirmed_at) return <Navigate to="/auth/verify-email" replace state={{ email: user.email ?? '' }} />
   return <Outlet />
 }

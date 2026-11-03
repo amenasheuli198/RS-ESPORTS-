@@ -1,5 +1,5 @@
 import { useEffect, useState, type ChangeEvent, type FormEvent } from 'react'
-import { ArrowLeft, ImagePlus, X } from 'lucide-react'
+import { ArrowLeft, ImagePlus } from 'lucide-react'
 import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/AuthProvider'
 import TeamPageHeader from '../components/team/TeamPageHeader'

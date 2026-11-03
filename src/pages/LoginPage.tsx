@@ -4,7 +4,7 @@ import { useAuth } from '../auth/AuthProvider'
 import { getSafeAuthErrorMessage } from '../auth/errorMessage'
 
 function LoginPage() {
-  const { signIn, configurationError } = useAuth()
+  const { signIn, configurationError, resendVerificationEmail } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
   const [email, setEmail] = useState('')
@@ -20,6 +20,11 @@ function LoginPage() {
     try {
       const result = await signIn(email.trim(), password)
       if (result.error) {
+        if (result.error.code === 'email_not_confirmed') {
+          setErrorMessage('Your email address must be verified before you can access your RS Esports account.')
+          navigate('/auth/verify-email', { replace: true, state: { email: email.trim() } })
+          return
+        }
         setErrorMessage(getSafeAuthErrorMessage(result.error, 'Unable to sign in right now. Please try again.'))
       } else {
         const from = (location.state as { from?: string } | null)?.from

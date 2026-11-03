@@ -88,11 +88,11 @@ function TeamMatchesPage() {
         : matches.length ? <div className="team-match-list">{matches.map((match) => {
           const room = credentials[match.match_id]
           const releaseReached = match.room_release_at !== null && Date.now() >= Date.parse(match.room_release_at)
-          const matchIneligible = match.match_status === 'cancelled' || match.match_status === 'completed'
+          const matchIneligible = match.status === 'cancelled' || match.status === 'completed'
           const canCheckRoom = match.room_status === 'ready' && releaseReached
-            && ['room_ready', 'live'].includes(match.match_status) && !matchIneligible
+            && ['room_ready', 'live'].includes(match.status) && !matchIneligible
           return <article className="team-match-card" key={match.match_id}>
-            <div className="team-match-card__top"><div><p>{match.tournament_name}</p><h2>{match.round_name} <span>/</span> {match.match_name}</h2></div><MatchStatusBadge status={match.match_status} /></div>
+            <div className="team-match-card__top"><div><p>{match.tournament_name}</p><h2>{match.round_name} <span>/</span> {match.match_name}</h2></div><MatchStatusBadge status={match.status} /></div>
             <div className="team-match-card__meta"><span><CalendarDays size={15} />{formatTournamentDate(match.scheduled_at, match.timezone, true)}</span><span>{match.timezone}</span><span>Match {match.match_number}</span>{match.duration_minutes && <span>{match.duration_minutes} min</span>}</div>
             <p className="team-match-card__team">Assigned team <b>{match.team_name}</b></p>
             {match.public_notes && <p className="team-match-card__notes">{match.public_notes}</p>}

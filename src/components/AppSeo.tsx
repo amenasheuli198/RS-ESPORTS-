@@ -76,13 +76,6 @@ function AppSeo() {
 
     document.title = title
 
-    const setMeta = (selector: string, value: string, attr: 'name' | 'property', content?: string) => {
-      const tag = document.head.querySelector(`${attr === 'name' ? 'meta[name="' : 'meta[property="'}${selector}"]`) ?? document.createElement('meta')
-      tag.setAttribute(attr, selector)
-      tag.setAttribute('content', content ?? value)
-      document.head.appendChild(tag)
-    }
-
     const updateMeta = (key: string, value: string, attribute: 'name' | 'property') => {
       let tag = document.head.querySelector(`meta[${attribute}="${key}"]`) as HTMLMetaElement | null
       if (!tag) {

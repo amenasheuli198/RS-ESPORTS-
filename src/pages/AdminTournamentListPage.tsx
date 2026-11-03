@@ -4,7 +4,7 @@ import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../auth/AuthProvider'
 import { getSupabaseConfigurationError } from '../services/supabase/client'
 import TournamentStatusBadge from '../components/tournaments/TournamentStatusBadge'
-import { formatTournamentDate, formatTournamentMoney, getTournamentStatusClass } from '../tournaments/format'
+import { formatTournamentDate, formatTournamentMoney } from '../tournaments/format'
 import type { TournamentAdminRecord, TournamentStatus } from '../tournaments/types'
 import TournamentBanner from '../components/tournaments/TournamentBanner'
 

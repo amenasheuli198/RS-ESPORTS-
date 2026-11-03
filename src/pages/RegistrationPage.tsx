@@ -19,6 +19,11 @@ function RegistrationPage() {
     setErrorMessage('')
     const trimmedName = fullName.trim()
 
+    const trimmedEmail = email.trim()
+    if (!/^\S+@\S+\.\S+$/.test(trimmedEmail)) {
+      setErrorMessage('Use a valid email address to create your RS Esports account.')
+      return
+    }
     if (trimmedName.length < 2 || trimmedName.length > 100) {
       setErrorMessage('Enter a name between 2 and 100 characters.')
       return
@@ -38,7 +43,7 @@ function RegistrationPage() {
 
     setIsSubmitting(true)
     try {
-      const result = await signUp(trimmedName, email.trim(), password)
+      const result = await signUp(trimmedName, trimmedEmail, password)
       if (result.error) {
         setErrorMessage(getSafeAuthErrorMessage(result.error, 'Unable to create an account with those details. Please try signing in or resetting your password.'))
       } else if (result.session) {

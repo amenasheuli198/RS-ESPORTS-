@@ -6,6 +6,7 @@ import LoginPage from './pages/LoginPage'
 import RegistrationPage from './pages/RegistrationPage'
 import ResetPasswordPage from './pages/ResetPasswordPage'
 import VerificationPendingPage from './pages/VerificationPendingPage'
+import AuthCallbackPage from './pages/AuthCallbackPage'
 import AuthLayout from './components/auth/AuthLayout'
 import { GuestRoute, ProtectedRoute } from './auth/RouteGuards'
 import CreateTeamPage from './pages/CreateTeamPage'
@@ -48,6 +49,7 @@ import SupportDashboardPage from './pages/SupportDashboardPage'
 import DisputesDashboardPage from './pages/DisputesDashboardPage'
 import AdminSettingsPage from './pages/AdminSettingsPage'
 import MaintenancePage from './pages/MaintenancePage'
+import AdminLoginPage from './pages/AdminLoginPage'
 
 function App() {
   return (
@@ -63,6 +65,7 @@ function App() {
       <Route path="/news/:slug" element={<NewsArticlePage />} />
       <Route path="/contact" element={<ContactPage />} />
       <Route path="/maintenance" element={<MaintenancePage />} />
+      <Route path="/admin/login" element={<AdminLoginPage />} />
       <Route path="/tournaments/:slug/leaderboard" element={<TournamentLeaderboardPage />} />
       <Route path="/announcements" element={<AnnouncementsPage />} />
       <Route path="/announcements/:id" element={<AnnouncementDetailsPage />} />
@@ -73,7 +76,8 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegistrationPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-          <Route path="/verify-email" element={<VerificationPendingPage />} />
+          <Route path="/auth/verify-email" element={<VerificationPendingPage />} />
+          <Route path="/auth/callback" element={<AuthCallbackPage />} />
         </Route>
         <Route path="/reset-password" element={<ResetPasswordPage />} />
       </Route>

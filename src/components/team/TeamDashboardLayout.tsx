@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Award, CalendarRange, LayoutDashboard, Mail, Menu, Settings, Shield, Users, X } from 'lucide-react'
-import { NavLink, Navigate, Outlet, useLocation } from 'react-router-dom'
+import { Link, NavLink, Navigate, Outlet, useLocation } from 'react-router-dom'
 import { useTeam } from '../../teams/TeamContext'
 import TeamLogo from './TeamLogo'
 import TeamPageHeader from './TeamPageHeader'
