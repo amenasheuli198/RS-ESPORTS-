@@ -23,7 +23,7 @@ interface TeamResultRow {
 
 function TeamResultsPage() {
   const { client } = useAuth()
-  const { team } = useTeam()
+  const { team, isLoading: isTeamLoading, error: teamError } = useTeam()
   const [rows, setRows] = useState<TeamResultRow[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [errorMessage, setErrorMessage] = useState('')
@@ -31,15 +31,29 @@ function TeamResultsPage() {
 
   useEffect(() => {
     let active = true
-    if (!client || !team || configurationError) {
+    if (!client || configurationError) {
       setIsLoading(false)
-      if (configurationError) setErrorMessage(configurationError)
+      setErrorMessage(configurationError ?? 'Team results are unavailable because Supabase is not configured.')
+      return () => { active = false }
+    }
+    if (isTeamLoading) return () => { active = false }
+    if (teamError) {
+      setIsLoading(false)
+      setErrorMessage(teamError)
+      return () => { active = false }
+    }
+    if (!team) {
+      setIsLoading(false)
+      setErrorMessage('No team is available for this account.')
       return () => { active = false }
     }
 
+    const supabaseClient = client
+    const currentTeam = team
+
     async function loadResults() {
       try {
-        const { data, error } = await client.from('team_results_public').select('*').eq('team_id', team.id).order('scheduled_at', { ascending: false })
+        const { data, error } = await supabaseClient.from('team_results_public').select('*').eq('team_id', currentTeam.id).order('scheduled_at', { ascending: false })
         if (!active) return
         if (error) setErrorMessage('Published team results could not be loaded.')
         else setRows((data ?? []) as TeamResultRow[])
@@ -53,9 +67,9 @@ function TeamResultsPage() {
 
     void loadResults()
     return () => { active = false }
-  }, [client, team, configurationError])
+  }, [client, team, isTeamLoading, teamError, configurationError])
 
-  return <section className="team-results-page"><SectionHeading eyebrow="Team / results" title="Published results." description={`Official results for ${team?.name ?? 'your team'}. Unpublished scores are not shown.`} />{isLoading ? <div className="team-match-skeletons" aria-busy="true"><div /><div /></div> : errorMessage ? <p className="team-form-error" role="alert">{errorMessage}</p> : rows.length ? <div className="team-results-list">{rows.map((row) => <article className="team-results-row" key={row.result_id}><div><p>{row.tournament_name}</p><h3>{row.round_name} / Match {row.match_number}</h3><small>{new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeZone: row.timezone }).format(new Date(row.scheduled_at))} / {row.timezone}</small></div><div className="team-results-row__scores"><span>Placement <b>#{row.placement_rank}</b></span><span>Kills <b>{row.total_kills}</b></span><span>Placement pts <b>{Number(row.placement_points).toFixed(2)}</b></span><span>Kill pts <b>{Number(row.kill_points).toFixed(2)}</b></span><strong>{Number(row.total_points).toFixed(2)} pts</strong></div><Link to={`/matches/${row.match_id}/results`}>Match results</Link><Link to={`/tournaments/${row.tournament_slug}/leaderboard`}>Tournament standings</Link></article>)}</div> : <div className="team-empty-state"><h2>No published results yet.</h2><p>Your completed match results will appear here after the tournament administrator publishes them.</p></div>}</section>
+  return <section className="team-results-page"><SectionHeading eyebrow="Team / results" title="Published results." description={team ? `Official results for ${team.name}. Unpublished scores are not shown.` : 'Published results for your team.'} />{isTeamLoading || isLoading ? <div className="team-match-skeletons" aria-busy="true"><div /><div /></div> : errorMessage ? <div className="team-form-error" role="alert"><p>{errorMessage}</p>{!team && !teamError && <Link to="/teams">Find or create a team</Link>}</div> : rows.length ? <div className="team-results-list">{rows.map((row) => <article className="team-results-row" key={row.result_id}><div><p>{row.tournament_name}</p><h3>{row.round_name} / Match {row.match_number}</h3><small>{new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeZone: row.timezone }).format(new Date(row.scheduled_at))} / {row.timezone}</small></div><div className="team-results-row__scores"><span>Placement <b>#{row.placement_rank}</b></span><span>Kills <b>{row.total_kills}</b></span><span>Placement pts <b>{Number(row.placement_points).toFixed(2)}</b></span><span>Kill pts <b>{Number(row.kill_points).toFixed(2)}</b></span><strong>{Number(row.total_points).toFixed(2)} pts</strong></div><Link to={`/matches/${row.match_id}/results`}>Match results</Link><Link to={`/tournaments/${row.tournament_slug}/leaderboard`}>Tournament standings</Link></article>)}</div> : <div className="team-empty-state"><h2>No published results yet.</h2><p>Your completed match results will appear here after the tournament administrator publishes them.</p></div>}</section>
 }
 
 export default TeamResultsPage

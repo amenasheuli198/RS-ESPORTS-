@@ -80,14 +80,21 @@ function AdminTournamentFormPage() {
 
   useEffect(() => {
     let active = true
-    if (!id || !client) {
+    if (!client) {
+      setIsLoading(false)
+      setErrorMessage('Tournament administration is unavailable because Supabase is not configured.')
+      return () => { active = false }
+    }
+    if (!id) {
       setIsLoading(false)
       return () => { active = false }
     }
 
+    const supabaseClient = client
+
     async function loadTournament() {
       try {
-        const { data, error } = await client.from('tournaments').select('*').eq('id', id).maybeSingle()
+        const { data, error } = await supabaseClient.from('tournaments').select('*').eq('id', id).maybeSingle()
         if (!active) return
         if (error || !data) {
           setErrorMessage('Tournament draft could not be loaded. Confirm administrator access and try again.')
@@ -199,6 +206,7 @@ function AdminTournamentFormPage() {
       setErrorMessage('Tournament administration is unavailable. Sign in with an authorized account.')
       return
     }
+    const supabaseClient = client
 
     setIsSaving(true)
     let completionNotice = isEditing ? 'Tournament draft saved.' : 'Tournament draft created.'
@@ -237,7 +245,7 @@ function AdminTournamentFormPage() {
         banner_path: bannerPath,
       }
 
-      const { data: savedId, error } = await client.rpc('save_tournament', { p_tournament: payload })
+      const { data: savedId, error } = await supabaseClient.rpc('save_tournament', { p_tournament: payload })
       if (error || !savedId) {
         setErrorMessage(error?.message === 'TOURNAMENT_ADMIN_REQUIRED'
           ? 'Your account does not have the server-authorized tournament admin claim.'
@@ -250,7 +258,7 @@ function AdminTournamentFormPage() {
 
       if (bannerFile && bannerMime) {
         uploadedPath = `${recordId}/${crypto.randomUUID()}.${getTournamentBannerExtension(bannerMime)}`
-        const { error: uploadError } = await client.storage.from('tournament-banners').upload(uploadedPath, bannerFile, {
+        const { error: uploadError } = await supabaseClient.storage.from('tournament-banners').upload(uploadedPath, bannerFile, {
           contentType: bannerMime,
           cacheControl: '3600',
           upsert: false,
@@ -259,11 +267,11 @@ function AdminTournamentFormPage() {
           completionNotice = 'Draft saved, but the banner could not be uploaded. Select another image and save again.'
           setNotice(completionNotice)
         } else {
-          const { error: attachError } = await client.rpc('save_tournament', {
+          const { error: attachError } = await supabaseClient.rpc('save_tournament', {
             p_tournament: { ...payload, id: recordId, banner_path: uploadedPath },
           })
           if (attachError) {
-            await client.storage.from('tournament-banners').remove([uploadedPath]).catch(() => null)
+            await supabaseClient.storage.from('tournament-banners').remove([uploadedPath]).catch(() => null)
             completionNotice = 'Draft saved, but its banner could not be attached. Try uploading it again.'
             setNotice(completionNotice)
           } else {
@@ -275,7 +283,7 @@ function AdminTournamentFormPage() {
 
       navigate('/admin/tournaments', { replace: true, state: { notice: completionNotice } })
     } catch {
-      if (uploadedPath && client) await client.storage.from('tournament-banners').remove([uploadedPath]).catch(() => null)
+      if (uploadedPath) await supabaseClient.storage.from('tournament-banners').remove([uploadedPath]).catch(() => null)
       setErrorMessage(recordId ? 'Tournament draft saved, but a follow-up step failed. Review it in the tournament list.' : 'Tournament draft could not be saved. Please try again.')
     } finally {
       setIsSaving(false)

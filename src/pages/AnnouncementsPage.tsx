@@ -37,10 +37,12 @@ function AnnouncementsPage() {
       return () => { active = false }
     }
 
+    const supabaseClient = client
+
     async function loadAnnouncements() {
       try {
         setIsLoading(true)
-        let request = client.from('announcements_public').select('*', { count: 'exact' })
+        let request = supabaseClient.from('announcements_public').select('*', { count: 'exact' })
         if (search.trim()) request = request.ilike('title', `%${search.trim().replace(/[%_]/g, '\\$&')}%`)
         if (category !== 'all') request = request.eq('announcement_type', category)
         const { data, error, count } = await request.order('published_at', { ascending: false }).range(page * pageSize, page * pageSize + pageSize - 1)

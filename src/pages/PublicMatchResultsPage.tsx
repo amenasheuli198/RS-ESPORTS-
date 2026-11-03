@@ -24,9 +24,11 @@ function PublicMatchResultsPage() {
       return () => { active = false }
     }
 
+    const supabaseClient = client
+
     async function loadResults() {
       try {
-        const { data, error } = await client.from('match_results_public').select('*').eq('match_id', matchId).order('placement_rank', { ascending: true })
+        const { data, error } = await supabaseClient.from('match_results_public').select('*').eq('match_id', matchId).order('placement_rank', { ascending: true })
         if (!active) return
         if (error) setErrorMessage('Published match results could not be loaded.')
         else if (data?.length) {

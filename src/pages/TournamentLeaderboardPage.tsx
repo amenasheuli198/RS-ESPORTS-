@@ -24,10 +24,12 @@ function TournamentLeaderboardPage() {
       return () => { active = false }
     }
 
+    const supabaseClient = client
+
     async function loadStandings() {
       try {
         setIsLoading(true)
-        const { data, error } = await client.from('tournament_leaderboard').select('*').eq('tournament_slug', slug).order('rank', { ascending: true })
+        const { data, error } = await supabaseClient.from('tournament_leaderboard').select('*').eq('tournament_slug', slug).order('rank', { ascending: true })
         if (!active) return
         if (error) {
           setErrorMessage('Tournament standings could not be loaded.')

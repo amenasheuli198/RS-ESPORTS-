@@ -25,9 +25,11 @@ function LeaderboardPage() {
     let active = true
     if (!client || configurationError) return () => { active = false }
 
+    const supabaseClient = client
+
     async function loadTournaments() {
       try {
-        const { data } = await client.from('tournaments_public').select('id, name').order('starts_at', { ascending: false })
+        const { data } = await supabaseClient.from('tournaments_public').select('id, name').order('starts_at', { ascending: false })
         if (active) setTournaments((data ?? []) as Pick<PublicTournament, 'id' | 'name'>[])
       } catch {
         if (active) setTournaments([])
@@ -46,12 +48,14 @@ function LeaderboardPage() {
       return () => { active = false }
     }
 
+    const supabaseClient = client
+
     async function loadLeaderboard() {
       try {
         setIsLoading(true)
         let request = tournamentId === 'all'
-          ? client.from('global_leaderboard').select('*', { count: 'exact' })
-          : client.from('tournament_leaderboard').select('*', { count: 'exact' }).eq('tournament_id', tournamentId)
+          ? supabaseClient.from('global_leaderboard').select('*', { count: 'exact' })
+          : supabaseClient.from('tournament_leaderboard').select('*', { count: 'exact' }).eq('tournament_id', tournamentId)
         if (search.trim()) request = request.ilike('team_name', `%${search.trim().replace(/[%_]/g, '\\$&')}%`)
         const sortColumns: Record<string, { column: string; ascending: boolean }> = {
           rank: { column: 'rank', ascending: true },

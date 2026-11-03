@@ -41,12 +41,13 @@ function TournamentArenaPage() {
       return
     }
 
+    const supabaseClient = client
     let active = true
     const timer = window.setTimeout(async () => {
       setIsLoading(true)
       setErrorMessage('')
 
-      let request = client.from('tournaments_public').select('*', { count: 'exact' })
+      let request = supabaseClient.from('tournaments_public').select('*', { count: 'exact' })
       if (query.trim()) request = request.ilike('name', `%${query.trim().replace(/[%_]/g, '\\$&')}%`)
       if (status === 'Registration Open') request = request.in('tournament_status', ['Registration Open', 'Registration Closing Soon'])
       else if (status !== 'All') request = request.eq('tournament_status', status)
@@ -86,10 +87,11 @@ function TournamentArenaPage() {
   useEffect(() => {
     if (!client || configurationError) return
     let active = true
+    const supabaseClient = client
 
     async function loadFeaturedTournament() {
       try {
-        const { data } = await client.from('tournaments_public')
+        const { data } = await supabaseClient.from('tournaments_public')
           .select('*')
           .eq('is_featured', true)
           .order('starts_at', { ascending: true })

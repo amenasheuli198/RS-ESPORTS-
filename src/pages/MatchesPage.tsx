@@ -27,10 +27,12 @@ function MatchesPage() {
       return () => { active = false }
     }
 
+    const supabaseClient = client
+
     async function loadMatches() {
       try {
         setIsLoading(true)
-        const { data, error } = await client.from('matches_public').select('*').order('scheduled_at', { ascending: true }).limit(200)
+        const { data, error } = await supabaseClient.from('matches_public').select('*').order('scheduled_at', { ascending: true }).limit(200)
         if (!active) return
         if (error) {
           setErrorMessage('Match schedule could not be loaded. Please try again.')

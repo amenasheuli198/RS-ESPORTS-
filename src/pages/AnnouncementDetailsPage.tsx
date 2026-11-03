@@ -23,9 +23,11 @@ function AnnouncementDetailsPage() {
       return () => { active = false }
     }
 
+    const supabaseClient = client
+
     async function loadAnnouncement() {
       try {
-        const { data, error } = await client.from('announcements_public').select('*').eq('id', id).maybeSingle()
+        const { data, error } = await supabaseClient.from('announcements_public').select('*').eq('id', id).maybeSingle()
         if (!active) return
         if (error) setErrorMessage('Announcement could not be loaded.')
         else setAnnouncement(data as PublicAnnouncement | null)

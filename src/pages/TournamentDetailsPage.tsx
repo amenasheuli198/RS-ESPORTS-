@@ -34,10 +34,12 @@ function TournamentDetailsPage() {
       return () => { active = false }
     }
 
+    const supabaseClient = client
+
     async function loadTournament() {
       try {
         setIsLoading(true)
-        const { data, error } = await client.from('tournaments_public').select('*').eq('slug', slug).maybeSingle()
+        const { data, error } = await supabaseClient.from('tournaments_public').select('*').eq('slug', slug).maybeSingle()
         if (!active) return
         if (error) setErrorMessage('Tournament information could not be loaded. Please try again.')
         else setTournament(data as PublicTournament | null)
@@ -66,10 +68,12 @@ function TournamentDetailsPage() {
       return () => { active = false }
     }
 
+    const supabaseClient = client
+
     setIsEligibilityLoading(true)
     void (async () => {
       try {
-        const { data: membership, error: membershipError } = await client.from('team_members')
+        const { data: membership, error: membershipError } = await supabaseClient.from('team_members')
           .select('team_id, role')
           .eq('user_id', user.id)
           .eq('status', 'active')
@@ -78,9 +82,9 @@ function TournamentDetailsPage() {
         if (!membership) return
 
         const [{ data: team, error: teamError }, { data: roster, error: rosterError }, { data: registrations, error: registrationsError }] = await Promise.all([
-          client.from('teams').select('name').eq('id', membership.team_id).maybeSingle(),
-          client.rpc('get_team_roster', { p_team_id: membership.team_id }),
-          client.rpc('get_my_team_registration_records', { p_team_id: membership.team_id }),
+          supabaseClient.from('teams').select('name').eq('id', membership.team_id).maybeSingle(),
+          supabaseClient.rpc('get_team_roster', { p_team_id: membership.team_id }),
+          supabaseClient.rpc('get_my_team_registration_records', { p_team_id: membership.team_id }),
         ])
         if (teamError || rosterError || registrationsError) throw new Error('ELIGIBILITY_LOOKUP_FAILED')
         if (!active) return
