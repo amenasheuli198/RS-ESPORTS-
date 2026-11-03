@@ -1,0 +1,153 @@
+import type {
+  Announcement,
+  LeaderboardEntry,
+  PlatformStatistic,
+  Tournament,
+} from '../types/homepage'
+
+const arenaPhoto = 'https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1800&q=85'
+const setupPhoto = 'https://images.unsplash.com/photo-1593305841991-05c297ba4575?auto=format&fit=crop&w=1000&q=80'
+const teamPhoto = 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=1000&q=80'
+
+export const demoStatistics: PlatformStatistic[] = [
+  { value: '128', label: 'Tournaments hosted' },
+  { value: '2,460', label: 'Registered teams' },
+  { value: '8,920', label: 'Matches played' },
+  { value: '9,840', label: 'Players competing' },
+]
+
+export const featuredTournament: Tournament = {
+  id: 'nightfall-clash-07',
+  name: 'Nightfall Clash #07',
+  game: 'Free Fire',
+  mode: 'Battle Royale Squad',
+  entryFee: '$5 / team',
+  prizePool: '$250',
+  slotsTotal: 48,
+  slotsAvailable: 17,
+  matchDate: 'Nov 21, 2026',
+  registrationDeadline: 'Nov 16, 2026',
+  status: 'Registration Open',
+  image: arenaPhoto,
+  imageAlt: 'Esports players competing at a live arena event',
+}
+
+export const demoTournaments: Tournament[] = [
+  featuredTournament,
+  {
+    id: 'ember-cup-12',
+    name: 'Ember Cup: Series 12',
+    game: 'Free Fire',
+    mode: 'Battle Royale Squad',
+    entryFee: 'Free entry',
+    prizePool: '$150',
+    slotsTotal: 32,
+    slotsAvailable: 9,
+    matchDate: 'Nov 24, 2026',
+    registrationDeadline: 'Nov 20, 2026',
+    status: 'Registration Open',
+    image: setupPhoto,
+    imageAlt: 'Gaming PC setup with colorful lighting',
+  },
+  {
+    id: 'last-circle-open',
+    name: 'Last Circle Open',
+    game: 'Free Fire',
+    mode: 'Battle Royale Squad',
+    entryFee: '$3 / team',
+    prizePool: '$100',
+    slotsTotal: 64,
+    slotsAvailable: 64,
+    matchDate: 'Nov 28, 2026',
+    registrationDeadline: 'Nov 26, 2026',
+    status: 'Upcoming',
+    image: teamPhoto,
+    imageAlt: 'Team collaborating around a shared workspace',
+  },
+  {
+    id: 'redline-weekly-04',
+    name: 'Redline Weekly #04',
+    game: 'Free Fire',
+    mode: 'Battle Royale Squad',
+    entryFee: 'Free entry',
+    prizePool: '$75',
+    slotsTotal: 24,
+    slotsAvailable: 0,
+    matchDate: 'Oct 28, 2026',
+    registrationDeadline: 'Oct 25, 2026',
+    status: 'Completed',
+    image: arenaPhoto,
+    imageAlt: 'Esports stage lights above a competition arena',
+  },
+  {
+    id: 'drop-zone-invitational',
+    name: 'Drop Zone Invitational',
+    game: 'Free Fire',
+    mode: 'Battle Royale Squad',
+    entryFee: '$8 / team',
+    prizePool: '$400',
+    slotsTotal: 48,
+    slotsAvailable: 21,
+    matchDate: 'Dec 02, 2026',
+    registrationDeadline: 'Nov 28, 2026',
+    status: 'Upcoming',
+    image: setupPhoto,
+    imageAlt: 'Close view of a high-performance gaming setup',
+  },
+  {
+    id: 'squad-showdown-09',
+    name: 'Squad Showdown #09',
+    game: 'Free Fire',
+    mode: 'Battle Royale Squad',
+    entryFee: '$4 / team',
+    prizePool: '$200',
+    slotsTotal: 40,
+    slotsAvailable: 6,
+    matchDate: 'Dec 05, 2026',
+    registrationDeadline: 'Dec 01, 2026',
+    status: 'Registration Open',
+    image: teamPhoto,
+    imageAlt: 'Players planning together at a team table',
+  },
+]
+
+export const demoLeaderboard: LeaderboardEntry[] = [
+  { rank: 1, team: 'Crimson Orbit', matches: 12, wins: 4, kills: 86, points: 142 },
+  { rank: 2, team: 'Northstar Unit', matches: 12, wins: 3, kills: 79, points: 128 },
+  { rank: 3, team: 'Rogue Signal', matches: 12, wins: 3, kills: 71, points: 119 },
+  { rank: 4, team: 'Static Bloom', matches: 12, wins: 2, kills: 68, points: 108 },
+  { rank: 5, team: 'Afterimage', matches: 12, wins: 2, kills: 61, points: 96 },
+]
+
+export const demoAnnouncements: Announcement[] = [
+  {
+    id: 'season-format',
+    category: 'Tournament update',
+    title: 'A new format for the next arena series',
+    publishedAt: 'Nov 02, 2026',
+    summary: 'The next sample series adds more room for squads to find their rhythm across each round.',
+    image: arenaPhoto,
+    imageAlt: 'A competitive gaming arena prepared for an event',
+    href: '/news/season-format',
+  },
+  {
+    id: 'team-playbook',
+    category: 'Team playbook',
+    title: 'Four habits that make a squad click',
+    publishedAt: 'Oct 29, 2026',
+    summary: 'Clear roles, calm comms, and a plan for the final circle give every player room to contribute.',
+    image: teamPhoto,
+    imageAlt: 'A small team sharing ideas around a table',
+    href: '/news/team-playbook',
+  },
+  {
+    id: 'setup-check',
+    category: 'Community',
+    title: 'Your pre-match setup check',
+    publishedAt: 'Oct 24, 2026',
+    summary: 'A short checklist to help captains get their squad, connection, and comms ready before match time.',
+    image: setupPhoto,
+    imageAlt: 'A gaming station ready for a match',
+    href: '/news/setup-check',
+  },
+]
