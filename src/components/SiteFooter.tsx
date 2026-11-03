@@ -3,8 +3,8 @@ import { ArrowUpRight, Swords } from 'lucide-react'
 const quickLinks = [
   { label: 'Home', href: '#top' },
   { label: 'Tournaments', href: '#tournaments' },
-  { label: 'Leaderboard', href: '#leaderboard' },
-  { label: 'Match schedule', href: '/schedule' },
+  { label: 'Leaderboard', href: '/leaderboard' },
+  { label: 'Match schedule', href: '/matches' },
 ]
 
 function SiteFooter() {

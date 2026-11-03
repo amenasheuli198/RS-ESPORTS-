@@ -102,6 +102,8 @@ function AdminTournamentListPage() {
                 <div className="admin-tournament-row__actions">
                   <Link to={`/admin/tournaments/${record.id}/edit`} aria-label={`Edit ${record.name}`}>Edit</Link>
                   <Link to={`/admin/tournaments/${record.id}/registrations`} aria-label={`Manage registrations for ${record.name}`}>Registrations</Link>
+                  <Link to={`/admin/tournaments/${record.id}/matches`} aria-label={`Manage matches for ${record.name}`}>Matches</Link>
+                  <Link to={`/admin/tournaments/${record.id}/scoring`} aria-label={`Configure scoring for ${record.name}`}>Scoring</Link>
                   {record.publication_status === 'draft' && <button type="button" disabled={workingId === record.id} onClick={() => void runAction(record.id, 'publish')}>Publish</button>}
                   {record.publication_status !== 'cancelled' && <button type="button" className="is-danger" disabled={workingId === record.id} onClick={() => void runAction(record.id, 'cancel')}>Cancel</button>}
                   {record.publication_status === 'published' && <select aria-label={`Set lifecycle for ${record.name}`} value={record.lifecycle_status} disabled={workingId === record.id} onChange={(event) => void setLifecycle(record.id, event.target.value as 'scheduled' | 'live' | 'completed')}><option value="scheduled">Scheduled</option><option value="live">Live</option><option value="completed">Completed</option></select>}

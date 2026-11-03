@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { CalendarRange, LayoutDashboard, Mail, Menu, Settings, Shield, Users, X } from 'lucide-react'
+import { Award, CalendarRange, LayoutDashboard, Mail, Menu, Settings, Shield, Users, X } from 'lucide-react'
 import { NavLink, Navigate, Outlet, useLocation } from 'react-router-dom'
 import { useTeam } from '../../teams/TeamContext'
 import TeamLogo from './TeamLogo'
@@ -10,6 +10,8 @@ const dashboardLinks = [
   { label: 'Team profile', path: '/dashboard/team/profile', icon: Shield, end: false },
   { label: 'Squad members', path: '/dashboard/team/members', icon: Users, end: false },
   { label: 'Tournaments', path: '/dashboard/team/tournaments', icon: CalendarRange, end: false },
+  { label: 'Matches', path: '/dashboard/team/matches', icon: CalendarRange, end: false },
+  { label: 'Results', path: '/dashboard/team/results', icon: Award, end: false },
   { label: 'Invitations', path: '/dashboard/team/invitations', icon: Mail, end: false },
   { label: 'Settings', path: '/dashboard/team/settings', icon: Settings, end: false },
 ]

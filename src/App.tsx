@@ -26,12 +26,25 @@ import AdminTournamentListPage from './pages/AdminTournamentListPage'
 import AdminTournamentFormPage from './pages/AdminTournamentFormPage'
 import TeamTournamentsPage from './pages/TeamTournamentsPage'
 import AdminTournamentRegistrationsPage from './pages/AdminTournamentRegistrationsPage'
+import MatchesPage from './pages/MatchesPage'
+import TeamMatchesPage from './pages/TeamMatchesPage'
+import AdminTournamentMatchesPage from './pages/AdminTournamentMatchesPage'
+import LeaderboardPage from './pages/LeaderboardPage'
+import TournamentLeaderboardPage from './pages/TournamentLeaderboardPage'
+import PublicMatchResultsPage from './pages/PublicMatchResultsPage'
+import TeamResultsPage from './pages/TeamResultsPage'
+import AdminTournamentScoringPage from './pages/AdminTournamentScoringPage'
+import AdminMatchResultsPage from './pages/AdminMatchResultsPage'
 
 function App() {
   return (
     <Routes>
       <Route path="/" element={<HomePage />} />
       <Route path="/tournaments" element={<TournamentArenaPage />} />
+      <Route path="/matches" element={<MatchesPage />} />
+      <Route path="/matches/:matchId/results" element={<PublicMatchResultsPage />} />
+      <Route path="/leaderboard" element={<LeaderboardPage />} />
+      <Route path="/tournaments/:slug/leaderboard" element={<TournamentLeaderboardPage />} />
       <Route path="/tournaments/:slug/registration" element={<TournamentRegistrationComingSoonPage />} />
       <Route path="/tournaments/:slug" element={<TournamentDetailsPage />} />
       <Route element={<AuthLayout />}>
@@ -53,6 +66,8 @@ function App() {
             <Route path="profile" element={<TeamProfilePage />} />
             <Route path="members" element={<TeamMembersPage />} />
             <Route path="tournaments" element={<TeamTournamentsPage />} />
+            <Route path="matches" element={<TeamMatchesPage />} />
+            <Route path="results" element={<TeamResultsPage />} />
             <Route path="invitations" element={<TeamInvitationsPage />} />
             <Route path="settings" element={<TeamSettingsPage />} />
           </Route>
@@ -63,6 +78,9 @@ function App() {
             <Route path="/admin/tournaments/new" element={<AdminTournamentFormPage />} />
             <Route path="/admin/tournaments/:id/edit" element={<AdminTournamentFormPage />} />
             <Route path="/admin/tournaments/:id/registrations" element={<AdminTournamentRegistrationsPage />} />
+            <Route path="/admin/tournaments/:tournamentId/matches" element={<AdminTournamentMatchesPage />} />
+            <Route path="/admin/tournaments/:tournamentId/scoring" element={<AdminTournamentScoringPage />} />
+            <Route path="/admin/tournaments/:tournamentId/matches/:matchId/results" element={<AdminMatchResultsPage />} />
           </Route>
         </Route>
       </Route>

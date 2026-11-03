@@ -5,8 +5,8 @@ import { PrimaryButton } from './ui'
 const navLinks = [
   { label: 'Home', href: '#top' },
   { label: 'Tournaments', href: '/tournaments' },
-  { label: 'Leaderboard', href: '#leaderboard' },
-  { label: 'Match Schedule', href: '/schedule' },
+  { label: 'Leaderboard', href: '/leaderboard' },
+  { label: 'Match Schedule', href: '/matches' },
   { label: 'News', href: '#news' },
   { label: 'My Team', href: '/teams' },
 ]
