@@ -46,10 +46,10 @@ function RegistrationPage() {
       const result = await signUp(trimmedName, trimmedEmail, password)
       if (result.error) {
         setErrorMessage(getSafeAuthErrorMessage(result.error, 'Unable to create an account with those details. Please try signing in or resetting your password.'))
-      } else if (result.session) {
+      } else if (result.user?.email_confirmed_at) {
         navigate('/account', { replace: true })
       } else {
-        navigate('/verify-email', { replace: true })
+        navigate('/auth/verify-email', { replace: true, state: { email: trimmedEmail } })
       }
     } catch (error) {
       setErrorMessage(getSafeAuthErrorMessage(error, 'Unable to create an account right now. Please try again.'))

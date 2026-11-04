@@ -72,12 +72,12 @@ function App() {
       <Route path="/tournaments/:slug/registration" element={<TournamentRegistrationComingSoonPage />} />
       <Route path="/tournaments/:slug" element={<TournamentDetailsPage />} />
       <Route element={<AuthLayout />}>
+        <Route path="/auth/verify-email" element={<VerificationPendingPage />} />
+        <Route path="/auth/callback" element={<AuthCallbackPage />} />
         <Route element={<GuestRoute />}>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegistrationPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-          <Route path="/auth/verify-email" element={<VerificationPendingPage />} />
-          <Route path="/auth/callback" element={<AuthCallbackPage />} />
         </Route>
         <Route path="/reset-password" element={<ResetPasswordPage />} />
       </Route>

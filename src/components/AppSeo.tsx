@@ -52,7 +52,7 @@ function getPageConfig(pathname: string) {
     }
   }
 
-  if (pathname.startsWith('/admin') || pathname.startsWith('/dashboard') || pathname.startsWith('/account') || pathname === '/login' || pathname === '/register' || pathname === '/forgot-password' || pathname === '/reset-password' || pathname === '/verify-email') {
+  if (pathname.startsWith('/admin') || pathname.startsWith('/dashboard') || pathname.startsWith('/account') || pathname.startsWith('/auth') || pathname === '/login' || pathname === '/register' || pathname === '/forgot-password' || pathname === '/reset-password') {
     return {
       title: 'Private Area | RS Esports',
       description: 'Private account or administrative area of the RS Esports platform.',

@@ -1,16 +1,33 @@
 import { useEffect, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/AuthProvider'
 
 function AuthCallbackPage() {
   const { client } = useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
   const [errorMessage, setErrorMessage] = useState('')
 
   useEffect(() => {
     let active = true
 
     async function handleAuthCallback() {
+      const callbackParams = new URLSearchParams(location.search)
+      const callbackHash = new URLSearchParams(location.hash.replace(/^#/, ''))
+      const callbackError = callbackParams.get('error_code') ?? callbackHash.get('error_code')
+
+      if (callbackError) {
+        navigate('/auth/verify-email', {
+          replace: true,
+          state: {
+            verificationError: callbackError === 'otp_expired'
+              ? 'This verification link has expired. Request a new email below.'
+              : 'This verification link is invalid. Request a new email below.',
+          },
+        })
+        return
+      }
+
       if (!client) {
         if (active) setErrorMessage('Authentication is currently unavailable.')
         return
@@ -26,7 +43,7 @@ function AuthCallbackPage() {
           return
         }
 
-        navigate('/auth/verify-email', { replace: true })
+        navigate('/auth/verify-email', { replace: true, state: { email: data.session?.user.email ?? '' } })
       } catch {
         if (active) setErrorMessage('We could not confirm your email verification. Please sign in again.')
       }
@@ -34,7 +51,7 @@ function AuthCallbackPage() {
 
     void handleAuthCallback()
     return () => { active = false }
-  }, [client, navigate])
+  }, [client, location.hash, location.search, navigate])
 
   return (
     <section className="auth-panel auth-panel--center" aria-live="polite">
