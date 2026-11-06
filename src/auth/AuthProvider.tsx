@@ -9,6 +9,8 @@ interface AuthContextValue {
   isLoading: boolean
   configurationError: string | null
   signIn: (email: string, password: string) => Promise<{ user: User | null; session: Session | null; error: AuthError | null }>
+  requestEmailOtp: (email: string, shouldCreateUser?: boolean) => Promise<AuthError | null>
+  verifyEmailOtp: (email: string, token: string) => Promise<{ user: User | null; session: Session | null; error: AuthError | null }>
   signUp: (fullName: string, email: string, password: string) => Promise<{ user: User | null; session: Session | null; error: AuthError | null }>
   signOut: () => Promise<AuthError | null>
   sendPasswordReset: (email: string) => Promise<AuthError | null>
@@ -41,6 +43,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   async function signIn(email: string, password: string) {
     if (!client) throw new Error('SUPABASE_NOT_CONFIGURED')
     const { data, error } = await client.auth.signInWithPassword({ email, password })
+    return { user: data.user, session: data.session, error }
+  }
+
+  async function requestEmailOtp(email: string, shouldCreateUser = false) {
+    if (!client) throw new Error('SUPABASE_NOT_CONFIGURED')
+    const { error } = await client.auth.signInWithOtp({ email, options: { shouldCreateUser } })
+    return error
+  }
+
+  async function verifyEmailOtp(email: string, token: string) {
+    if (!client) throw new Error('SUPABASE_NOT_CONFIGURED')
+    const { data, error } = await client.auth.verifyOtp({ email, token, type: 'email' })
     return { user: data.user, session: data.session, error }
   }
 
@@ -92,6 +106,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isLoading,
     configurationError,
     signIn,
+    requestEmailOtp,
+    verifyEmailOtp,
     signUp,
     signOut,
     sendPasswordReset,

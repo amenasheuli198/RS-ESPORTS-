@@ -33,7 +33,7 @@ function AdminLoginPage() {
     }
 
     if (trimmedEmail !== AUTHORIZED_ADMIN_EMAIL.toLowerCase()) {
-      setErrorMessage('This email is not authorized for the RS Esports admin portal.')
+      setErrorMessage('This email is not authorized for the UNDERGRADUATE HUB E-Sports admin portal.')
       setNotice('')
       return
     }
@@ -103,7 +103,7 @@ function AdminLoginPage() {
 
       if (!hasTournamentAdminClaim(data.user)) {
         await signOut()
-        setErrorMessage('Access denied. This account is not authorized for the RS Esports admin portal.')
+        setErrorMessage('Access denied. This account is not authorized for the UNDERGRADUATE HUB E-Sports admin portal.')
         return
       }
 
@@ -119,7 +119,7 @@ function AdminLoginPage() {
     <main className="auth-layout">
       <section className="auth-panel" aria-labelledby="admin-login-title">
         <p className="auth-eyebrow">ADMIN ACCESS / SECURE LOGIN</p>
-        <h1 id="admin-login-title">RS Esports admin portal.</h1>
+        <h1 id="admin-login-title">UNDERGRADUATE HUB E-Sports admin portal.</h1>
         <p className="auth-intro">Use the verified admin account to continue with one-time email OTP authentication.</p>
 
         {errorMessage && <p className="auth-error" role="alert">{errorMessage}</p>}
@@ -152,7 +152,7 @@ function AdminLoginPage() {
             </>
           )}
 
-          <Link className="auth-switch" to="/">Return to RS Esports</Link>
+          <Link className="auth-switch" to="/">Return to UNDERGRADUATE HUB E-Sports</Link>
         </div>
       </section>
     </main>

@@ -10,11 +10,11 @@ function HeroSection() {
       <div className="hero__scrim" />
       <div className="hero__grid page-width">
         <div className="hero__content">
-          <p className="eyebrow"><span /> Independent Free Fire competition</p>
+          <p className="eyebrow"><span /> Free Fire / PUBG / Chess</p>
           <h1 id="hero-title">ENTER THE <em>ARENA.</em></h1>
           <p className="hero__motto">Compete. Dominate. Become a Champion.</p>
           <p className="hero__description">
-            Join the battlefield, build your squad, and compete in exciting Free Fire tournaments with RS Esports.
+            Enter team and individual competitions hosted by UNDERGRADUATE HUB E-Sports.
           </p>
           <div className="hero__actions">
             <PrimaryButton href="#tournaments">Explore tournaments</PrimaryButton>

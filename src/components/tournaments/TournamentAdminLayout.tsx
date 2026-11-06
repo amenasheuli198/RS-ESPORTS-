@@ -24,8 +24,8 @@ function TournamentAdminLayout() {
   return (
     <main className="tournament-admin-shell">
       <header className="tournament-admin-header page-width">
-        <Link className="brand-lockup" to="/" aria-label="RS Esports home">
-          <span className="brand-lockup__mark">RS</span><span className="brand-lockup__name">RS <b>ESPORTS</b></span>
+        <Link className="brand-lockup" to="/" aria-label="Undergraduate Hub E-Sports home">
+          <span className="brand-lockup__mark">UH</span><span className="brand-lockup__name">UNDERGRADUATE <b>HUB E-SPORTS</b></span>
         </Link>
         <nav aria-label="Admin navigation" className="tournament-admin-header__nav">
           {adminLinks.map(({ label, path, icon: Icon }) => (

@@ -3,6 +3,7 @@ import { ArrowUpRight, Swords } from 'lucide-react'
 const quickLinks = [
   { label: 'Home', href: '/' },
   { label: 'Tournaments', href: '/tournaments' },
+  { label: 'Quick Matches', href: '/quick-matches' },
   { label: 'Leaderboard', href: '/leaderboard' },
   { label: 'Match schedule', href: '/matches' },
 ]
@@ -13,11 +14,11 @@ function SiteFooter() {
       <div className="page-width">
         <div className="site-footer__main">
           <div className="site-footer__brand-column">
-            <a className="brand-lockup" href="/" aria-label="RS Esports home">
+            <a className="brand-lockup" href="/" aria-label="Undergraduate Hub E-Sports home">
               <span className="brand-lockup__mark"><Swords aria-hidden="true" size={20} /></span>
-              <span className="brand-lockup__name">RS <b>ESPORTS</b></span>
+              <span className="brand-lockup__name">UNDERGRADUATE <b>HUB E-SPORTS</b></span>
             </a>
-            <p>Built for squads with something to prove. Find your next drop and make every match count.</p>
+            <p>UNDERGRADUATE HUB E-Sports competitions for Free Fire, PUBG, and Chess.</p>
             <span className="site-footer__social-label">COMMUNITY CHANNELS <i>Coming soon</i></span>
           </div>
           <div className="site-footer__links-column">
@@ -39,10 +40,10 @@ function SiteFooter() {
         </div>
         <div className="site-footer__disclaimer">
           <span className="site-footer__disclaimer-mark">i</span>
-          <p>RS Esports is an independently operated esports tournament platform and is not affiliated with or endorsed by Garena.</p>
+          <p>UNDERGRADUATE HUB E-Sports is independently operated and is not affiliated with or endorsed by game publishers.</p>
         </div>
         <div className="site-footer__bottom">
-          <span>© {new Date().getFullYear()} RS Esports</span>
+          <span>© {new Date().getFullYear()} UNDERGRADUATE HUB E-Sports</span>
           <span>Independent competition. Shared passion.</span>
           <a href="/">Back to home <ArrowUpRight aria-hidden="true" size={14} /></a>
         </div>

@@ -7,6 +7,7 @@ import { PrimaryButton } from './ui'
 const navLinks = [
   { label: 'Home', href: '/' },
   { label: 'Tournaments', href: '/tournaments' },
+  { label: 'Quick Matches', href: '/quick-matches' },
   { label: 'Leaderboard', href: '/leaderboard' },
   { label: 'Match Schedule', href: '/matches' },
   { label: 'News', href: '/news' },
@@ -24,9 +25,9 @@ function SiteHeader() {
   return (
     <header className="site-header">
       <div className="site-header__inner page-width">
-        <a className="brand-lockup" href="/" aria-label="RS Esports home" onClick={closeMenu}>
+        <a className="brand-lockup" href="/" aria-label="Undergraduate Hub E-Sports home" onClick={closeMenu}>
           <span className="brand-lockup__mark"><Swords aria-hidden="true" size={20} /></span>
-          <span className="brand-lockup__name">RS <b>ESPORTS</b></span>
+          <span className="brand-lockup__name">UNDERGRADUATE <b>HUB E-SPORTS</b></span>
         </a>
 
         <nav className="primary-nav" aria-label="Primary navigation">

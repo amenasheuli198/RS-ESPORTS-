@@ -50,6 +50,8 @@ import DisputesDashboardPage from './pages/DisputesDashboardPage'
 import AdminSettingsPage from './pages/AdminSettingsPage'
 import MaintenancePage from './pages/MaintenancePage'
 import AdminLoginPage from './pages/AdminLoginPage'
+import ProfileCompletionPage from './pages/ProfileCompletionPage'
+import QuickMatchesPage from './pages/QuickMatchesPage'
 
 function App() {
   return (
@@ -57,6 +59,7 @@ function App() {
       <Route path="/" element={<HomePage />} />
       <Route path="/tournaments" element={<TournamentArenaPage />} />
       <Route path="/matches" element={<MatchesPage />} />
+      <Route path="/quick-matches" element={<QuickMatchesPage />} />
       <Route path="/matches/:matchId/results" element={<PublicMatchResultsPage />} />
       <Route path="/leaderboard" element={<LeaderboardPage />} />
       <Route path="/players/:username" element={<PlayerProfilePage />} />
@@ -82,6 +85,7 @@ function App() {
         <Route path="/reset-password" element={<ResetPasswordPage />} />
       </Route>
       <Route element={<ProtectedRoute />}>
+        <Route path="/profile/complete" element={<ProfileCompletionPage />} />
         <Route path="/account" element={<AccountPage />} />
         <Route path="/dashboard/profile" element={<AccountPage />} />
         <Route path="/dashboard/support" element={<SupportDashboardPage />} />

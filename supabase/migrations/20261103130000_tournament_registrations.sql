@@ -258,7 +258,11 @@ begin
   if v_substitutes > 0 and not v_tournament.substitute_allowed then
     raise exception using errcode = '23514', message = 'SUBSTITUTE_NOT_ALLOWED';
   end if;
-  if v_active_players > v_tournament.starting_players_required + case when v_tournament.substitute_allowed then 1 else 0 end then
+  if v_tournament.substitute_allowed then
+    if v_active_players > v_tournament.starting_players_required + 1 then
+      raise exception using errcode = '23514', message = 'ROSTER_EXCEEDS_TOURNAMENT_LIMIT';
+    end if;
+  elsif v_active_players > v_tournament.starting_players_required then
     raise exception using errcode = '23514', message = 'ROSTER_EXCEEDS_TOURNAMENT_LIMIT';
   end if;
   if exists (

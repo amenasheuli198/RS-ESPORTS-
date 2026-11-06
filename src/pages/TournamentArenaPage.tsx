@@ -161,7 +161,7 @@ function TournamentArenaPage() {
           <div className="arena-controls">
             <div className="arena-search"><Search aria-hidden="true" size={17} /><label className="visually-hidden" htmlFor="tournament-search">Search tournaments</label><input id="tournament-search" type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search tournaments" /></div>
             <div className="arena-selects">
-              <label><span>Game</span><select value={game} onChange={(event) => setGame(event.target.value)}><option value="All">All games</option><option value="free_fire">Free Fire</option></select></label>
+              <label><span>Game</span><select value={game} onChange={(event) => setGame(event.target.value)}><option value="All">All games</option><option value="free_fire">Garena Free Fire</option><option value="pubg">PUBG</option><option value="chess">Chess</option></select></label>
               <label><span>Mode</span><select value={mode} onChange={(event) => setMode(event.target.value)}><option value="All">All modes</option><option value="battle_royale">Battle Royale</option></select></label>
               <label><span>Entry</span><select value={entryType} onChange={(event) => setEntryType(event.target.value as 'All' | 'free' | 'paid')}><option value="All">All entry types</option><option value="free">Free</option><option value="paid">Paid</option></select></label>
               <label><span>Sort by</span><select value={sort} onChange={(event) => setSort(event.target.value as TournamentSort)}><option value="soonest">Soonest start</option><option value="deadline">Registration deadline</option><option value="prize">Prize pool</option><option value="name">Name</option></select></label>

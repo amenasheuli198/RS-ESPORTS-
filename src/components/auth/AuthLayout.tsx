@@ -5,9 +5,9 @@ function AuthLayout() {
   return (
     <main className="auth-page">
       <header className="auth-header">
-        <Link className="brand-lockup" to="/" aria-label="RS Esports home">
+        <Link className="brand-lockup" to="/" aria-label="Undergraduate Hub E-Sports home">
           <span className="brand-lockup__mark"><Swords aria-hidden="true" size={20} /></span>
-          <span className="brand-lockup__name">RS <b>ESPORTS</b></span>
+          <span className="brand-lockup__name">UNDERGRADUATE <b>HUB E-SPORTS</b></span>
         </Link>
         <Link className="auth-back-link" to="/">Back to the arena</Link>
       </header>
