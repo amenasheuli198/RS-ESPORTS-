@@ -50,7 +50,7 @@ Do not add administrator email addresses or an admin allowlist variable to Verce
 5. Apply and verify database migrations in staging before production. Confirm RLS, function grants, storage policies, and admin claims through authorized checks; a successful frontend deployment does not verify database security.
 6. Deploy to Vercel, verify OTP signup/login and admin login, then test representative unauthorized requests against the database API.
 
-The application still requires backend work for completed profile persistence, standalone Quick Matches, payment verification, and associated admin review. Vercel configuration alone does not make those features production-ready.
+Forward-only migrations for profile completion, standalone competitions, manual bKash payments, match operations, and game-specific results are now prepared in the repository. They have not been SQL-tested, executed, or applied, and the frontend is not yet integrated with all of their RPCs. Vercel configuration alone does not make those features production-ready.
 
 ## Troubleshooting
 

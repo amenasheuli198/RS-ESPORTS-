@@ -10,6 +10,8 @@ interface Profile {
   avatar_url: string | null
   free_fire_ign: string | null
   free_fire_uid: string | null
+  phone: string | null
+  profile_completed_at: string | null
   region: string | null
   bio: string | null
   profile_visibility: 'public' | 'private'
@@ -18,8 +20,6 @@ interface Profile {
   created_at: string
   updated_at: string
 }
-
-const profileColumns = 'id, full_name, display_name, username, avatar_url, free_fire_ign, free_fire_uid, region, bio, profile_visibility, uid_visibility, match_history_visibility, created_at, updated_at'
 
 function AccountPage() {
   const { client, user, signOut } = useAuth()
@@ -51,10 +51,7 @@ function AccountPage() {
       }
 
       try {
-        const { data, error } = await client.from('profiles')
-          .select(profileColumns)
-          .eq('id', user.id)
-          .maybeSingle()
+        const { data, error } = await client.rpc('get_my_profile').maybeSingle()
 
         if (!active) return
         if (error || !data) {
@@ -105,6 +102,7 @@ function AccountPage() {
 
     const profilePayload = {
       username: username.trim(),
+      full_name: normalizedName,
       display_name: displayName.trim() || normalizedName,
       avatar_url: avatarUrl.trim() || null,
       free_fire_ign: freeFireIgn.trim() || null,
@@ -132,10 +130,7 @@ function AccountPage() {
         setIsError(true)
         setMessage(errorMapping[error?.message ?? ''] ?? 'Your profile could not be updated. Please try again.')
       } else {
-        const { data: refreshed, error: refreshError } = await client.from('profiles')
-          .select(profileColumns)
-          .eq('id', user.id)
-          .maybeSingle()
+        const { data: refreshed, error: refreshError } = await client.rpc('get_my_profile').maybeSingle()
         if (refreshError || !refreshed) {
           setMessage('Profile saved. Refresh the page to confirm your latest values.')
         } else {
@@ -197,6 +192,8 @@ function AccountPage() {
               <dl className="profile-meta">
                 <div><dt>User ID</dt><dd>{user?.id}</dd></div>
                 <div><dt>Email</dt><dd>{user?.email}</dd></div>
+                <div><dt>Phone</dt><dd>{profile?.phone || 'Not set'}</dd></div>
+                <div><dt>Phone</dt><dd>{profile?.phone || 'Not set'}</dd></div>
                 <div><dt>Created</dt><dd>{profile ? new Date(profile.created_at).toLocaleDateString() : 'Not available'}</dd></div>
                 <div><dt>Last updated</dt><dd>{profile ? new Date(profile.updated_at).toLocaleDateString() : 'Not available'}</dd></div>
               </dl>

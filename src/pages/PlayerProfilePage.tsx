@@ -73,10 +73,7 @@ function PlayerProfilePage() {
 
     async function load() {
       try {
-        const profileResult = await safeClient.from('profiles')
-          .select('id, username, full_name, display_name, avatar_url, free_fire_ign, free_fire_uid, region, bio, profile_visibility, uid_visibility, match_history_visibility, created_at, updated_at')
-          .eq('username', username)
-          .maybeSingle()
+        const profileResult = await safeClient.rpc('get_player_profile', { p_username: username }).maybeSingle()
 
         if (profileResult.error || !profileResult.data) {
           if (!active) return
