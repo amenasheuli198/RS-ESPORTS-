@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/AuthProvider'
-import { hasTournamentAdminClaim, AUTHORIZED_ADMIN_EMAIL } from '../tournaments/adminAccess'
+import { hasTournamentAdminClaim } from '../tournaments/adminAccess'
 
 function AdminLoginPage() {
   const { client, user, signOut } = useAuth()
@@ -28,13 +28,7 @@ function AdminLoginPage() {
   async function handleSendOtp() {
     const trimmedEmail = email.trim().toLowerCase()
     if (!trimmedEmail) {
-      setErrorMessage('Enter the authorized admin email address.')
-      return
-    }
-
-    if (trimmedEmail !== AUTHORIZED_ADMIN_EMAIL.toLowerCase()) {
-      setErrorMessage('This email is not authorized for the UNDERGRADUATE HUB E-Sports admin portal.')
-      setNotice('')
+      setErrorMessage('Enter the email address for your authorized administrator account.')
       return
     }
 
@@ -127,8 +121,8 @@ function AdminLoginPage() {
 
         <div className="auth-form">
           <label className="form-field">
-            <span>Authorized admin email</span>
-            <input type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder={AUTHORIZED_ADMIN_EMAIL} autoComplete="email" />
+            <span>Admin email</span>
+            <input type="email" value={email} onChange={(event) => setEmail(event.target.value)} autoComplete="email" />
           </label>
 
           {!otpSent ? (

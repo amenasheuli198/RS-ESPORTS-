@@ -35,6 +35,23 @@ https://your-production-domain.example/auth/callback
 
 If users authenticate from Vercel Preview deployments, add the appropriate preview origins to Supabase's allowed redirect URLs as well. Avoid broad wildcard redirects when a narrower set of trusted domains is practical. Also confirm email confirmation and email OTP are enabled and that the configured email provider/templates support those flows.
 
+## Admin Access Provisioning
+
+The admin login page does not contain an administrator email allowlist. Admin authorization is determined by the trusted Supabase JWT `app_metadata.role` claim, which is also checked by database RLS and privileged RPCs. Provision the `admin` role only for the two administrator accounts approved by the organization, using a trusted Supabase administrative process such as the Auth Admin API from a private server environment. Verify each account's email identity before assigning the claim. Never set `app_metadata` from browser code or expose a service-role/secret key in Vercel `VITE_` variables.
+
+Do not add administrator email addresses or an admin allowlist variable to Vercel. The browser only needs the Supabase project URL and publishable key. OTP delivery to an unauthorized account does not grant admin access; the account is rejected after verification unless its trusted JWT includes the admin role.
+
+## Production Deployment Checklist
+
+1. Configure Vercel with the repository root as the project root, `npm install` as the install command, `npm run build` as the build command, and `dist` as the output directory.
+2. Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` for Production. Configure Preview against a separate staging Supabase project when possible; do not point untrusted previews at production data.
+3. In Supabase Authentication URL Configuration, set the production Site URL and allow only the production origin and the exact callback paths used by the app, including `/auth/callback` and `/admin/login`.
+4. Enable email OTP, configure the email provider and OTP email template, and set appropriate rate limits and abuse protection.
+5. Apply and verify database migrations in staging before production. Confirm RLS, function grants, storage policies, and admin claims through authorized checks; a successful frontend deployment does not verify database security.
+6. Deploy to Vercel, verify OTP signup/login and admin login, then test representative unauthorized requests against the database API.
+
+The application still requires backend work for completed profile persistence, standalone Quick Matches, payment verification, and associated admin review. Vercel configuration alone does not make those features production-ready.
+
 ## Troubleshooting
 
 - **Supabase is not configured:** check that both required variables are present for the deployment's target environment, then redeploy.
