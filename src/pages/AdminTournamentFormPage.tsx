@@ -264,7 +264,9 @@ function AdminTournamentFormPage() {
           upsert: false,
         })
         if (uploadError) {
-          completionNotice = 'Draft saved, but the banner could not be uploaded. Select another image and save again.'
+          completionNotice = uploadError.message.toLowerCase().includes('row-level security')
+            ? 'Banner upload was denied by Supabase Storage. Verify this account has an admin app_metadata role and the tournament-banners policies are applied.'
+            : `Draft saved, but banner upload failed: ${uploadError.message}`
           setNotice(completionNotice)
         } else {
           const { error: attachError } = await supabaseClient.rpc('save_tournament', {

@@ -98,7 +98,9 @@ function CreateTeamPage() {
             upsert: false,
           })
           if (uploadError) {
-            logoNotice = 'Team created, but the logo could not be uploaded. You can try again in team settings.'
+            logoNotice = uploadError.message.toLowerCase().includes('row-level security')
+              ? 'Team created, but Storage denied the logo upload. Only the active team captain can upload; verify the team-logos policies are applied.'
+              : `Team created, but logo upload failed: ${uploadError.message}`
           } else {
             const { error: updateError } = await client.rpc('update_team', {
               p_team_id: teamId,

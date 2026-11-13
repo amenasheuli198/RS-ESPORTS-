@@ -48,10 +48,14 @@ Admins create tournament matches, assign approved teams subject to lobby capacit
 
 Admins configure scoring, enter result drafts, submit them for review, verify or dispute them, and publish results. Points are calculated in the database, not trusted from the preview in the browser. Corrections to published results require a reason and a separate verification before republishing. Public result and leaderboard views consume published results.
 
+## Quick Matches
+
+Quick Matches use the shared competition model rather than a tournament bracket. A signed-in, profile-complete member can register individually or as the captain of a matching team for a published free Quick Match. An administrator confirms the pending entry, creates the match lobby, and assigns confirmed entries. The member sees assigned match details; room credentials are returned only by the protected RPC after the configured release time. Admins can extend the event registration/start schedule and reschedule non-live lobbies. Paid Quick Match registration and Quick Match results are not connected. This flow depends on the competition, match-operation, and Quick Match schedule-update migrations and is not live-database verified.
+
 ### Not implemented or unverified
 
 - Paid tournament payment submission, payment reviewer queue, and payment-to-registration integration are not connected in the member UI.
-- Standalone Quick Match creation and registration are explicitly not connected.
+- Paid Quick Match registration and Quick Match results/leaderboards are not connected.
 - Individual tournament registration is not present in the current member flow.
 - No live signup, OTP delivery, database RPC, RLS, room release, or result workflow was exercised because this workspace has no configured Supabase project credentials.
 - Database behavior is only as current as the migrations applied to the target project; no migration was pushed by this work.

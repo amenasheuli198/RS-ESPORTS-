@@ -1,6 +1,6 @@
 begin;
 
-select plan(20);
+select plan(29);
 
 select ok(
   (select relrowsecurity from pg_catalog.pg_class where oid = 'public.player_match_roster_snapshots'::regclass),
@@ -35,6 +35,26 @@ select ok(
 select ok(
   not has_function_privilege('anon', 'public.try_award_achievement(uuid,text,text,boolean,uuid)', 'EXECUTE'),
   'anonymous clients cannot call the achievement award RPC'
+);
+
+select ok(
+  not has_function_privilege('anon', 'public.update_team_logo(uuid,text)', 'EXECUTE'),
+  'anonymous clients cannot update team logos'
+);
+
+select ok(
+  not has_function_privilege('anon', 'public.join_team_with_code(uuid,text,text)', 'EXECUTE'),
+  'anonymous clients cannot redeem team join codes'
+);
+
+select ok(
+  not has_function_privilege('authenticated', 'public.invite_team_member(uuid,text,text)', 'EXECUTE'),
+  'authenticated clients cannot bypass the Team Code invitation workflow'
+);
+
+select ok(
+  not has_function_privilege('authenticated', 'public.seed_default_achievements()', 'EXECUTE'),
+  'authenticated clients cannot directly seed achievement definitions'
 );
 
 select ok(
@@ -81,6 +101,20 @@ select throws_ok(
 );
 
 select throws_ok(
+  $$select public.evaluate_player_achievements('22222222-2222-4222-8222-222222222222'::uuid)$$,
+  '42501',
+  'ADMIN_REQUIRED',
+  'non-admin authenticated users cannot evaluate achievements for arbitrary players'
+);
+
+select throws_ok(
+  $$select public.evaluate_achievement_for_result('33333333-3333-4333-8333-333333333333'::uuid)$$,
+  '42501',
+  'ADMIN_REQUIRED',
+  'non-admin authenticated users cannot evaluate achievements for arbitrary results'
+);
+
+select throws_ok(
   $$select public.complete_my_profile('Example Player', '+8801712345678')$$,
   '42501',
   'EMAIL_VERIFICATION_REQUIRED',
@@ -101,6 +135,13 @@ select throws_ok(
   'players cannot approve bKash payments'
 );
 
+select throws_ok(
+  $$select public.update_quick_match_schedule('55555555-5555-4555-8555-555555555555'::uuid, now(), now() + interval '1 day', now() + interval '2 days', null, 'UTC')$$,
+  '42501',
+  'COMPETITION_MANAGER_REQUIRED',
+  'players cannot reschedule Quick Matches'
+);
+
 select set_config(
   'request.jwt.claims',
   '{"sub":"11111111-1111-4111-8111-111111111111","role":"authenticated","app_metadata":{"role":"payment_reviewer"}}',
@@ -111,10 +152,24 @@ select ok(not rs_internal.has_competition_permission('manage_competitions'), 'pa
 
 select set_config(
   'request.jwt.claims',
+  '{"sub":"11111111-1111-4111-8111-111111111111","role":"authenticated","app_metadata":{"role":"super-admin"}}',
+  true
+);
+select ok(rs_internal.is_tournament_admin(), 'hyphenated super-admin claim passes legacy admin gates');
+
+select set_config(
+  'request.jwt.claims',
   '{"sub":"11111111-1111-4111-8111-111111111111","role":"authenticated","app_metadata":{"role":"super_admin"}}',
   true
 );
 select ok(rs_internal.is_tournament_admin(), 'trusted super-admin claim passes legacy admin gates');
+
+select set_config(
+  'request.jwt.claims',
+  '{"sub":"11111111-1111-4111-8111-111111111111","role":"authenticated","app_metadata":{"role":"super_admin"}}',
+  true
+);
+select ok(rs_internal.has_competition_permission('manage_competitions'), 'super-admin can manage competitions');
 
 select * from finish();
 rollback;

@@ -6,7 +6,7 @@ Payment infrastructure exists in source migrations, but the platform does not ha
 
 ## Source findings
 
-- `20261106020000_bkash_payment_workflow.sql` defines competition-entry payments with `entry_id`, `provider`, `sender_number`, and a payment review/refund RPC family. Its Storage bucket insert has an incomplete `VALUES` statement, so the migration is not valid as checked in.
+- `20261106020000_bkash_payment_workflow.sql` defines competition-entry payments with `entry_id`, `provider`, `sender_number`, and a payment review/refund RPC family. Its Storage bucket insert syntax has been repaired in source, but the migration has not been run against PostgreSQL here.
 - `20261107000000_payment_bkash_verification.sql` uses `CREATE TABLE IF NOT EXISTS` for a different payment layout based on `tournament_id`, `registration_id`, and `payer_user_id`, then creates policies and functions against that layout. Because the earlier migration already creates `public.payments`, `IF NOT EXISTS` does not reconcile the missing columns; later statements expect a schema that was not created.
 - `payment_security.test.sql` expects competition payment/review/refund RPC names that are not provided as a consistent set by the checked-in migration sequence.
 - `AdminTournamentFormPage` labels paid entry as configuration-only, and `TeamTournamentsPage`/`TournamentDetailsPage` deny paid registration while verification is unsupported. No payment admin page is routed.

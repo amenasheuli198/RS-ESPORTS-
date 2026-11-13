@@ -320,6 +320,8 @@ create policy "Users update their own profile"
   using ((select auth.uid()) = id)
   with check ((select auth.uid()) = id);
 
+drop trigger if exists set_profiles_updated_at on public.profiles;
+
 create trigger set_profiles_updated_at
   before update on public.profiles
   for each row execute function public.set_profile_updated_at();

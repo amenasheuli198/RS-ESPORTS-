@@ -8,6 +8,7 @@ const adminLinks = [
   { label: 'Content', path: '/admin/content', icon: Megaphone },
   { label: 'Settings', path: '/admin/settings', icon: Settings },
   { label: 'Tournaments', path: '/admin/tournaments', icon: Trophy },
+  { label: 'Quick Matches', path: '/admin/quick-matches', icon: Swords },
   { label: 'Matches', path: '/matches', icon: Swords },
   { label: 'Results', path: '/leaderboard', icon: ShieldCheck },
   { label: 'Teams', path: '/teams', icon: Users },

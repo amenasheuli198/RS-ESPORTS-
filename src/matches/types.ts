@@ -3,9 +3,12 @@ export type RoomStatus = 'not_ready' | 'ready' | 'closed'
 
 export interface PublicMatch {
   id: string
-  tournament_id: string
+  tournament_id: string | null
   tournament_name: string
   tournament_slug: string
+  competition_id: string | null
+  competition_type: 'tournament' | 'quick_match' | null
+  game_code: string | null
   match_name: string
   match_number: number
   round_name: string

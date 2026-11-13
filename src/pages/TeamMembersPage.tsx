@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Shield, UserRoundMinus } from 'lucide-react'
 import { useAuth } from '../auth/AuthProvider'
-import InviteMemberPanel from '../components/team/InviteMemberPanel'
+import TeamCodePanel from '../components/team/TeamCodePanel'
 import { useTeam } from '../teams/TeamContext'
 import { SectionHeading } from '../components/ui'
 
@@ -59,7 +59,7 @@ function TeamMembersPage() {
             {activeMembers.length === 0 && <p className="team-empty-inline">No active players yet.</p>}
           </div>
         </section>
-        {captain && <InviteMemberPanel />}
+        {captain && <TeamCodePanel />}
       </div>
     </div>
   )

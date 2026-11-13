@@ -99,8 +99,6 @@ $$;
 
 revoke all on function public.achievement_progress_for_user(uuid, uuid) from public, anon, authenticated;
 
-grant execute on function public.achievement_progress_for_user(uuid, uuid) to authenticated;
-
 create function public.evaluate_player_achievements(p_user_id uuid)
 returns void
 language plpgsql
@@ -112,6 +110,13 @@ declare
   v_progress numeric;
   v_target numeric;
 begin
+  if not rs_internal.is_tournament_admin() then
+    raise exception using errcode = '42501', message = 'ADMIN_REQUIRED';
+  end if;
+  if p_user_id is null or not exists (select 1 from auth.users where id = p_user_id) then
+    raise exception using errcode = '22023', message = 'INVALID_PLAYER';
+  end if;
+
   for achievement in
     select * from public.achievement_definitions where is_active = true order by display_order asc
   loop
@@ -141,6 +146,9 @@ declare
   v_user_id uuid;
   v_team_id uuid;
 begin
+  if not rs_internal.is_tournament_admin() then
+    raise exception using errcode = '42501', message = 'ADMIN_REQUIRED';
+  end if;
   if not exists (select 1 from public.match_results where id = p_result_id and status = 'published') then
     return;
   end if;
@@ -148,7 +156,9 @@ begin
   select * into v_result from public.match_results where id = p_result_id;
 
   for v_team_id in
-    select distinct snapshot.team_id from public.player_match_roster_snapshots as snapshot where snapshot.match_id = v_result.match_id
+    select distinct snapshot.team_id
+    from public.player_match_roster_snapshots as snapshot
+    where snapshot.match_id = v_result.match_id and snapshot.team_id = v_result.team_id
   loop
     for v_user_id in
       select distinct snapshot.user_id from public.player_match_roster_snapshots as snapshot where snapshot.match_id = v_result.match_id and snapshot.team_id = v_team_id
@@ -169,28 +179,42 @@ security definer
 set search_path = ''
 as $$
 declare
-  v_achievement_id uuid;
-  v_existing_count integer;
+  v_achievement public.achievement_definitions%rowtype;
+  v_user_id uuid := (select auth.uid());
+  v_progress numeric;
+  v_target numeric;
 begin
-  select id into v_achievement_id from public.achievement_definitions where slug = p_achievement_slug and is_active = true;
-  if v_achievement_id is null then
-    return false;
-  end if;
-
-  if p_manual and (p_awarded_by is null or not rs_internal.is_tournament_admin()) then
+  if not rs_internal.is_tournament_admin() then
     raise exception using errcode = '42501', message = 'ADMIN_REQUIRED';
   end if;
-
-  select count(*) into v_existing_count from public.player_achievements where user_id = p_user_id and achievement_id = v_achievement_id;
-  if v_existing_count > 0 then
-    return false;
+  if p_manual is distinct from true or p_user_id is null
+    or not exists (select 1 from auth.users where id = p_user_id) then
+    raise exception using errcode = '22023', message = 'INVALID_MANUAL_AWARD';
+  end if;
+  if p_awarded_by is not null and p_awarded_by <> v_user_id then
+    raise exception using errcode = '42501', message = 'ACTOR_MISMATCH';
+  end if;
+  if char_length(coalesce(p_reason, '')) > 2000 then
+    raise exception using errcode = '22023', message = 'INVALID_AWARD_REASON';
   end if;
 
-  insert into public.player_achievements (user_id, achievement_id, progress_value, manually_awarded, awarded_by, award_reason)
-  values (p_user_id, v_achievement_id, 1, p_manual, p_awarded_by, p_reason)
-  on conflict (user_id, achievement_id) do nothing;
-
-  return true;
+  select * into v_achievement
+  from public.achievement_definitions
+  where slug = p_achievement_slug and is_active = true;
+  if not found then
+    return false;
+  end if;
+  select public.achievement_progress_for_user(p_user_id, v_achievement.id) into v_progress;
+  v_target := coalesce(nullif(v_achievement.criteria ->> 'target', '')::numeric, 0);
+  if v_progress < v_target then
+    raise exception using errcode = '23514', message = 'ACHIEVEMENT_CRITERIA_NOT_MET';
+  end if;
+  insert into public.player_achievements (
+    user_id, achievement_id, progress_value, manually_awarded, awarded_by, award_reason
+  ) values (
+    p_user_id, v_achievement.id, v_progress, true, v_user_id, nullif(btrim(p_reason), '')
+  ) on conflict (user_id, achievement_id) do nothing;
+  return found;
 end;
 $$;
 
@@ -248,7 +272,6 @@ end;
 $$;
 
 revoke all on function public.seed_default_achievements() from public, anon, authenticated;
-grant execute on function public.seed_default_achievements() to authenticated;
 
 create function public.admin_seed_achievements()
 returns void

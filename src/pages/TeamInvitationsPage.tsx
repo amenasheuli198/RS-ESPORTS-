@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, type FormEvent } from 'react'
 import { Check, Mail, X } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/AuthProvider'
@@ -11,9 +11,57 @@ function TeamInvitationsPage() {
   const { team, membership, incomingInvitations, outgoingInvitations, refreshTeam } = useTeam()
   const navigate = useNavigate()
   const [credentials, setCredentials] = useState<Record<string, { ign: string; uid: string }>>({})
+  const [joinCode, setJoinCode] = useState('')
+  const [joinIgn, setJoinIgn] = useState('')
+  const [joinUid, setJoinUid] = useState('')
   const [workingId, setWorkingId] = useState<string | null>(null)
   const [message, setMessage] = useState('')
   const [isError, setIsError] = useState(false)
+
+  async function joinWithCode(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    if (!client) return
+    if (alreadyOnTeam) {
+      setIsError(true)
+      setMessage('Leave your current active team before joining another roster.')
+      return
+    }
+    setWorkingId('team-code')
+    setIsError(false)
+    setMessage('')
+    try {
+      const { error } = await client.rpc('join_team_with_code', {
+        p_join_code: joinCode.trim(),
+        p_ign: joinIgn.trim(),
+        p_free_fire_uid: joinUid.trim(),
+      })
+      if (error) {
+        const messages: Record<string, string> = {
+          PLAYER_PROFILE_COMPLETION_REQUIRED: 'Complete your verified player profile before joining a team.',
+          TEAM_CODE_UNAVAILABLE: 'This code is invalid, expired, used, or cancelled.',
+          TEAM_CODE_EMAIL_MISMATCH: 'This code is restricted to a different verified email address.',
+          PLAYER_ALREADY_ON_ACTIVE_TEAM: 'You are already active on another team roster.',
+          TEAM_ROSTER_FULL: 'The roster slot has already been filled. Ask the captain for a new code.',
+          INVALID_PLAYER_IGN: 'IGN must be 2-32 characters.',
+          INVALID_FREE_FIRE_UID: 'Free Fire UID must contain 5-20 digits.',
+        }
+        setIsError(true)
+        setMessage(messages[error.message] ?? 'The Team Code could not be redeemed.')
+      } else {
+        setMessage('Team Code accepted. You have joined the roster.')
+        setJoinCode('')
+        setJoinIgn('')
+        setJoinUid('')
+        await refreshTeam()
+        navigate('/dashboard/team', { replace: true })
+      }
+    } catch {
+      setIsError(true)
+      setMessage('The Team Code could not be redeemed. Check your connection and try again.')
+    } finally {
+      setWorkingId(null)
+    }
+  }
 
   async function respond(invitationId: string, accept: boolean) {
     if (!client) return
@@ -92,8 +140,18 @@ function TeamInvitationsPage() {
 
   return (
     <div className="team-invitations-page">
-      <SectionHeading eyebrow="Team / invitations" title="Roster invitations." description="Invitations are private to the invited player and the sending captain." />
+      <SectionHeading eyebrow="Team / invitations" title="Roster invitations." description="Join a roster with a captain-issued Team Code or respond to an existing account invitation." />
       {message && <p className={isError ? 'team-form-error' : 'team-form-success'} role={isError ? 'alert' : 'status'}>{message}</p>}
+      <section className="team-panel team-code-join-panel" aria-labelledby="team-code-join-title">
+        <div className="team-panel__heading"><span className="team-feature-icon"><Mail size={18} /></span><div><h2 id="team-code-join-title">Join with Team Code</h2><p>The code is one-time use and may be restricted to your verified email.</p></div></div>
+        <form className="team-invite-form" onSubmit={(event) => void joinWithCode(event)}>
+          <label className="form-field"><span>Team Code</span><input type="text" required maxLength={36} autoComplete="off" value={joinCode} onChange={(event) => setJoinCode(event.target.value)} placeholder="Paste the code from your captain" /></label>
+          <label className="form-field"><span>Your Free Fire IGN</span><input type="text" required minLength={2} maxLength={32} value={joinIgn} onChange={(event) => setJoinIgn(event.target.value)} /></label>
+          <label className="form-field"><span>Your Free Fire UID</span><input type="text" required inputMode="numeric" pattern="[0-9]{5,20}" maxLength={20} value={joinUid} onChange={(event) => setJoinUid(event.target.value.replace(/\D/g, ''))} /></label>
+          {alreadyOnTeam && <p className="team-form-hint">You can be active on one team at a time. Leave your current roster before joining another.</p>}
+          <button className="team-button" type="submit" disabled={workingId === 'team-code' || alreadyOnTeam || !client}>{workingId === 'team-code' ? 'Joining...' : 'Join team'}</button>
+        </form>
+      </section>
       {incomingInvitations.length > 0 ? (
         <section className="team-invite-list" aria-label="Incoming invitations">
           {incomingInvitations.map((invitation) => {

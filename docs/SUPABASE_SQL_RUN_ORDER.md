@@ -7,6 +7,7 @@ Important:
 - Do not run the SQL test files under `supabase/tests` on your live database. Those are validation scripts.
 - If you are deploying to a fresh project, run the migrations in this sequence exactly once.
 - If you are applying to an existing project, confirm the migration history before re-running anything.
+- Do not apply `20261107000000_payment_bkash_verification.sql` with the competition payment workflow. It targets the legacy `tournament_registrations`/`registration_id` schema, while the preceding payment workflow uses `competition_entries`/`entry_id`.
 
 ## Recommended order
 
@@ -61,11 +62,20 @@ Important:
 17. `20261106050000_competition_scoring_results.sql`
    - Competition result validation and result scoring hardening.
 
-18. `20261107000000_payment_bkash_verification.sql`
-   - Final payment verification hardening and review enforcement.
-
-19. `20261113130000_admin_access_key_lockouts.sql`
+18. `20261113130000_admin_access_key_lockouts.sql`
    - Persistent lockout after two invalid shared admin access-key attempts.
+
+19. `20261113150000_member_contact_profile.sql`
+   - Owner-scoped member name and phone updates.
+
+20. `20261113160000_quick_match_schedule_updates.sql`
+   - Super-admin role alias support and admin-only Quick Match date/time updates.
+
+21. `20261113170000_team_logo_member_uploads.sql`
+   - Allows active team members to update only the team logo through a scoped RPC.
+
+22. `20261113180000_team_join_codes.sql`
+   - Adds captain-created, one-time roster codes and verified member redemption.
 
 ## Full file list in order
 
@@ -87,8 +97,11 @@ supabase/migrations/20261106020000_bkash_payment_workflow.sql
 supabase/migrations/20261106030000_support_evidence_hardening.sql
 supabase/migrations/20261106040000_competition_match_operations.sql
 supabase/migrations/20261106050000_competition_scoring_results.sql
-supabase/migrations/20261107000000_payment_bkash_verification.sql
 supabase/migrations/20261113130000_admin_access_key_lockouts.sql
+supabase/migrations/20261113150000_member_contact_profile.sql
+supabase/migrations/20261113160000_quick_match_schedule_updates.sql
+supabase/migrations/20261113170000_team_logo_member_uploads.sql
+supabase/migrations/20261113180000_team_join_codes.sql
 ```
 
 ## How to run in Supabase

@@ -217,8 +217,9 @@ stable
 security definer
 set search_path = ''
 as $$
-  select case auth.jwt() -> 'app_metadata' ->> 'role'
+  select case lower(coalesce(auth.jwt() -> 'app_metadata' ->> 'role', ''))
     when 'super_admin' then true
+    when 'super-admin' then true
     when 'admin' then true
     when 'competition_manager' then p_permission = 'manage_competitions'
     when 'payment_reviewer' then p_permission = 'review_payments'
@@ -235,7 +236,7 @@ stable
 security definer
 set search_path = ''
 as $$
-  select coalesce((auth.jwt() -> 'app_metadata' ->> 'role') in ('admin', 'super_admin'), false);
+  select lower(coalesce(auth.jwt() -> 'app_metadata' ->> 'role', '')) in ('admin', 'super_admin', 'super-admin');
 $$;
 
 revoke all on function rs_internal.is_tournament_admin() from public, anon;
@@ -432,7 +433,7 @@ begin
 end;
 $$;
 
-create function public.create_game_team(
+create or replace function public.create_game_team(
   p_name text, p_game_code text, p_format_code text, p_in_game_name text,
   p_external_id text default null, p_description text default null, p_region text default null
 )
@@ -484,7 +485,7 @@ begin
 end;
 $$;
 
-create function public.invite_game_team_member(p_team_id uuid, p_email text, p_role text)
+create or replace function public.invite_game_team_member(p_team_id uuid, p_email text, p_role text)
 returns uuid
 language plpgsql
 security definer
@@ -535,7 +536,7 @@ begin
 end;
 $$;
 
-create function public.respond_to_game_team_invitation(
+create or replace function public.respond_to_game_team_invitation(
   p_invitation_id uuid, p_accept boolean, p_in_game_name text default null, p_external_id text default null
 )
 returns void
@@ -593,7 +594,7 @@ begin
 end;
 $$;
 
-create function public.save_my_game_identity(
+create or replace function public.save_my_game_identity(
   p_game_code text, p_in_game_name text, p_external_id text default null,
   p_rating_value numeric default null, p_rating_source text default null
 )
@@ -842,7 +843,7 @@ create policy "Players can read their own game identities and teammates' identit
       and member.status = 'active' and self_member.status = 'active'
   ) or rs_internal.has_competition_permission('manage_competitions'));
 
-create function public.create_game_team(
+create or replace function public.create_game_team(
   p_name text, p_game_code text, p_format_code text, p_in_game_name text,
   p_external_id text default null, p_description text default null, p_region text default null
 )
@@ -890,7 +891,7 @@ begin
 end;
 $$;
 
-create function public.invite_game_team_member(p_team_id uuid, p_email text, p_role text)
+create or replace function public.invite_game_team_member(p_team_id uuid, p_email text, p_role text)
 returns uuid
 language plpgsql
 security definer
@@ -935,7 +936,7 @@ begin
 end;
 $$;
 
-create function public.respond_to_game_team_invitation(
+create or replace function public.respond_to_game_team_invitation(
   p_invitation_id uuid, p_accept boolean, p_in_game_name text default null, p_external_id text default null
 )
 returns void
@@ -1004,7 +1005,7 @@ begin
 end;
 $$;
 
-create function public.save_my_game_identity(
+create or replace function public.save_my_game_identity(
   p_game_code text, p_in_game_name text, p_external_id text default null,
   p_rating_value numeric default null, p_rating_source text default null
 )

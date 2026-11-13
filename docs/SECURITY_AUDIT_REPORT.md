@@ -34,14 +34,17 @@ This is a source-based review of the checked-in React/Vite application, API hand
 
 ## Business logic state
 
-- Free team tournament registration has a database RPC path with captain, roster, capacity, timing, duplicate, and payment-required checks.
-- Paid registration, payment review UI, individual tournament registration, and standalone Quick Matches are not connected end-to-end.
+- Free team tournament registration has a database RPC path with captain, roster, capacity, timing, duplicate, and payment-required checks. Quick Match source now includes free individual/team signup, admin review/assignment, scheduled rooms, and time-gated room retrieval; these paths have not been tested against PostgreSQL.
+- Paid registration, payment review UI, individual tournament registration, and Quick Match results/leaderboards are not connected end-to-end.
 - Match assignment, room access, result scoring/review/publication have database functions in source. No integration/RLS test ran against a database.
 - The admin content page's “New article” control has no handler; support/dispute review is not available in routed admin UI.
 
 ## Changes in this work
 
 - Added `supabase/migrations/20261113150000_member_contact_profile.sql`, a forward-only owner-scoped profile contact update that requires confirmed email and validates name/phone.
+- Added `supabase/migrations/20261113180000_team_join_codes.sql` for expiring captain-created codes, optional verified-email binding, one-active-team enforcement, and roster capacity checks.
+- Added `supabase/migrations/20261113170000_team_logo_member_uploads.sql` for active-member logo uploads with a member-scoped storage path and RPC.
+- Added `supabase/migrations/20261113160000_quick_match_schedule_updates.sql` for role normalization and admin-only Quick Match date changes.
 - Updated `src/pages/AccountPage.tsx` to edit full name/phone and request email changes through Auth verification.
 - Updated `src/auth/AuthProvider.tsx` to initiate email changes with the callback URL.
 - Updated `src/auth/errorMessage.ts` with non-sensitive OTP/email-delivery error classifications.
@@ -53,6 +56,7 @@ This is a source-based review of the checked-in React/Vite application, API hand
 - Configure server-only admin environment values and provision exactly one trusted admin Auth user.
 - Reconcile payment migration table/function contracts and correct the malformed migration before a clean staging migration run.
 - Apply migrations only in a controlled environment after review; no migration was pushed by this work.
+- Quick Match and Team Code database behavior has not been exercised against a PostgreSQL/Supabase instance; frontend checks do not prove RLS policies or RPC grants are deployed.
 - Run pgTAP/RLS/storage/RPC tests with regular-member and admin JWTs; test signup, delivery, OTP verification, email change, profile update, registration, room release, results, and admin operations.
 - Run dependency vulnerability scanning and browser-level workflows; neither has been performed here.
 

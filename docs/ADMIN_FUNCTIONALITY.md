@@ -18,15 +18,15 @@ Status labels: **Fully Implemented** means the UI calls a persisted backend oper
 
 ## Quick Match management
 
-**Not Implemented.** The public Quick Matches page states that standalone creation, registration, payment, room access, and results need backend support. The shared competition schema/RPC migrations do not make the feature operational through the current UI.
+**Partially Implemented.** Admins can create and publish standalone Quick Matches, confirm free entries, assign confirmed participants to match lobbies, update Quick Match and lobby schedules, and set room credentials with a release time. Database RPCs enforce admin permission, participant capacity, assignment status, and time-gated room access. Paid registration and Quick Match results/leaderboards are not connected. These controls require the competition and match-operation migrations, including `20261113160000_quick_match_schedule_updates.sql`, and were not exercised against a live database.
 
 ## Payment management
 
-**Not Implemented in the portal; migration code is inconsistent.** No admin payment queue or working end-to-end bKash review UI is routed. The repository has two competing payment schema/function designs. `20261106020000_bkash_payment_workflow.sql` also contains an incomplete Storage bucket `VALUES` statement, and the later `20261107000000_payment_bkash_verification.sql` assumes different columns on the same table. Do not treat payment submission, approval, rejection, or refunds as deployable until migrations are reconciled and tested in staging. No refund UI is present.
+**Not Implemented in the portal; migration code is inconsistent.** No admin payment queue or working end-to-end bKash review UI is routed. The repository has two competing payment schema/function designs. The bucket insert syntax in `20261106020000_bkash_payment_workflow.sql` is repaired in source, but the later `20261107000000_payment_bkash_verification.sql` still assumes incompatible columns on the same table. Do not treat payment submission, approval, rejection, or refunds as deployable until migrations are reconciled and tested in staging. No refund UI is present.
 
 ## Team management
 
-**Partially Implemented.** Members can create/manage a team, roster, invitations, and team settings through the member team portal. Admins can inspect roster details while reviewing a tournament registration. There is no dedicated admin team directory or admin roster-management portal.
+**Partially Implemented.** Members can create/manage a team, roster, Team Codes, and team settings through the member team portal. Captains create one-time codes with a required player name and optional email/phone; a verified, profile-complete player redeems a code to join one active team. Email-bound codes require that verified email. Active roster members may change only the team logo; captain-only detail edits remain restricted. Admins can inspect roster details while reviewing a tournament registration. There is no dedicated admin team directory or admin roster-management portal. These actions require `20261113180000_team_join_codes.sql` and `20261113170000_team_logo_member_uploads.sql` to be applied.
 
 ## Results and leaderboards
 

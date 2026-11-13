@@ -52,6 +52,7 @@ import MaintenancePage from './pages/MaintenancePage'
 import AdminLoginPage from './pages/AdminLoginPage'
 import ProfileCompletionPage from './pages/ProfileCompletionPage'
 import QuickMatchesPage from './pages/QuickMatchesPage'
+import AdminQuickMatchesPage from './pages/AdminQuickMatchesPage'
 import LegalActPage from './pages/LegalActPage'
 
 function App() {
@@ -60,7 +61,7 @@ function App() {
       <Route path="/" element={<HomePage />} />
       <Route path="/tournaments" element={<TournamentArenaPage />} />
       <Route path="/matches" element={<MatchesPage />} />
-      <Route path="/quick-matches" element={<QuickMatchesPage />} />
+      <Route path="/quick-matches" element={<TeamProvider><QuickMatchesPage /></TeamProvider>} />
       <Route path="/matches/:matchId/results" element={<PublicMatchResultsPage />} />
       <Route path="/leaderboard" element={<LeaderboardPage />} />
       <Route path="/players/:username" element={<PlayerProfilePage />} />
@@ -112,6 +113,7 @@ function App() {
             <Route path="/admin/content" element={<AdminContentPage />} />
             <Route path="/admin/settings" element={<AdminSettingsPage />} />
             <Route path="/admin/tournaments" element={<AdminTournamentListPage />} />
+            <Route path="/admin/quick-matches" element={<AdminQuickMatchesPage />} />
             <Route path="/admin/tournaments/new" element={<AdminTournamentFormPage />} />
             <Route path="/admin/tournaments/:id/edit" element={<AdminTournamentFormPage />} />
             <Route path="/admin/tournaments/:id/registrations" element={<AdminTournamentRegistrationsPage />} />

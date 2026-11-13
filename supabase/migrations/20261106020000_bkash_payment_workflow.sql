@@ -84,8 +84,13 @@ create policy "Payment reviewers can read refunds"
   using (rs_internal.has_competition_permission('review_payments'));
 
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
-values ('payment-proofs', 'payment-proofs', false, 10485760,
- 		if v_sender is null or v_sender !~ '^\+?[1-9][0-9]{6,14}$' then
+values (
+  'payment-proofs',
+  'payment-proofs',
+  false,
+  10485760,
+  array['image/png', 'image/jpeg', 'image/webp', 'application/pdf']::text[]
+)
 on conflict (id) do nothing;
 
 do $$
