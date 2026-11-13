@@ -4,7 +4,7 @@ import { useAuth } from '../auth/AuthProvider'
 import { getSafeAuthErrorMessage } from '../auth/errorMessage'
 
 function RegistrationPage() {
-  const { requestEmailOtp, verifyEmailOtp, configurationError } = useAuth()
+  const { requestEmailOtp, verifyEmailOtp } = useAuth()
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [otp, setOtp] = useState('')
@@ -67,7 +67,6 @@ function RegistrationPage() {
       <p className="auth-eyebrow">NEW PLAYER / CREATE ACCOUNT</p>
       <h1 id="register-title">Claim your place.</h1>
       <p className="auth-intro">Create your player account with an email verification code.</p>
-      {configurationError && <p className="auth-notice" role="status">{configurationError}</p>}
       <form className="auth-form" onSubmit={handleSubmit}>
         <label className="form-field">
           <span>Email address</span>
@@ -79,7 +78,7 @@ function RegistrationPage() {
         </label>}
         {errorMessage && <p className="auth-error" role="alert">{errorMessage}</p>}
         {notice && <p className="auth-success-message" role="status">{notice}</p>}
-        <button className="auth-submit" type="submit" disabled={isSubmitting || Boolean(configurationError)}>
+        <button className="auth-submit" type="submit" disabled={isSubmitting}>
           {isSubmitting ? <><span className="auth-spinner" aria-hidden="true" /> {otpSent ? 'Verifying code...' : 'Sending code...'}</> : otpSent ? 'Verify email' : 'Send verification code'}
         </button>
         {otpSent && <button className="auth-switch" type="button" disabled={isSubmitting} onClick={() => void resendCode()}>Resend code</button>}

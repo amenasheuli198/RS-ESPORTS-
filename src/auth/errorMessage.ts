@@ -1,6 +1,6 @@
 export function getSafeAuthErrorMessage(error: unknown, fallback: string): string {
   if (error instanceof Error && error.message === 'SUPABASE_NOT_CONFIGURED') {
-    return 'Authentication is unavailable until Supabase is configured.'
+    return 'Authentication is temporarily unavailable. Please try again later.'
   }
 
   if (!error || typeof error !== 'object') return fallback

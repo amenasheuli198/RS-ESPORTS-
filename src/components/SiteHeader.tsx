@@ -1,17 +1,18 @@
 import { useState } from 'react'
-import { Menu, Swords, X } from 'lucide-react'
+import { Menu, X } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import { useAuth } from '../auth/AuthProvider'
 import NotificationBell from './notifications/NotificationBell'
-import { PrimaryButton } from './ui'
+import { PlatformEmblem, PrimaryButton } from './ui'
 
 const navLinks = [
   { label: 'Home', href: '/' },
   { label: 'Tournaments', href: '/tournaments' },
-  { label: 'Quick Matches', href: '/quick-matches' },
-  { label: 'Leaderboard', href: '/leaderboard' },
-  { label: 'Match Schedule', href: '/matches' },
+  { label: 'Rankings', href: '/leaderboard' },
+  { label: 'Community', href: '/announcements' },
+  { label: 'Matches', href: '/matches' },
   { label: 'News', href: '/news' },
-  { label: 'My Team', href: '/teams' },
+  { label: 'Contact', href: '/contact' },
 ]
 
 function SiteHeader() {
@@ -25,23 +26,23 @@ function SiteHeader() {
   return (
     <header className="site-header">
       <div className="site-header__inner page-width">
-        <a className="brand-lockup" href="/" aria-label="Undergraduate Hub E-Sports home" onClick={closeMenu}>
-          <span className="brand-lockup__mark"><Swords aria-hidden="true" size={20} /></span>
-          <span className="brand-lockup__name">UNDERGRADUATE <b>HUB E-SPORTS</b></span>
+        <a className="brand-lockup" href="/" aria-label="Undergraduate E-Sports home" onClick={closeMenu}>
+          <span className="brand-lockup__mark"><PlatformEmblem /></span>
+          <span className="brand-lockup__name">UNDERGRADUATE <b>E-SPORTS</b></span>
         </a>
 
         <nav className="primary-nav" aria-label="Primary navigation">
           {navLinks.map((link, index) => (
-            <a key={link.label} href={link.href} aria-current={index === 0 && window.location.pathname === '/' ? 'page' : undefined}>
+            <Link key={link.label} to={link.href} onClick={closeMenu} aria-current={index === 0 && window.location.pathname === '/' ? 'page' : undefined}>
               {link.label}
-            </a>
+            </Link>
           ))}
         </nav>
 
         <div className="site-header__actions">
           {user ? <NotificationBell /> : <>
-            <a className="header-login" href="/login">Login</a>
-            <a className="header-register" href="/register">Register</a>
+            <Link className="header-login" to="/login">Login</Link>
+            <Link className="header-register" to="/register">Register</Link>
           </>}
           <PrimaryButton href="/tournaments" className="header-explore">Explore tournaments</PrimaryButton>
         </div>
@@ -61,12 +62,12 @@ function SiteHeader() {
       {menuOpen && (
         <nav className="mobile-nav" id="mobile-navigation" aria-label="Mobile navigation">
           {navLinks.map((link) => (
-            <a key={link.label} href={link.href} onClick={closeMenu}>{link.label}</a>
+            <Link key={link.label} to={link.href} onClick={closeMenu}>{link.label}</Link>
           ))}
           <div className="mobile-nav__actions">
             {user ? <NotificationBell /> : <>
-              <a href="/login" onClick={closeMenu}>Login</a>
-              <a href="/register" onClick={closeMenu}>Register</a>
+              <Link className="mobile-nav__auth-link mobile-nav__auth-link--login" to="/login" onClick={closeMenu}>Login</Link>
+              <Link className="mobile-nav__auth-link mobile-nav__auth-link--register" to="/register" onClick={closeMenu}>Register</Link>
             </>}
             <PrimaryButton href="/tournaments" onClick={closeMenu}>Explore tournaments</PrimaryButton>
           </div>

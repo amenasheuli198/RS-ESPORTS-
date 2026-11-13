@@ -4,7 +4,7 @@ import { useAuth } from '../auth/AuthProvider'
 import { getSafeAuthErrorMessage } from '../auth/errorMessage'
 
 function LoginPage() {
-  const { requestEmailOtp, verifyEmailOtp, configurationError } = useAuth()
+  const { requestEmailOtp, verifyEmailOtp } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
   const [email, setEmail] = useState('')
@@ -63,7 +63,6 @@ function LoginPage() {
       <p className="auth-eyebrow">WELCOME BACK / PLAYER ACCESS</p>
       <h1 id="login-title">Back in the arena.</h1>
       <p className="auth-intro">Sign in with a one-time code sent to your email.</p>
-      {configurationError && <p className="auth-notice" role="status">{configurationError}</p>}
       <form className="auth-form" onSubmit={handleSubmit}>
         <label className="form-field">
           <span>Email address</span>
@@ -75,7 +74,7 @@ function LoginPage() {
         </label>}
         {errorMessage && <p className="auth-error" role="alert">{errorMessage}</p>}
         {notice && <p className="auth-success-message" role="status">{notice}</p>}
-        <button className="auth-submit" type="submit" disabled={isSubmitting || Boolean(configurationError)}>
+        <button className="auth-submit" type="submit" disabled={isSubmitting}>
           {isSubmitting ? <><span className="auth-spinner" aria-hidden="true" /> {otpSent ? 'Verifying code...' : 'Sending code...'}</> : otpSent ? 'Verify and sign in' : 'Send sign-in code'}
         </button>
         {otpSent && <button className="auth-switch" type="button" disabled={isSubmitting} onClick={() => void resendCode()}>Resend code</button>}

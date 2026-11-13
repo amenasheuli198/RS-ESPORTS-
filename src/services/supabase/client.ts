@@ -2,9 +2,8 @@ import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 
 let supabaseClient: SupabaseClient | null = null
 
-function readEnvValue(...names: string[]) {
-  for (const name of names) {
-    const value = import.meta.env[name]
+function readEnvValue(...values: Array<string | undefined>) {
+  for (const value of values) {
     if (typeof value === 'string' && value.trim()) {
       return value.trim()
     }
@@ -29,14 +28,18 @@ function isSecretKey(key: string): boolean {
 
 function getConfiguredValues() {
   return {
-    url: readEnvValue('VITE_SUPABASE_URL', 'NEXT_PUBLIC_SUPABASE_URL', 'SUPABASE_URL'),
+    url: readEnvValue(
+      import.meta.env.VITE_SUPABASE_URL,
+      import.meta.env.NEXT_PUBLIC_SUPABASE_URL,
+      import.meta.env.SUPABASE_URL,
+    ),
     publicKey: readEnvValue(
-      'VITE_SUPABASE_PUBLISHABLE_KEY',
-      'VITE_SUPABASE_ANON_KEY',
-      'NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY',
-      'NEXT_PUBLIC_SUPABASE_ANON_KEY',
-      'SUPABASE_PUBLISHABLE_KEY',
-      'SUPABASE_ANON_KEY',
+      import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+      import.meta.env.VITE_SUPABASE_ANON_KEY,
+      import.meta.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
+      import.meta.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+      import.meta.env.SUPABASE_PUBLISHABLE_KEY,
+      import.meta.env.SUPABASE_ANON_KEY,
     ),
   }
 }

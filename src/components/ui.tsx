@@ -2,6 +2,17 @@ import type { AnchorHTMLAttributes, ReactNode } from 'react'
 import { ArrowUpRight } from 'lucide-react'
 import type { TournamentStatus } from '../types/homepage'
 
+export function PlatformEmblem({ className = 'platform-emblem' }: { className?: string }) {
+  return (
+    <img
+      className={className}
+      src="https://jgcbnoiaqtqexhgcjmok.supabase.co/storage/v1/object/public/PUBLIC%20BUCKET/Neon%20Dragon%20U-H%20Emblem.png"
+      alt=""
+      decoding="async"
+    />
+  )
+}
+
 interface LinkButtonProps extends AnchorHTMLAttributes<HTMLAnchorElement> {
   href: string
   children: ReactNode

@@ -1,6 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 import { useAuth } from '../../auth/AuthProvider'
+import { PlatformEmblem } from '../ui'
 
 function TeamPageHeader() {
   const { signOut } = useAuth()
@@ -20,8 +21,8 @@ function TeamPageHeader() {
 
   return (
     <header className="team-page-header page-width">
-      <Link className="brand-lockup" to="/" aria-label="Undergraduate Hub E-Sports home">
-        <span className="brand-lockup__mark">UH</span><span className="brand-lockup__name">UNDERGRADUATE <b>HUB E-SPORTS</b></span>
+      <Link className="brand-lockup" to="/" aria-label="Undergraduate E-Sports home">
+        <span className="brand-lockup__mark"><PlatformEmblem /></span><span className="brand-lockup__name">UNDERGRADUATE <b>E-SPORTS</b></span>
       </Link>
       <nav aria-label="Account navigation">
         <Link to="/account">Account</Link>

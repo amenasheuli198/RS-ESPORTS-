@@ -1,6 +1,7 @@
 import { NavLink, Link, Outlet } from 'react-router-dom'
 import { BellRing, LayoutDashboard, Megaphone, Settings, ShieldCheck, Swords, Trophy, Users } from 'lucide-react'
 import { useAuth } from '../../auth/AuthProvider'
+import { PlatformEmblem } from '../ui'
 
 const adminLinks = [
   { label: 'Dashboard', path: '/admin/dashboard', icon: LayoutDashboard },
@@ -24,8 +25,8 @@ function TournamentAdminLayout() {
   return (
     <main className="tournament-admin-shell">
       <header className="tournament-admin-header page-width">
-        <Link className="brand-lockup" to="/" aria-label="Undergraduate Hub E-Sports home">
-          <span className="brand-lockup__mark">UH</span><span className="brand-lockup__name">UNDERGRADUATE <b>HUB E-SPORTS</b></span>
+        <Link className="brand-lockup" to="/" aria-label="Undergraduate E-Sports home">
+          <span className="brand-lockup__mark"><PlatformEmblem /></span><span className="brand-lockup__name">UNDERGRADUATE <b>E-SPORTS</b></span>
         </Link>
         <nav aria-label="Admin navigation" className="tournament-admin-header__nav">
           {adminLinks.map(({ label, path, icon: Icon }) => (

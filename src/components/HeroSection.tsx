@@ -1,5 +1,5 @@
-import { ArrowDown, Crosshair } from 'lucide-react'
-import { PrimaryButton, SecondaryButton } from './ui'
+import { ArrowDown } from 'lucide-react'
+import { PlatformEmblem, PrimaryButton, SecondaryButton } from './ui'
 import MediaFrame from './MediaFrame'
 
 const heroImage = arenaPhoto()
@@ -15,23 +15,23 @@ function HeroSection() {
       <div className="hero__scrim" />
       <div className="hero__grid page-width">
         <div className="hero__content">
-          <p className="eyebrow"><span /> Free Fire / PUBG / Chess</p>
-          <h1 id="hero-title">ENTER THE <em>ARENA.</em></h1>
-          <p className="hero__motto">Compete. Dominate. Become a Champion.</p>
+          <p className="eyebrow"><span /> PLAY <i>•</i> COMPETE <i>•</i> BELONG</p>
+          <h1 id="hero-title"><span>UNDERGRADUATE</span><em>E-SPORTS</em></h1>
+          <p className="hero__motto">One platform. Endless possibilities.</p>
           <p className="hero__description">
-            Enter team and individual competitions hosted by UNDERGRADUATE HUB E-Sports.
+            Find your next tournament, bring your squad together, and earn your place in the arena.
           </p>
           <div className="hero__actions">
-            <PrimaryButton href="#tournaments">Explore events</PrimaryButton>
-            <SecondaryButton href="/register">Create your team</SecondaryButton>
+            <PrimaryButton href="/register">Join the arena</PrimaryButton>
+            <SecondaryButton href="#tournaments">Explore tournaments</SecondaryButton>
           </div>
           <a className="hero__scroll" href="#platform-pulse">
             <span>Scroll to explore</span><ArrowDown aria-hidden="true" size={15} />
           </a>
         </div>
         <div className="hero__stamp" aria-hidden="true">
-          <span className="hero__stamp-icon"><Crosshair size={19} /></span>
-          <span>Ready.<br />Set.<br />Launch.</span>
+          <PlatformEmblem className="hero__emblem" />
+          <span>DREAM.<br />COMPETE.<br />WIN.</span>
           <i />
         </div>
       </div>

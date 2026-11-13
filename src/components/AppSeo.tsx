@@ -1,28 +1,28 @@
 import { useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 
-const defaultDescription = 'UNDERGRADUATE HUB E-Sports hosts Free Fire, PUBG, and Chess competitions.'
+const defaultDescription = 'Play. Compete. Belong. Discover verified Free Fire, PUBG, and Chess tournaments with Undergraduate E-Sports.'
 
 function getPageConfig(pathname: string) {
   if (pathname === '/') {
     return {
-      title: 'UNDERGRADUATE HUB E-Sports | Competitions',
-      description: 'Discover Free Fire, PUBG, and Chess tournaments, matches, and results.',
+      title: 'UNDERGRADUATE E-SPORTS | Play. Compete. Belong.',
+      description: 'Discover verified Free Fire, PUBG, and Chess tournaments, matches, and results.',
       isPublic: true,
     }
   }
 
   if (pathname.startsWith('/quick-matches')) {
     return {
-      title: 'Quick Matches | UNDERGRADUATE HUB E-Sports',
-      description: 'Standalone esports matches from UNDERGRADUATE HUB E-Sports.',
+      title: 'Quick Matches | UNDERGRADUATE E-SPORTS',
+      description: 'Standalone esports matches from Undergraduate E-Sports.',
       isPublic: true,
     }
   }
 
   if (pathname.startsWith('/tournaments')) {
     return {
-      title: 'Tournaments | UNDERGRADUATE HUB E-Sports',
+      title: 'Tournaments | UNDERGRADUATE E-SPORTS',
       description: 'Browse upcoming and active esports tournaments, team registration, and match schedules.',
       isPublic: true,
     }
@@ -30,7 +30,7 @@ function getPageConfig(pathname: string) {
 
   if (pathname.startsWith('/leaderboard')) {
     return {
-      title: 'Leaderboard | UNDERGRADUATE HUB E-Sports',
+      title: 'Rankings | UNDERGRADUATE E-SPORTS',
       description: 'Track competitive standings, result rankings, and active tournament performance.',
       isPublic: true,
     }
@@ -38,7 +38,7 @@ function getPageConfig(pathname: string) {
 
   if (pathname.startsWith('/news')) {
     return {
-      title: 'News & Editorial | UNDERGRADUATE HUB E-Sports',
+      title: 'News & Editorial | UNDERGRADUATE E-SPORTS',
       description: 'Follow organization updates, tournament coverage, announcements, and competitive stories.',
       isPublic: true,
     }
@@ -46,7 +46,7 @@ function getPageConfig(pathname: string) {
 
   if (pathname.startsWith('/players')) {
     return {
-      title: 'Player Profile | UNDERGRADUATE HUB E-Sports',
+      title: 'Player Profile | UNDERGRADUATE E-SPORTS',
       description: 'View player stats, competitive history, team affiliations, and match records.',
       isPublic: true,
     }
@@ -54,22 +54,30 @@ function getPageConfig(pathname: string) {
 
   if (pathname === '/contact') {
     return {
-      title: 'Contact | UNDERGRADUATE HUB E-Sports',
-      description: 'Reach UNDERGRADUATE HUB E-Sports for support, tournament questions, or platform inquiries.',
+      title: 'Contact | UNDERGRADUATE E-SPORTS',
+      description: 'Reach Undergraduate E-Sports for support, tournament questions, or platform inquiries.',
+      isPublic: true,
+    }
+  }
+
+  if (pathname === '/legal-act') {
+    return {
+      title: 'Legal & Act | UNDERGRADUATE E-SPORTS',
+      description: 'Informational summary of e-sports recognition in Bangladesh, its legal basis, limits, and source references.',
       isPublic: true,
     }
   }
 
   if (pathname.startsWith('/admin') || pathname.startsWith('/dashboard') || pathname.startsWith('/account') || pathname.startsWith('/auth') || pathname === '/login' || pathname === '/register' || pathname === '/forgot-password' || pathname === '/reset-password') {
     return {
-      title: 'Private Area | UNDERGRADUATE HUB E-Sports',
-      description: 'Private account or administrative area of UNDERGRADUATE HUB E-Sports.',
+      title: 'Private Area | UNDERGRADUATE E-SPORTS',
+      description: 'Private account or administrative area of Undergraduate E-Sports.',
       isPublic: false,
     }
   }
 
   return {
-    title: 'UNDERGRADUATE HUB E-Sports',
+    title: 'UNDERGRADUATE E-SPORTS',
     description: defaultDescription,
     isPublic: true,
   }

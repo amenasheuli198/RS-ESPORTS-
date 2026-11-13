@@ -1,6 +1,7 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/AuthProvider'
+import { PlatformEmblem } from '../components/ui'
 
 interface Profile {
   id: string
@@ -172,8 +173,8 @@ function AccountPage() {
   return (
     <main className="account-page">
       <header className="account-header page-width">
-        <a className="brand-lockup" href="/" aria-label="Undergraduate Hub E-Sports home">
-          <span className="brand-lockup__mark">UH</span><span className="brand-lockup__name">UNDERGRADUATE <b>HUB E-SPORTS</b></span>
+        <a className="brand-lockup" href="/" aria-label="Undergraduate E-Sports home">
+          <span className="brand-lockup__mark"><PlatformEmblem /></span><span className="brand-lockup__name">UNDERGRADUATE <b>E-SPORTS</b></span>
         </a>
         <button className="account-signout" type="button" onClick={handleSignOut}>Sign out</button>
       </header>

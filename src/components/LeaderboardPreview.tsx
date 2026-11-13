@@ -5,12 +5,12 @@ import { SecondaryButton, SectionHeading } from './ui'
 function LeaderboardPreview() {
   if (demoLeaderboard.length === 0) {
     return (
-      <section className="section leaderboard-section" id="leaderboard" aria-labelledby="leaderboard-heading">
+      <section className="section leaderboard-section" id="leaderboard" aria-labelledby="leaderboard-heading" data-home-reveal>
         <div className="page-width">
           <SectionHeading
-            eyebrow="The current standings"
-            title="Leaderboard ready"
-            description="Once results are published, standings will appear here automatically."
+            eyebrow="Season standings"
+            title="Top players. Big moves."
+            description="Published match results form the official standings."
             id="leaderboard-heading"
             action={<SecondaryButton href="/leaderboard">View full leaderboard</SecondaryButton>}
           />
@@ -25,12 +25,12 @@ function LeaderboardPreview() {
   }
 
   return (
-    <section className="section leaderboard-section" id="leaderboard" aria-labelledby="leaderboard-heading">
+    <section className="section leaderboard-section" id="leaderboard" aria-labelledby="leaderboard-heading" data-home-reveal>
       <div className="page-width">
         <SectionHeading
-          eyebrow="The current standings"
-          title="Every point counts."
-          description="Published results update the official leaderboard."
+          eyebrow="Season standings"
+          title="Top players. Big moves."
+          description="Published results update the official standings."
           id="leaderboard-heading"
           action={<SecondaryButton href="/leaderboard">View full leaderboard</SecondaryButton>}
         />

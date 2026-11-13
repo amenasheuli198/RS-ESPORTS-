@@ -52,6 +52,7 @@ import MaintenancePage from './pages/MaintenancePage'
 import AdminLoginPage from './pages/AdminLoginPage'
 import ProfileCompletionPage from './pages/ProfileCompletionPage'
 import QuickMatchesPage from './pages/QuickMatchesPage'
+import LegalActPage from './pages/LegalActPage'
 
 function App() {
   return (
@@ -67,6 +68,7 @@ function App() {
       <Route path="/news/category/:slug" element={<NewsPage />} />
       <Route path="/news/:slug" element={<NewsArticlePage />} />
       <Route path="/contact" element={<ContactPage />} />
+      <Route path="/legal-act" element={<LegalActPage />} />
       <Route path="/maintenance" element={<MaintenancePage />} />
       <Route path="/admin/login" element={<AdminLoginPage />} />
       <Route path="/tournaments/:slug/leaderboard" element={<TournamentLeaderboardPage />} />

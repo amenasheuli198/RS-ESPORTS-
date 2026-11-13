@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/AuthProvider'
+import { PlatformEmblem } from '../components/ui'
 import { hasTournamentAdminClaim } from '../tournaments/adminAccess'
 
 function AdminLoginPage() {
@@ -46,7 +47,6 @@ function AdminLoginPage() {
         email: trimmedEmail,
         options: {
           shouldCreateUser: false,
-          emailRedirectTo: new URL('/admin/login', window.location.origin).toString(),
         },
       })
 
@@ -97,7 +97,7 @@ function AdminLoginPage() {
 
       if (!hasTournamentAdminClaim(data.user)) {
         await signOut()
-        setErrorMessage('Access denied. This account is not authorized for the UNDERGRADUATE HUB E-Sports admin portal.')
+        setErrorMessage('Access denied. This account is not authorized for the UNDERGRADUATE E-SPORTS admin portal.')
         return
       }
 
@@ -112,8 +112,12 @@ function AdminLoginPage() {
   return (
     <main className="auth-layout">
       <section className="auth-panel" aria-labelledby="admin-login-title">
+        <Link className="brand-lockup admin-login-brand" to="/" aria-label="Undergraduate E-Sports home">
+          <span className="brand-lockup__mark"><PlatformEmblem /></span>
+          <span className="brand-lockup__name">UNDERGRADUATE <b>E-SPORTS</b></span>
+        </Link>
         <p className="auth-eyebrow">ADMIN ACCESS / SECURE LOGIN</p>
-        <h1 id="admin-login-title">UNDERGRADUATE HUB E-Sports admin portal.</h1>
+        <h1 id="admin-login-title">UNDERGRADUATE E-SPORTS admin portal.</h1>
         <p className="auth-intro">Use the verified admin account to continue with one-time email OTP authentication.</p>
 
         {errorMessage && <p className="auth-error" role="alert">{errorMessage}</p>}
@@ -146,7 +150,7 @@ function AdminLoginPage() {
             </>
           )}
 
-          <Link className="auth-switch" to="/">Return to UNDERGRADUATE HUB E-Sports</Link>
+          <Link className="auth-switch" to="/">Return to UNDERGRADUATE E-SPORTS</Link>
         </div>
       </section>
     </main>
