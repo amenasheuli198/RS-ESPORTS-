@@ -69,8 +69,13 @@ function AdminLoginPage() {
     const trimmedEmail = email.trim().toLowerCase()
     const trimmedOtp = otp.trim()
 
-    if (!trimmedEmail || !trimmedOtp) {
-      setErrorMessage('Enter both the admin email and the OTP.')
+    if (!trimmedEmail) {
+      setErrorMessage('Enter the admin email.')
+      return
+    }
+
+    if (!/^\d{6}$/.test(trimmedOtp)) {
+      setErrorMessage('Enter the 6-digit admin verification code.')
       return
     }
 
@@ -137,7 +142,7 @@ function AdminLoginPage() {
             <>
               <label className="form-field">
                 <span>One-time password</span>
-                <input type="text" inputMode="numeric" value={otp} onChange={(event) => setOtp(event.target.value.replace(/\D/g, '').slice(0, 6))} placeholder="123456" />
+                <input type="text" inputMode="numeric" autoComplete="one-time-code" maxLength={6} value={otp} onChange={(event) => setOtp(event.target.value.replace(/\D/g, '').slice(0, 6))} placeholder="123456" />
               </label>
 
               <button type="button" className="auth-submit" onClick={() => void handleVerifyOtp()} disabled={isVerifying}>

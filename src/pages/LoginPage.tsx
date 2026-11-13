@@ -27,7 +27,13 @@ function LoginPage() {
         if (error) setErrorMessage(getSafeAuthErrorMessage(error, 'Unable to send a sign-in code. Please try again.'))
         else setOtpSent(true)
       } else {
-        const result = await verifyEmailOtp(trimmedEmail, otp.trim())
+        const trimmedOtp = otp.trim()
+        if (!/^\d{6}$/.test(trimmedOtp)) {
+          setErrorMessage('Enter the 6-digit email code.')
+          return
+        }
+
+        const result = await verifyEmailOtp(trimmedEmail, trimmedOtp)
         if (result.error) {
           setErrorMessage(getSafeAuthErrorMessage(result.error, 'That code is invalid or expired. Request a new code.'))
         } else {
@@ -70,7 +76,7 @@ function LoginPage() {
         </label>
         {otpSent && <label className="form-field">
           <span>Email code</span>
-          <input type="text" name="otp" inputMode="numeric" autoComplete="one-time-code" required maxLength={8} value={otp} onChange={(event) => setOtp(event.target.value.replace(/\D/g, '').slice(0, 8))} />
+          <input type="text" name="otp" inputMode="numeric" autoComplete="one-time-code" required maxLength={6} value={otp} onChange={(event) => setOtp(event.target.value.replace(/\D/g, '').slice(0, 6))} />
         </label>}
         {errorMessage && <p className="auth-error" role="alert">{errorMessage}</p>}
         {notice && <p className="auth-success-message" role="status">{notice}</p>}
