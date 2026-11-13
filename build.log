@@ -1,0 +1,13 @@
+
+> rs-esports@0.1.0 build
+> tsc --noEmit && vite build ; echo EXIT:True; type build.log
+
+[36mvite v7.3.7 [32mbuilding client environment for production...[36m[39m
+[32m✓[39m 0 modules transformed.
+[31m✗[39m Build failed in 16ms
+[31merror during build:
+[31mCould not resolve entry module ";/index.html".[31m
+    at getRollupError (file:///C:/Users/ASH/Desktop/RS-ESPORTS-/node_modules/rollup/dist/es/shared/parseAst.js:337:41)
+    at error (file:///C:/Users/ASH/Desktop/RS-ESPORTS-/node_modules/rollup/dist/es/shared/parseAst.js:333:42)
+    at ModuleLoader.loadEntryModule (file:///C:/Users/ASH/Desktop/RS-ESPORTS-/node_modules/rollup/dist/es/shared/node-entry.js:23193:20)
+    at async Promise.all (index 0)[39m
