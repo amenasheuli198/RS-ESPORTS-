@@ -2,6 +2,16 @@ import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 
 let supabaseClient: SupabaseClient | null = null
 
+function readEnvValue(...names: string[]) {
+  for (const name of names) {
+    const value = import.meta.env[name]
+    if (typeof value === 'string' && value.trim()) {
+      return value.trim()
+    }
+  }
+  return undefined
+}
+
 function isSecretKey(key: string): boolean {
   if (key.startsWith('sb_secret_')) return true
 
@@ -19,8 +29,15 @@ function isSecretKey(key: string): boolean {
 
 function getConfiguredValues() {
   return {
-    url: import.meta.env.VITE_SUPABASE_URL,
-    publicKey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || import.meta.env.VITE_SUPABASE_ANON_KEY,
+    url: readEnvValue('VITE_SUPABASE_URL', 'NEXT_PUBLIC_SUPABASE_URL', 'SUPABASE_URL'),
+    publicKey: readEnvValue(
+      'VITE_SUPABASE_PUBLISHABLE_KEY',
+      'VITE_SUPABASE_ANON_KEY',
+      'NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY',
+      'NEXT_PUBLIC_SUPABASE_ANON_KEY',
+      'SUPABASE_PUBLISHABLE_KEY',
+      'SUPABASE_ANON_KEY',
+    ),
   }
 }
 
@@ -28,7 +45,7 @@ export function getSupabaseConfigurationError(): string | null {
   const { url, publicKey } = getConfiguredValues()
 
   if (!url || !publicKey) {
-    return 'Supabase is not configured. Set VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY in your local environment.'
+    return 'Supabase is not configured. Set VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY (or your equivalent deployed env vars) before launching the app.'
   }
 
   try {
@@ -37,7 +54,7 @@ export function getSupabaseConfigurationError(): string | null {
       return 'The Supabase URL must use HTTPS, except for a local development instance.'
     }
   } catch {
-    return 'The Supabase URL is invalid. Check VITE_SUPABASE_URL.'
+    return 'The Supabase URL is invalid. Check your Supabase URL environment variable.'
   }
 
   if (isSecretKey(publicKey)) {

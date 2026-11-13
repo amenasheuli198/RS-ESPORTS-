@@ -1,12 +1,17 @@
 import { ArrowDown, Crosshair } from 'lucide-react'
 import { PrimaryButton, SecondaryButton } from './ui'
 import MediaFrame from './MediaFrame'
-import { featuredTournament } from '../data/homepage'
+
+const heroImage = arenaPhoto()
+
+function arenaPhoto() {
+  return 'https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1800&q=85'
+}
 
 function HeroSection() {
   return (
     <section className="hero" aria-labelledby="hero-title">
-      <MediaFrame src={featuredTournament.image} alt="" className="hero__media" decorative />
+      <MediaFrame src={heroImage} alt="Competitive gaming arena" className="hero__media" decorative />
       <div className="hero__scrim" />
       <div className="hero__grid page-width">
         <div className="hero__content">
@@ -17,7 +22,7 @@ function HeroSection() {
             Enter team and individual competitions hosted by UNDERGRADUATE HUB E-Sports.
           </p>
           <div className="hero__actions">
-            <PrimaryButton href="#tournaments">Explore tournaments</PrimaryButton>
+            <PrimaryButton href="#tournaments">Explore events</PrimaryButton>
             <SecondaryButton href="/register">Create your team</SecondaryButton>
           </div>
           <a className="hero__scroll" href="#platform-pulse">
@@ -26,11 +31,11 @@ function HeroSection() {
         </div>
         <div className="hero__stamp" aria-hidden="true">
           <span className="hero__stamp-icon"><Crosshair size={19} /></span>
-          <span>Drop in.<br />Stand out.</span>
+          <span>Ready.<br />Set.<br />Launch.</span>
           <i />
         </div>
       </div>
-      <div className="hero__index" aria-hidden="true"><span>01</span> / THE ARENA</div>
+      <div className="hero__index" aria-hidden="true"><span>01</span> / LIVE PLATFORM</div>
     </section>
   )
 }

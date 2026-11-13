@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Save, ShieldCheck } from 'lucide-react'
+import { ShieldCheck } from 'lucide-react'
 import { useAuth } from '../auth/AuthProvider'
 import { getSupabaseConfigurationError } from '../services/supabase/client'
+import { hasTournamentAdminClaim } from '../tournaments/adminAccess'
 
 interface SettingRecord {
   id?: string
@@ -16,11 +17,12 @@ interface SettingRecord {
 const sectionOrder = ['general', 'branding', 'tournament_defaults', 'registration', 'match', 'notifications', 'player_team', 'content', 'maintenance', 'security']
 
 function AdminSettingsPage() {
-  const { client } = useAuth()
+  const { client, user } = useAuth()
   const [settings, setSettings] = useState<Record<string, SettingRecord>>({})
   const [isLoading, setIsLoading] = useState(true)
   const [errorMessage, setErrorMessage] = useState('')
   const [notice, setNotice] = useState('')
+  const [isSaving, setIsSaving] = useState<Record<string, boolean>>({})
   const configurationError = getSupabaseConfigurationError()
 
   const grouped = useMemo(() => {
@@ -41,6 +43,12 @@ function AdminSettingsPage() {
         return
       }
 
+      if (!hasTournamentAdminClaim(user)) {
+        setErrorMessage('Admin authorization is required to view private platform settings.')
+        setIsLoading(false)
+        return
+      }
+
       try {
         const { data, error } = await client.rpc('get_private_platform_settings')
         if (error) throw error
@@ -55,10 +63,18 @@ function AdminSettingsPage() {
     }
 
     void loadSettings()
-  }, [client, configurationError])
+  }, [client, configurationError, user])
 
   async function updateSetting(settingKey: string, value: Record<string, unknown>) {
-    if (!client) return
+    if (!client || !hasTournamentAdminClaim(user)) {
+      setErrorMessage('Admin authorization is required to update private platform settings.')
+      return
+    }
+
+    setIsSaving((current) => ({ ...current, [settingKey]: true }))
+    setErrorMessage('')
+    setNotice('')
+
     try {
       const record = settings[settingKey]
       const payload = value
@@ -71,9 +87,23 @@ function AdminSettingsPage() {
         p_change_reason: 'Admin configuration update',
       })
       if (error) throw error
+      setSettings((current) => ({
+        ...current,
+        [settingKey]: {
+          ...record,
+          ...current[settingKey],
+          setting_key: settingKey,
+          setting_value: payload,
+          setting_group: record?.setting_group ?? 'general',
+          description: record?.description ?? null,
+          is_public: record?.is_public ?? false,
+        },
+      }))
       setNotice(`${settingKey} saved successfully.`)
     } catch {
       setErrorMessage(`Unable to save ${settingKey}.`)
+    } finally {
+      setIsSaving((current) => ({ ...current, [settingKey]: false }))
     }
   }
 
@@ -84,10 +114,14 @@ function AdminSettingsPage() {
       return (
         <label className="form-field" key={setting.setting_key}>
           <span>{setting.setting_key}</span>
-          <select value={String(Boolean(value.value))} onChange={(event) => {
-            const next = { ...value, value: event.target.value === 'true' }
-            updateSetting(setting.setting_key, next)
-          }}>
+          <select
+            value={String(Boolean(value.value))}
+            disabled={isSaving[setting.setting_key]}
+            onChange={(event) => {
+              const next = { ...value, value: event.target.value === 'true' }
+              void updateSetting(setting.setting_key, next)
+            }}
+          >
             <option value="true">Enabled</option>
             <option value="false">Disabled</option>
           </select>
@@ -98,10 +132,14 @@ function AdminSettingsPage() {
     return (
       <label className="form-field" key={setting.setting_key}>
         <span>{setting.setting_key}</span>
-        <input value={typeof value.value === 'string' ? value.value : JSON.stringify(value.value ?? value)} onChange={(event) => {
-          const next = { ...value, value: event.target.value }
-          updateSetting(setting.setting_key, next)
-        }} />
+        <input
+          value={typeof value.value === 'string' ? value.value : JSON.stringify(value.value ?? value)}
+          disabled={isSaving[setting.setting_key]}
+          onChange={(event) => {
+            const next = { ...value, value: event.target.value }
+            void updateSetting(setting.setting_key, next)
+          }}
+        />
       </label>
     )
   }
@@ -115,7 +153,7 @@ function AdminSettingsPage() {
           <p>Manage public defaults, maintenance, registration, branding, and platform behavior.</p>
         </div>
         <div className="admin-dashboard-header__actions">
-          <button type="button" className="auth-submit" onClick={() => void setNotice('Settings saved in the trusted backend layer.')}><Save size={15} /> Save changes</button>
+          <span className="auth-notice" role="status">Changes are saved only after the backend confirms each update.</span>
           <ShieldCheck size={16} />
         </div>
       </header>

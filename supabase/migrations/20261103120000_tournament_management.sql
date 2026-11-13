@@ -70,7 +70,7 @@ stable
 security definer
 set search_path = ''
 as $$
-  select coalesce((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin', false);
+  select coalesce((lower(coalesce(auth.jwt() -> 'app_metadata' ->> 'role', ''))) in ('admin', 'super_admin', 'super-admin'), false);
 $$;
 
 revoke all on function rs_internal.is_tournament_admin() from public, anon;

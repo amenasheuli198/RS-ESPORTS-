@@ -3,19 +3,40 @@ import { demoLeaderboard } from '../data/homepage'
 import { SecondaryButton, SectionHeading } from './ui'
 
 function LeaderboardPreview() {
+  if (demoLeaderboard.length === 0) {
+    return (
+      <section className="section leaderboard-section" id="leaderboard" aria-labelledby="leaderboard-heading">
+        <div className="page-width">
+          <SectionHeading
+            eyebrow="The current standings"
+            title="Leaderboard ready"
+            description="Once results are published, standings will appear here automatically."
+            id="leaderboard-heading"
+            action={<SecondaryButton href="/leaderboard">View full leaderboard</SecondaryButton>}
+          />
+          <div className="empty-state" role="status">
+            <ArrowUpRight aria-hidden="true" size={24} />
+            <h3>No official results published yet</h3>
+            <p>Match results from live tournaments will populate this section.</p>
+          </div>
+        </div>
+      </section>
+    )
+  }
+
   return (
     <section className="section leaderboard-section" id="leaderboard" aria-labelledby="leaderboard-heading">
       <div className="page-width">
         <SectionHeading
           eyebrow="The current standings"
           title="Every point counts."
-          description="Sample season standings. Published results only shape the real leaderboard."
+          description="Published results update the official leaderboard."
           id="leaderboard-heading"
           action={<SecondaryButton href="/leaderboard">View full leaderboard</SecondaryButton>}
         />
-        <div className="leaderboard" aria-label="Demo leaderboard">
+        <div className="leaderboard" aria-label="Live leaderboard">
           <table className="leaderboard__table">
-            <caption className="visually-hidden">Demo leaderboard standings and match statistics</caption>
+            <caption className="visually-hidden">Leaderboard standings and match statistics</caption>
             <thead>
               <tr><th scope="col">Rank</th><th scope="col">Team</th><th scope="col">Matches</th><th scope="col">Wins</th><th scope="col">Kills</th><th scope="col">Points</th></tr>
             </thead>
@@ -46,7 +67,6 @@ function LeaderboardPreview() {
               </article>
             ))}
           </div>
-          <p className="demo-note"><span /> SAMPLE LEADERBOARD DATA</p>
         </div>
       </div>
     </section>

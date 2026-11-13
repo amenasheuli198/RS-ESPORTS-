@@ -123,14 +123,21 @@ returns table (
   setting_group text,
   description text
 )
-language sql
+language plpgsql
 stable
 security definer
 set search_path = ''
 as $$
-  select setting_key, setting_value, setting_group, description
-  from public.platform_settings
-  order by setting_group, setting_key;
+begin
+  if not rs_internal.is_tournament_admin() then
+    raise exception using errcode = '42501', message = 'ADMIN_REQUIRED';
+  end if;
+
+  return query
+    select setting_key, setting_value, setting_group, description
+    from public.platform_settings
+    order by setting_group, setting_key;
+end;
 $$;
 
 revoke all on function public.get_private_platform_settings() from public, anon, authenticated;
