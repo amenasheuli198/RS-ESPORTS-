@@ -79,7 +79,7 @@ function AdminContentPage() {
           <h1>News and editorial CMS.</h1>
           <p>Manage articles, categories, and public content.</p>
         </div>
-        <button type="button" className="arena-state__button"><Plus size={15} /> New article</button>
+        <button type="button" className="arena-state__button" disabled title="Article creation is not connected yet."><Plus size={15} /> Article creation unavailable</button>
       </div>
 
       <div className="admin-registration-controls">

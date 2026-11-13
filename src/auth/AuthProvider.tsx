@@ -15,6 +15,7 @@ interface AuthContextValue {
   signOut: () => Promise<AuthError | null>
   sendPasswordReset: (email: string) => Promise<AuthError | null>
   resendVerificationEmail: (email: string) => Promise<AuthError | null>
+  updateEmail: (email: string) => Promise<AuthError | null>
   updatePassword: (password: string) => Promise<AuthError | null>
 }
 
@@ -93,6 +94,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return error
   }
 
+  async function updateEmail(email: string) {
+    if (!client) throw new Error('SUPABASE_NOT_CONFIGURED')
+    const emailRedirectTo = new URL('/auth/callback', window.location.origin).toString()
+    const { error } = await client.auth.updateUser({ email }, { emailRedirectTo })
+    return error
+  }
+
   async function updatePassword(password: string) {
     if (!client) throw new Error('SUPABASE_NOT_CONFIGURED')
     const { error } = await client.auth.updateUser({ password })
@@ -112,6 +120,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     signOut,
     sendPasswordReset,
     resendVerificationEmail,
+    updateEmail,
     updatePassword,
   }
 

@@ -1,6 +1,7 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/AuthProvider'
+import { getSafeAuthErrorMessage } from '../auth/errorMessage'
 import { PlatformEmblem } from '../components/ui'
 
 interface Profile {
@@ -23,20 +24,12 @@ interface Profile {
 }
 
 function AccountPage() {
-  const { client, user, signOut } = useAuth()
+  const { client, user, signOut, updateEmail } = useAuth()
   const navigate = useNavigate()
   const [profile, setProfile] = useState<Profile | null>(null)
   const [fullName, setFullName] = useState('')
-  const [displayName, setDisplayName] = useState('')
-  const [username, setUsername] = useState('')
-  const [avatarUrl, setAvatarUrl] = useState('')
-  const [freeFireIgn, setFreeFireIgn] = useState('')
-  const [freeFireUid, setFreeFireUid] = useState('')
-  const [region, setRegion] = useState('')
-  const [bio, setBio] = useState('')
-  const [profileVisibility, setProfileVisibility] = useState<'public' | 'private'>('public')
-  const [uidVisibility, setUidVisibility] = useState<'public' | 'private'>('private')
-  const [matchHistoryVisibility, setMatchHistoryVisibility] = useState<'public' | 'private'>('public')
+  const [phone, setPhone] = useState('')
+  const [newEmail, setNewEmail] = useState('')
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
   const [message, setMessage] = useState('')
@@ -62,16 +55,7 @@ function AccountPage() {
           const nextProfile = data as Profile
           setProfile(nextProfile)
           setFullName(nextProfile.full_name ?? '')
-          setDisplayName(nextProfile.display_name ?? nextProfile.full_name ?? '')
-          setUsername(nextProfile.username ?? '')
-          setAvatarUrl(nextProfile.avatar_url ?? '')
-          setFreeFireIgn(nextProfile.free_fire_ign ?? '')
-          setFreeFireUid(nextProfile.free_fire_uid ?? '')
-          setRegion(nextProfile.region ?? '')
-          setBio(nextProfile.bio ?? '')
-          setProfileVisibility(nextProfile.profile_visibility ?? 'public')
-          setUidVisibility(nextProfile.uid_visibility ?? 'private')
-          setMatchHistoryVisibility(nextProfile.match_history_visibility ?? 'public')
+          setPhone(nextProfile.phone ?? '')
         }
       } catch {
         if (!active) return
@@ -95,38 +79,31 @@ function AccountPage() {
     }
 
     const normalizedName = fullName.trim()
+    const normalizedPhone = phone.trim()
     if (normalizedName.length < 2 || normalizedName.length > 100) {
       setIsError(true)
-      setMessage('Enter a profile display name between 2 and 100 characters.')
+      setMessage('Enter a full name between 2 and 100 characters.')
       return
     }
-
-    const profilePayload = {
-      username: username.trim(),
-      full_name: normalizedName,
-      display_name: displayName.trim() || normalizedName,
-      avatar_url: avatarUrl.trim() || null,
-      free_fire_ign: freeFireIgn.trim() || null,
-      free_fire_uid: freeFireUid.trim() || null,
-      region: region.trim() || null,
-      bio: bio.trim() || null,
-      profile_visibility: profileVisibility,
-      uid_visibility: uidVisibility,
-      match_history_visibility: matchHistoryVisibility,
+    if (!/^\+?[0-9][0-9\s()-]{6,19}$/.test(normalizedPhone)) {
+      setIsError(true)
+      setMessage('Enter a valid phone number, including country code if needed.')
+      return
     }
 
     setIsSaving(true)
     setIsError(false)
     setMessage('')
     try {
-      const { data, error } = await client.rpc('save_player_profile', { p_profile: profilePayload })
+      const { data, error } = await client.rpc('update_my_contact_profile', {
+        p_full_name: normalizedName,
+        p_phone: normalizedPhone,
+      })
       if (error || !data) {
         const errorMapping: Record<string, string> = {
-          INVALID_USERNAME: 'Username must be 3-30 characters and contain only letters, numbers, underscores, dots, or hyphens.',
-          USERNAME_ALREADY_TAKEN: 'That username is already in use by another player.',
-          INVALID_FREE_FIRE_IGN: 'Free Fire IGN must be 2-32 characters.',
-          INVALID_FREE_FIRE_UID: 'Free Fire UID must be a 5-20 digit number.',
-          INVALID_PROFILE_VISIBILITY: 'Select a valid profile visibility.',
+          INVALID_FULL_NAME: 'Enter a full name between 2 and 100 characters.',
+          INVALID_PHONE_NUMBER: 'Enter a valid phone number.',
+          EMAIL_VERIFICATION_REQUIRED: 'Verify your email address before updating your profile.',
         }
         setIsError(true)
         setMessage(errorMapping[error?.message ?? ''] ?? 'Your profile could not be updated. Please try again.')
@@ -138,22 +115,47 @@ function AccountPage() {
           const nextProfile = refreshed as Profile
           setProfile(nextProfile)
           setFullName(nextProfile.full_name ?? '')
-          setDisplayName(nextProfile.display_name ?? nextProfile.full_name ?? '')
-          setUsername(nextProfile.username ?? '')
-          setAvatarUrl(nextProfile.avatar_url ?? '')
-          setFreeFireIgn(nextProfile.free_fire_ign ?? '')
-          setFreeFireUid(nextProfile.free_fire_uid ?? '')
-          setRegion(nextProfile.region ?? '')
-          setBio(nextProfile.bio ?? '')
-          setProfileVisibility(nextProfile.profile_visibility ?? 'public')
-          setUidVisibility(nextProfile.uid_visibility ?? 'private')
-          setMatchHistoryVisibility(nextProfile.match_history_visibility ?? 'public')
+          setPhone(nextProfile.phone ?? '')
           setMessage('Profile updated.')
         }
       }
     } catch {
       setIsError(true)
       setMessage('Your profile could not be updated. Please try again.')
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  async function handleEmailChange(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    const normalizedEmail = newEmail.trim().toLowerCase()
+    if (!/^\S+@\S+\.\S+$/.test(normalizedEmail) || normalizedEmail.length > 254) {
+      setIsError(true)
+      setMessage('Enter a valid email address.')
+      return
+    }
+    if (normalizedEmail === user?.email?.toLowerCase()) {
+      setIsError(true)
+      setMessage('Enter a different email address.')
+      return
+    }
+
+    setIsSaving(true)
+    setIsError(false)
+    setMessage('')
+    try {
+      const error = await updateEmail(normalizedEmail)
+      if (error) {
+        setIsError(true)
+        setMessage(getSafeAuthErrorMessage(error, 'Unable to start the email change. Please try again.'))
+      } else {
+        setMessage('Check the verification message sent by Supabase. Your account email changes only after confirmation.')
+        setNewEmail('')
+      }
+    } catch (error) {
+      setIsError(true)
+      setMessage(getSafeAuthErrorMessage(error, 'Unable to start the email change. Please try again.'))
     } finally {
       setIsSaving(false)
     }
@@ -194,7 +196,6 @@ function AccountPage() {
                 <div><dt>User ID</dt><dd>{user?.id}</dd></div>
                 <div><dt>Email</dt><dd>{user?.email}</dd></div>
                 <div><dt>Phone</dt><dd>{profile?.phone || 'Not set'}</dd></div>
-                <div><dt>Phone</dt><dd>{profile?.phone || 'Not set'}</dd></div>
                 <div><dt>Created</dt><dd>{profile ? new Date(profile.created_at).toLocaleDateString() : 'Not available'}</dd></div>
                 <div><dt>Last updated</dt><dd>{profile ? new Date(profile.updated_at).toLocaleDateString() : 'Not available'}</dd></div>
               </dl>
@@ -204,11 +205,24 @@ function AccountPage() {
                     <span>Full name</span>
                     <input type="text" required minLength={2} maxLength={100} autoComplete="name" value={fullName} onChange={(event) => setFullName(event.target.value)} />
                   </label>
+                  <label className="form-field">
+                    <span>Phone number</span>
+                    <input type="tel" required maxLength={24} autoComplete="tel" value={phone} onChange={(event) => setPhone(event.target.value)} />
+                  </label>
                   <button className="auth-submit" type="submit" disabled={isSaving}>
                     {isSaving ? <><span className="auth-spinner" aria-hidden="true" /> Saving...</> : 'Save profile'}
                   </button>
                 </form>
               )}
+              <form className="profile-form" onSubmit={handleEmailChange}>
+                <p className="auth-eyebrow">EMAIL ADDRESS</p>
+                <p className="auth-intro">A change takes effect only after Supabase verifies it.</p>
+                <label className="form-field">
+                  <span>New email address</span>
+                  <input type="email" required maxLength={254} autoComplete="email" value={newEmail} onChange={(event) => setNewEmail(event.target.value)} />
+                </label>
+                <button className="auth-submit" type="submit" disabled={isSaving}>Send verification</button>
+              </form>
             </>
           )}
         </section>
