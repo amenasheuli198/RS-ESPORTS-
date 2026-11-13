@@ -14,7 +14,12 @@ function TeamLogo({ path, teamName, className = '' }: TeamLogoProps) {
   useEffect(() => {
     let active = true
     setSignedUrl(null)
-    if (!path || !client) return () => { active = false }
+    if (!path) return () => { active = false }
+    if (/^https:\/\//i.test(path)) {
+      setSignedUrl(path)
+      return () => { active = false }
+    }
+    if (!client) return () => { active = false }
 
     void client.storage.from('team-logos').createSignedUrl(path, 3600).then(({ data, error }) => {
       if (active && !error) setSignedUrl(data.signedUrl)

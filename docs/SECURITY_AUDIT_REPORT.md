@@ -44,6 +44,7 @@ This is a source-based review of the checked-in React/Vite application, API hand
 - Added `supabase/migrations/20261113150000_member_contact_profile.sql`, a forward-only owner-scoped profile contact update that requires confirmed email and validates name/phone.
 - Added `supabase/migrations/20261113180000_team_join_codes.sql` for expiring captain-created codes, optional verified-email binding, one-active-team enforcement, and roster capacity checks.
 - Added `supabase/migrations/20261113170000_team_logo_member_uploads.sql` for active-member logo uploads with a member-scoped storage path and RPC.
+- Added `supabase/migrations/20261113190000_team_code_and_banner_urls.sql` for generated unique team codes and admin/member HTTPS banner/logo setters.
 - Added `supabase/migrations/20261113160000_quick_match_schedule_updates.sql` for role normalization and admin-only Quick Match date changes.
 - Updated `src/pages/AccountPage.tsx` to edit full name/phone and request email changes through Auth verification.
 - Updated `src/auth/AuthProvider.tsx` to initiate email changes with the callback URL.

@@ -1,6 +1,6 @@
 begin;
 
-select plan(29);
+select plan(32);
 
 select ok(
   (select relrowsecurity from pg_catalog.pg_class where oid = 'public.player_match_roster_snapshots'::regclass),
@@ -50,6 +50,21 @@ select ok(
 select ok(
   not has_function_privilege('authenticated', 'public.invite_team_member(uuid,text,text)', 'EXECUTE'),
   'authenticated clients cannot bypass the Team Code invitation workflow'
+);
+
+select ok(
+  not has_function_privilege('anon', 'public.create_team_join_code(uuid,text,text,text,text)', 'EXECUTE'),
+  'anonymous clients cannot create team join codes'
+);
+
+select ok(
+  not has_function_privilege('anon', 'public.join_team_by_code(text,text,text)', 'EXECUTE'),
+  'anonymous clients cannot join teams with a team code'
+);
+
+select ok(
+  exists (select 1 from pg_catalog.pg_indexes where schemaname = 'public' and indexname = 'teams_team_code_unique'),
+  'team codes are unique'
 );
 
 select ok(

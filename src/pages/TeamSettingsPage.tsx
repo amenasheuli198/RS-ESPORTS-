@@ -14,12 +14,20 @@ function TeamSettingsPage() {
   const [region, setRegion] = useState(team?.region ?? '')
   const [logo, setLogo] = useState<File | null>(null)
   const [logoType, setLogoType] = useState<TeamLogoMimeType | null>(null)
+  const [logoUrl, setLogoUrl] = useState('')
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [message, setMessage] = useState('')
   const [isError, setIsError] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const canEdit = membership?.role === 'captain'
   const canUploadLogo = membership?.status === 'active'
+
+  useEffect(() => {
+    setName(team?.name ?? '')
+    setDescription(team?.description ?? '')
+    setRegion(team?.region ?? '')
+    setLogoUrl(team?.logo_path?.startsWith('https://') ? team.logo_path : '')
+  }, [team])
 
   useEffect(() => {
     if (!logo) {
@@ -35,6 +43,7 @@ function TeamSettingsPage() {
     const file = event.target.files?.[0]
     setLogo(null)
     setLogoType(null)
+    setLogoUrl('')
     setMessage('')
     if (!file) return
     try {
@@ -54,6 +63,11 @@ function TeamSettingsPage() {
     if (name.trim().length < 3 || name.trim().length > 40) {
       setIsError(true)
       setMessage('Team name must be 3-40 characters.')
+      return
+    }
+    if (logoUrl.trim() && !/^https:\/\/[^\s]+$/i.test(logoUrl.trim())) {
+      setIsError(true)
+      setMessage('Team logo URL must use HTTPS.')
       return
     }
 
@@ -90,6 +104,18 @@ function TeamSettingsPage() {
         setIsError(true)
         setMessage(error.code === '23505' ? 'That team name is already in use.' : 'Team settings could not be saved. Please try again.')
       } else {
+        if (logoUrl.trim()) {
+          const { error: logoError } = await client.rpc('update_team_logo', {
+            p_team_id: team.id,
+            p_logo_path: logoUrl.trim(),
+          })
+          if (logoError) {
+            setIsError(true)
+            setMessage('Team details saved, but the HTTPS logo URL could not be saved.')
+            await refreshTeam()
+            return
+          }
+        }
         setMessage('Team settings saved.')
         setLogo(null)
         await refreshTeam()
@@ -104,39 +130,50 @@ function TeamSettingsPage() {
   }
 
   async function handleLogoSave() {
-    if (!team || !client || !user || !canUploadLogo || !logo || !logoType) return
+    if (!team || !client || !user || !canUploadLogo || (!logo && !logoUrl.trim())) return
+    if (!logo && !/^https:\/\/[^\s]+$/i.test(logoUrl.trim())) {
+      setIsError(true)
+      setMessage('Team logo URL must use HTTPS.')
+      return
+    }
     setIsSaving(true)
     setMessage('')
     setIsError(false)
-    const uploadedPath = `${team.id}/${user.id}/${crypto.randomUUID()}.${getTeamLogoExtension(logoType)}`
+    let uploadedPath: string | null = null
     try {
-      const { error: uploadError } = await client.storage.from('team-logos').upload(uploadedPath, logo, {
-        contentType: logoType,
-        cacheControl: '3600',
-        upsert: false,
-      })
-      if (uploadError) {
-        setIsError(true)
-        setMessage(uploadError.message.toLowerCase().includes('row-level security')
-          ? 'Storage denied the logo upload. Confirm the team-logo member upload migration has been applied.'
-          : `Logo upload failed: ${uploadError.message}`)
-        return
+      let logoPath = logoUrl.trim()
+      if (logo && logoType) {
+        uploadedPath = `${team.id}/${user.id}/${crypto.randomUUID()}.${getTeamLogoExtension(logoType)}`
+        const { error: uploadError } = await client.storage.from('team-logos').upload(uploadedPath, logo, {
+          contentType: logoType,
+          cacheControl: '3600',
+          upsert: false,
+        })
+        if (uploadError) {
+          setIsError(true)
+          setMessage(uploadError.message.toLowerCase().includes('row-level security')
+            ? 'Storage denied the logo upload. Confirm the team-logo member upload migration has been applied, or use an HTTPS image URL.'
+            : `Logo upload failed: ${uploadError.message}`)
+          return
+        }
+        logoPath = uploadedPath
       }
 
-      const { error } = await client.rpc('update_team_logo', { p_team_id: team.id, p_logo_path: uploadedPath })
+      const { error } = await client.rpc('update_team_logo', { p_team_id: team.id, p_logo_path: logoPath })
       if (error) {
-        await client.storage.from('team-logos').remove([uploadedPath]).catch(() => null)
+        if (uploadedPath) await client.storage.from('team-logos').remove([uploadedPath]).catch(() => null)
         setIsError(true)
         setMessage(error.message === 'ACTIVE_TEAM_MEMBER_REQUIRED'
           ? 'Only active team members can change the team logo.'
           : 'The uploaded logo could not be attached to this team.')
       } else {
         setLogo(null)
+        setLogoUrl(logoPath.startsWith('https://') ? logoPath : '')
         setMessage('Team logo updated.')
         await refreshTeam()
       }
     } catch {
-      await client.storage.from('team-logos').remove([uploadedPath]).catch(() => null)
+      if (uploadedPath) await client.storage.from('team-logos').remove([uploadedPath]).catch(() => null)
       setIsError(true)
       setMessage('Team logo could not be saved. Try again.')
     } finally {
@@ -160,11 +197,12 @@ function TeamSettingsPage() {
             {canUploadLogo && <input type="file" accept="image/png,image/jpeg,image/webp" onChange={(event) => void handleLogoChange(event)} />}
             <small>Active team members can upload PNG, JPG, or WEBP images up to 2 MB. Only captains can edit other team details.</small>
         </label>
+          {canUploadLogo && <label className="form-field"><span>Or use an HTTPS logo URL</span><input type="url" maxLength={2048} value={logoUrl} onChange={(event) => { setLogoUrl(event.target.value); setLogo(null); setLogoType(null) }} placeholder="https://example.com/team-logo.png" /></label>}
         <label className="form-field"><span>Team name</span><input type="text" required minLength={3} maxLength={40} disabled={!canEdit} value={name} onChange={(event) => setName(event.target.value)} /></label>
         <label className="form-field"><span>Description <small>Optional</small></span><textarea rows={4} maxLength={1000} disabled={!canEdit} value={description} onChange={(event) => setDescription(event.target.value)} /></label>
         <label className="form-field"><span>Region <small>Optional</small></span><input type="text" maxLength={100} disabled={!canEdit} value={region} onChange={(event) => setRegion(event.target.value)} /></label>
         {canEdit && <button className="team-button" type="submit" disabled={isSaving || !client}>{isSaving ? <><span className="auth-spinner" aria-hidden="true" /> Saving...</> : 'Save changes'}</button>}
-        {!canEdit && canUploadLogo && <button className="team-button" type="button" disabled={isSaving || !logo} onClick={() => void handleLogoSave()}>{isSaving ? 'Saving logo...' : 'Save team logo'}</button>}
+        {!canEdit && canUploadLogo && <button className="team-button" type="button" disabled={isSaving || (!logo && !logoUrl.trim())} onClick={() => void handleLogoSave()}>{isSaving ? 'Saving logo...' : 'Save team logo'}</button>}
       </form>
     </section>
   )

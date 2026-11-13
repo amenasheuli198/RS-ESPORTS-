@@ -77,6 +77,9 @@ Important:
 22. `20261113180000_team_join_codes.sql`
    - Adds captain-created, one-time roster codes and verified member redemption.
 
+23. `20261113190000_team_code_and_banner_urls.sql`
+   - Generates permanent unique team codes and supports HTTPS banner/logo URLs.
+
 ## Full file list in order
 
 ```text
@@ -102,6 +105,7 @@ supabase/migrations/20261113150000_member_contact_profile.sql
 supabase/migrations/20261113160000_quick_match_schedule_updates.sql
 supabase/migrations/20261113170000_team_logo_member_uploads.sql
 supabase/migrations/20261113180000_team_join_codes.sql
+supabase/migrations/20261113190000_team_code_and_banner_urls.sql
 ```
 
 ## How to run in Supabase

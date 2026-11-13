@@ -17,7 +17,12 @@ function TournamentBanner({ path, name, className = '' }: TournamentBannerProps)
     let active = true
     setSignedUrl(null)
     setFailed(false)
-    if (!path || !client) return () => { active = false }
+    if (!path) return () => { active = false }
+    if (/^https:\/\//i.test(path)) {
+      setSignedUrl(path)
+      return () => { active = false }
+    }
+    if (!client) return () => { active = false }
 
     void client.storage.from('tournament-banners').createSignedUrl(path, 3600).then(({ data, error }) => {
       if (active) {

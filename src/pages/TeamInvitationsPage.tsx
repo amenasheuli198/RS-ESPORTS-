@@ -30,15 +30,23 @@ function TeamInvitationsPage() {
     setIsError(false)
     setMessage('')
     try {
-      const { error } = await client.rpc('join_team_with_code', {
-        p_join_code: joinCode.trim(),
-        p_ign: joinIgn.trim(),
-        p_free_fire_uid: joinUid.trim(),
-      })
+      const code = joinCode.trim()
+      const { error } = /^[A-Fa-f0-9]{16}$/.test(code)
+        ? await client.rpc('join_team_by_code', {
+          p_team_code: code,
+          p_ign: joinIgn.trim(),
+          p_free_fire_uid: joinUid.trim(),
+        })
+        : await client.rpc('join_team_with_code', {
+          p_join_code: code,
+          p_ign: joinIgn.trim(),
+          p_free_fire_uid: joinUid.trim(),
+        })
       if (error) {
         const messages: Record<string, string> = {
           PLAYER_PROFILE_COMPLETION_REQUIRED: 'Complete your verified player profile before joining a team.',
           TEAM_CODE_UNAVAILABLE: 'This code is invalid, expired, used, or cancelled.',
+          TEAM_CODE_NOT_FOUND: 'No team has this code. Check it with the captain and try again.',
           TEAM_CODE_EMAIL_MISMATCH: 'This code is restricted to a different verified email address.',
           PLAYER_ALREADY_ON_ACTIVE_TEAM: 'You are already active on another team roster.',
           TEAM_ROSTER_FULL: 'The roster slot has already been filled. Ask the captain for a new code.',

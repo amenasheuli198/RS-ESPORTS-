@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Shield, UserRoundMinus } from 'lucide-react'
+import { Copy, Shield, UserRoundMinus } from 'lucide-react'
 import { useAuth } from '../auth/AuthProvider'
 import TeamCodePanel from '../components/team/TeamCodePanel'
 import { useTeam } from '../teams/TeamContext'
@@ -34,6 +34,18 @@ function TeamMembersPage() {
     }
   }
 
+  async function copyTeamCode() {
+    if (!team) return
+    try {
+      await navigator.clipboard.writeText(team.team_code)
+      setIsError(false)
+      setMessage('Team Code copied. Share it only with players you want to join.')
+    } catch {
+      setIsError(true)
+      setMessage('Clipboard access was blocked. Select and copy the Team Code manually.')
+    }
+  }
+
   if (!team || !membership) return null
   const activeMembers = roster.filter((member) => member.status === 'active')
   const captain = membership.role === 'captain'
@@ -42,6 +54,10 @@ function TeamMembersPage() {
     <div className="team-members-page">
       <SectionHeading eyebrow="Team / squad members" title="The lineup." description={`${activeMembers.length} active player${activeMembers.length === 1 ? '' : 's'} on this roster.`} />
       {message && <p className={isError ? 'team-form-error' : 'team-form-success'} role={isError ? 'alert' : 'status'}>{message}</p>}
+      <section className="team-panel team-public-code" aria-label="Team Code">
+        <div><p className="auth-eyebrow">TEAM CODE / JOIN THIS ROSTER</p><p>Share this unique code with a verified player. The roster must have an open slot.</p><code>{team.team_code}</code></div>
+        <button className="team-button team-button--secondary" type="button" onClick={() => void copyTeamCode()}><Copy size={15} /> Copy Team Code</button>
+      </section>
       <div className="team-members-layout">
         <section className="team-panel" aria-labelledby="roster-title">
           <div className="team-panel__title"><Shield size={18} /><h2 id="roster-title">Active roster</h2><span>{activeMembers.length} / 5</span></div>

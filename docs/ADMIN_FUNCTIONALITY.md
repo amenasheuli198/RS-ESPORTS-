@@ -14,7 +14,7 @@ Status labels: **Fully Implemented** means the UI calls a persisted backend oper
 
 ## Tournament management
 
-**Partially Implemented.** Admins can create/edit tournament records, configure game/format, entry fee, schedule, capacity, roster requirements, rules and content, publish/cancel, change lifecycle, inspect registrations, and review registrations. Free team registration has a working RPC path. Paid registration is not connected to the payment workflow. Participant capacity and important state transitions are enforced by database functions, but a live database test was not run.
+**Partially Implemented.** Admins can create/edit tournament records, configure game/format, entry fee, schedule, capacity, roster requirements, rules and content, use either a Storage upload or HTTPS banner URL, publish/cancel, change lifecycle, inspect registrations, and review registrations. Free team registration has a working RPC path. Paid registration is not connected to the payment workflow. Participant capacity and important state transitions are enforced by database functions, but a live database test was not run.
 
 ## Quick Match management
 
@@ -26,7 +26,7 @@ Status labels: **Fully Implemented** means the UI calls a persisted backend oper
 
 ## Team management
 
-**Partially Implemented.** Members can create/manage a team, roster, Team Codes, and team settings through the member team portal. Captains create one-time codes with a required player name and optional email/phone; a verified, profile-complete player redeems a code to join one active team. Email-bound codes require that verified email. Active roster members may change only the team logo; captain-only detail edits remain restricted. Admins can inspect roster details while reviewing a tournament registration. There is no dedicated admin team directory or admin roster-management portal. These actions require `20261113180000_team_join_codes.sql` and `20261113170000_team_logo_member_uploads.sql` to be applied.
+**Partially Implemented.** Each team receives a unique team-wide code automatically; verified, profile-complete players can use it to join while the roster has room. Captains can also create a one-time code for a named player, with optional email/phone; a supplied email must match the player's verified email. Active roster members may change only the team logo using an upload or HTTPS URL; captain-only detail edits remain restricted. Admins can inspect roster details while reviewing a tournament registration. There is no dedicated admin team directory or admin roster-management portal. These actions require `20261113170000_team_logo_member_uploads.sql`, `20261113180000_team_join_codes.sql`, and `20261113190000_team_code_and_banner_urls.sql` to be applied.
 
 ## Results and leaderboards
 

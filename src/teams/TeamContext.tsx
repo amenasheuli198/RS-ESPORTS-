@@ -50,7 +50,7 @@ export function TeamProvider({ children }: { children?: ReactNode }) {
 
       if (membershipData) {
         const { data: teamData, error: teamError } = await client.from('teams')
-          .select('id, name, slug, game_code, format_code, logo_path, description, region, created_at, updated_at')
+          .select('id, name, slug, team_code, game_code, format_code, logo_path, description, region, created_at, updated_at')
           .eq('id', membershipData.team_id)
           .maybeSingle()
         if (teamError) throw teamError

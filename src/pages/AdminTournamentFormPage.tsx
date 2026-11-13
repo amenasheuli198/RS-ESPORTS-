@@ -58,6 +58,7 @@ function AdminTournamentFormPage() {
   const [bannerFile, setBannerFile] = useState<File | null>(null)
   const [bannerMime, setBannerMime] = useState<TournamentBannerMime | null>(null)
   const [bannerPath, setBannerPath] = useState<string | null>(null)
+  const [bannerUrl, setBannerUrl] = useState('')
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(isEditing)
   const [isSaving, setIsSaving] = useState(false)
@@ -132,7 +133,12 @@ function AdminTournamentFormPage() {
           match_schedule: schedule,
           is_featured: record.is_featured,
         })
-        setBannerPath(record.banner_path)
+        if (record.banner_path?.startsWith('https://')) {
+          setBannerUrl(record.banner_path)
+          setBannerPath(null)
+        } else {
+          setBannerPath(record.banner_path)
+        }
         setSlugTouched(true)
       } catch {
         if (!active) return
@@ -161,6 +167,7 @@ function AdminTournamentFormPage() {
       const mime = await validateTournamentBanner(file)
       setBannerFile(file)
       setBannerMime(mime)
+      setBannerUrl('')
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : 'Choose a valid tournament banner.')
       event.target.value = ''
@@ -177,6 +184,13 @@ function AdminTournamentFormPage() {
 
   function validateForm() {
     if (form.name.trim().length < 3 || form.name.trim().length > 120) return 'Tournament name must be 3-120 characters.'
+    if (bannerUrl.trim()) {
+      try {
+        if (new URL(bannerUrl.trim()).protocol !== 'https:') return 'Banner URL must use HTTPS.'
+      } catch {
+        return 'Enter a valid HTTPS banner URL.'
+      }
+    }
     if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(form.slug) || form.slug.length > 100) return 'Use a lowercase, hyphen-separated slug.'
     if (!form.registration_opens_at || !form.registration_closes_at || !form.starts_at) return 'Set registration opening, closing, and tournament start dates.'
     const opens = new Date(form.registration_opens_at).getTime()
@@ -242,7 +256,7 @@ function AdminTournamentFormPage() {
         starts_at: toTimestamp(form.starts_at, form.timezone),
         ends_at: form.ends_at ? toTimestamp(form.ends_at, form.timezone) : null,
         is_featured: form.is_featured,
-        banner_path: bannerPath,
+        banner_path: bannerUrl.trim() ? null : bannerPath,
       }
 
       const { data: savedId, error } = await supabaseClient.rpc('save_tournament', { p_tournament: payload })
@@ -256,7 +270,22 @@ function AdminTournamentFormPage() {
       }
       recordId = savedId
 
-      if (bannerFile && bannerMime) {
+      if (bannerUrl.trim()) {
+        const { error: bannerUrlError } = await supabaseClient.rpc('set_tournament_banner_url', {
+          p_tournament_id: recordId,
+          p_banner_url: bannerUrl.trim(),
+        })
+        if (bannerUrlError) {
+          completionNotice = bannerUrlError.message === 'TOURNAMENT_ADMIN_REQUIRED'
+            ? 'Draft saved, but the banner URL could not be attached because admin authorization was denied.'
+            : 'Draft saved, but the HTTPS banner URL could not be attached. Check the URL and banner URL migration.'
+          setNotice(completionNotice)
+        } else {
+          setBannerPath(bannerUrl.trim())
+        }
+      }
+
+      if (!bannerUrl.trim() && bannerFile && bannerMime) {
         uploadedPath = `${recordId}/${crypto.randomUUID()}.${getTournamentBannerExtension(bannerMime)}`
         const { error: uploadError } = await supabaseClient.storage.from('tournament-banners').upload(uploadedPath, bannerFile, {
           contentType: bannerMime,
@@ -302,7 +331,8 @@ function AdminTournamentFormPage() {
       {notice && <p className="admin-notice" role="status">{notice}</p>}
       <form className="admin-tournament-form" onSubmit={(event) => void handleSubmit(event)}>
         <section className="admin-form-section"><div className="admin-form-section__heading"><span>01</span><div><h2>Basic information</h2><p>Set the public identity for this tournament.</p></div></div>
-          <label className="admin-banner-input"><input type="file" accept="image/png,image/jpeg,image/webp" onChange={(event) => void handleBannerChange(event)} /><span className="admin-banner-input__preview">{previewUrl ? <img src={previewUrl} alt="Selected tournament banner preview" /> : <TournamentBanner path={bannerPath} name={form.name || 'Tournament'} />}</span><span className="admin-banner-input__copy"><ImagePlus size={19} /><b>{bannerPath ? 'Replace tournament banner' : 'Add tournament banner'}</b><small>PNG, JPG, WEBP / max 5 MB / required before publishing</small></span></label>
+          <label className="admin-banner-input"><input type="file" accept="image/png,image/jpeg,image/webp" onChange={(event) => void handleBannerChange(event)} /><span className="admin-banner-input__preview">{previewUrl ? <img src={previewUrl} alt="Selected tournament banner preview" /> : bannerUrl ? <img src={bannerUrl} alt="Tournament banner from URL preview" /> : <TournamentBanner path={bannerPath} name={form.name || 'Tournament'} />}</span><span className="admin-banner-input__copy"><ImagePlus size={19} /><b>{bannerPath || bannerUrl ? 'Replace tournament banner' : 'Add tournament banner'}</b><small>Upload PNG/JPG/WEBP up to 5 MB, or provide an HTTPS URL below.</small></span></label>
+          <label className="form-field"><span>Banner image URL <small>Optional</small></span><input type="url" maxLength={2048} value={bannerUrl} onChange={(event) => { setBannerUrl(event.target.value); setBannerFile(null); setBannerMime(null) }} placeholder="https://example.com/tournament-banner.jpg" /><small>Use a direct HTTPS image link. Storage upload remains available above.</small></label>
           <div className="admin-form-grid"><label className="form-field"><span>Tournament name</span><input type="text" required minLength={3} maxLength={120} value={form.name} onChange={(event) => { const name = event.target.value; setForm((current) => ({ ...current, name, ...(slugTouched ? {} : { slug: slugifyTournamentName(name) }) })) }} /></label><label className="form-field"><span>Slug</span><input type="text" required maxLength={100} pattern="[a-z0-9]+(-[a-z0-9]+)*" value={form.slug} onChange={(event) => { setSlugTouched(true); updateField('slug', event.target.value) }} /><small>Public URL: /tournaments/{form.slug || 'tournament-name'}</small></label></div>
           <label className="form-field"><span>Description</span><textarea rows={4} maxLength={5000} value={form.description} onChange={(event) => updateField('description', event.target.value)} /></label>
           <div className="admin-form-grid admin-form-grid--three"><label className="form-field"><span>Game</span><select value={form.game_code} onChange={(event) => updateField('game_code', event.target.value)}><option value="free_fire">Garena Free Fire</option></select></label><label className="form-field"><span>Tournament mode</span><select value={form.mode_code} onChange={(event) => updateField('mode_code', event.target.value)}><option value="battle_royale">Battle Royale</option></select></label><label className="form-field"><span>Tournament format</span><select value={form.format_code} onChange={(event) => updateField('format_code', event.target.value)}><option value="squad">Squad</option></select></label></div>

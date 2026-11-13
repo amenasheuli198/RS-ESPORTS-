@@ -6,6 +6,7 @@ export interface Team {
   id: string
   name: string
   slug: string
+  team_code: string
   game_code: string
   format_code: string
   logo_path: string | null
