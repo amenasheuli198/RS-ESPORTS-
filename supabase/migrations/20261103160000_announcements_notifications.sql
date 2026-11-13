@@ -260,10 +260,6 @@ begin
 end;
 $$;
 
-create trigger announcement_published_notifications
-  after insert or update of status on public.announcements
-  for each row execute function public.notify_announcement_publication();
-
 revoke all on function public.notify_announcement_publication() from public, anon, authenticated;
 
 create function public.notify_match_event()
@@ -490,6 +486,10 @@ create table public.announcements (
   check ((audience_type = 'team_members' and team_id is not null)
     or audience_type <> 'team_members')
 );
+
+create trigger announcement_published_notifications
+  after insert or update of status on public.announcements
+  for each row execute function public.notify_announcement_publication();
 
 create index announcements_publication_idx
   on public.announcements (status, published_at desc, expires_at);
