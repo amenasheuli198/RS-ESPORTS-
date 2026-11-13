@@ -34,8 +34,8 @@ function RegistrationPage() {
         }
       } else {
         const trimmedOtp = otp.trim()
-        if (!/^\d{6}$/.test(trimmedOtp)) {
-          setErrorMessage('Enter the 6-digit verification code.')
+        if (!trimmedOtp) {
+          setErrorMessage('Enter the verification code.')
           return
         }
 
@@ -80,7 +80,7 @@ function RegistrationPage() {
         </label>
         {otpSent && <label className="form-field">
           <span>Email code</span>
-          <input type="text" name="otp" inputMode="numeric" autoComplete="one-time-code" required maxLength={6} value={otp} onChange={(event) => setOtp(event.target.value.replace(/\D/g, '').slice(0, 6))} />
+          <input type="text" name="otp" inputMode="numeric" autoComplete="one-time-code" required value={otp} onChange={(event) => setOtp(event.target.value.replace(/\D/g, ''))} />
         </label>}
         {errorMessage && <p className="auth-error" role="alert">{errorMessage}</p>}
         {notice && <p className="auth-success-message" role="status">{notice}</p>}
