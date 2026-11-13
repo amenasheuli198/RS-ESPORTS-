@@ -64,6 +64,9 @@ Important:
 18. `20261107000000_payment_bkash_verification.sql`
    - Final payment verification hardening and review enforcement.
 
+19. `20261113130000_admin_access_key_lockouts.sql`
+   - Persistent lockout after two invalid shared admin access-key attempts.
+
 ## Full file list in order
 
 ```text
@@ -85,6 +88,7 @@ supabase/migrations/20261106030000_support_evidence_hardening.sql
 supabase/migrations/20261106040000_competition_match_operations.sql
 supabase/migrations/20261106050000_competition_scoring_results.sql
 supabase/migrations/20261107000000_payment_bkash_verification.sql
+supabase/migrations/20261113130000_admin_access_key_lockouts.sql
 ```
 
 ## How to run in Supabase

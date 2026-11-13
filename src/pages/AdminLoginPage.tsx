@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState, type FormEvent } from 'react'
 import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/AuthProvider'
 import { PlatformEmblem } from '../components/ui'
@@ -7,96 +7,52 @@ import { hasTournamentAdminClaim } from '../tournaments/adminAccess'
 function AdminLoginPage() {
   const { client, user, signOut } = useAuth()
   const navigate = useNavigate()
-  const [email, setEmail] = useState('')
-  const [otp, setOtp] = useState('')
-  const [otpSent, setOtpSent] = useState(false)
-  const [isSending, setIsSending] = useState(false)
-  const [isVerifying, setIsVerifying] = useState(false)
-  const [cooldown, setCooldown] = useState(0)
+  const [accessKey, setAccessKey] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
-  const [notice, setNotice] = useState('')
-
-  useEffect(() => {
-    if (cooldown <= 0) return
-    const timer = window.setTimeout(() => setCooldown((value) => Math.max(0, value - 1)), 1000)
-    return () => window.clearTimeout(timer)
-  }, [cooldown])
 
   if (user && hasTournamentAdminClaim(user)) {
     return <Navigate to="/admin/dashboard" replace />
   }
 
-  async function handleSendOtp() {
-    const trimmedEmail = email.trim().toLowerCase()
-    if (!trimmedEmail) {
-      setErrorMessage('Enter the email address for your authorized administrator account.')
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    if (!accessKey) {
+      setErrorMessage('Enter the admin access key.')
       return
     }
 
     if (!client) {
-      setErrorMessage('Authentication is currently unavailable. Please try again later.')
+      setErrorMessage('Authentication is temporarily unavailable. Please try again later.')
       return
     }
 
-    setIsSending(true)
+    setIsSubmitting(true)
     setErrorMessage('')
-    setNotice('')
 
     try {
-      const { error } = await client.auth.signInWithOtp({
-        email: trimmedEmail,
-        options: {
-          shouldCreateUser: false,
-        },
+      const response = await fetch('/api/admin-login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ access_key: accessKey }),
       })
+      const result = await response.json().catch(() => null) as {
+        access_token?: string
+        refresh_token?: string
+      } | null
 
-      if (error) {
-        setErrorMessage('Unable to send the admin verification code. Please try again in a few moments.')
+      if (!response.ok || !result?.access_token || !result.refresh_token) {
+        setErrorMessage('Unable to sign in. Check your credentials and try again.')
         return
       }
 
-      setOtpSent(true)
-      setCooldown(45)
-      setNotice('A secure admin verification code has been sent to your email.')
-    } catch {
-      setErrorMessage('Unable to send the admin verification code right now.')
-    } finally {
-      setIsSending(false)
-    }
-  }
-
-  async function handleVerifyOtp() {
-    const trimmedEmail = email.trim().toLowerCase()
-    const trimmedOtp = otp.trim()
-
-    if (!trimmedEmail) {
-      setErrorMessage('Enter the admin email.')
-      return
-    }
-
-    if (!trimmedOtp) {
-      setErrorMessage('Enter the admin verification code.')
-      return
-    }
-
-    if (!client) {
-      setErrorMessage('Authentication is currently unavailable. Please try again later.')
-      return
-    }
-
-    setIsVerifying(true)
-    setErrorMessage('')
-    setNotice('')
-
-    try {
-      const { data, error } = await client.auth.verifyOtp({
-        email: trimmedEmail,
-        token: trimmedOtp,
-        type: 'email',
+      const { data, error } = await client.auth.setSession({
+        access_token: result.access_token,
+        refresh_token: result.refresh_token,
       })
 
-      if (error || !data.session || !data.user) {
-        setErrorMessage('The OTP is invalid or expired. Please request a new code.')
+      if (error || !data.user) {
+        setErrorMessage('Unable to sign in. Check your credentials and try again.')
         return
       }
 
@@ -108,9 +64,9 @@ function AdminLoginPage() {
 
       navigate('/admin/dashboard', { replace: true })
     } catch {
-      setErrorMessage('The OTP could not be verified. Please try again.')
+      setErrorMessage('Unable to sign in. Check your credentials and try again.')
     } finally {
-      setIsVerifying(false)
+      setIsSubmitting(false)
     }
   }
 
@@ -123,40 +79,21 @@ function AdminLoginPage() {
         </Link>
         <p className="auth-eyebrow">ADMIN ACCESS / SECURE LOGIN</p>
         <h1 id="admin-login-title">UNDERGRADUATE E-SPORTS admin portal.</h1>
-        <p className="auth-intro">Use the verified admin account to continue with one-time email OTP authentication.</p>
+        <p className="auth-intro">Enter the administrator access key to continue.</p>
 
         {errorMessage && <p className="auth-error" role="alert">{errorMessage}</p>}
-        {notice && <p className="auth-success-message" role="status">{notice}</p>}
 
-        <div className="auth-form">
+        <form className="auth-form" onSubmit={handleSubmit}>
           <label className="form-field">
-            <span>Admin email</span>
-            <input type="email" value={email} onChange={(event) => setEmail(event.target.value)} autoComplete="email" />
+            <span>Admin access key</span>
+            <input type="password" value={accessKey} onChange={(event) => setAccessKey(event.target.value)} autoComplete="off" required />
           </label>
-
-          {!otpSent ? (
-            <button type="button" className="auth-submit" onClick={() => void handleSendOtp()} disabled={isSending}>
-              {isSending ? 'Sending OTP...' : 'Send OTP'}
-            </button>
-          ) : (
-            <>
-              <label className="form-field">
-                <span>One-time password</span>
-                <input type="text" inputMode="numeric" autoComplete="one-time-code" value={otp} onChange={(event) => setOtp(event.target.value.replace(/\D/g, ''))} placeholder="Enter code" />
-              </label>
-
-              <button type="button" className="auth-submit" onClick={() => void handleVerifyOtp()} disabled={isVerifying}>
-                {isVerifying ? 'Verifying OTP...' : 'Verify OTP'}
-              </button>
-
-              <button type="button" className="auth-submit auth-submit--secondary" onClick={() => void handleSendOtp()} disabled={cooldown > 0 || isSending}>
-                {cooldown > 0 ? `Resend OTP (${cooldown}s)` : 'Resend OTP'}
-              </button>
-            </>
-          )}
+          <button type="submit" className="auth-submit" disabled={isSubmitting}>
+            {isSubmitting ? 'Signing in...' : 'Sign in'}
+          </button>
 
           <Link className="auth-switch" to="/">Return to UNDERGRADUATE E-SPORTS</Link>
-        </div>
+        </form>
       </section>
     </main>
   )
