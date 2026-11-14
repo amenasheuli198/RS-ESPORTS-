@@ -22,6 +22,7 @@ returns table (
   starts_at timestamptz,
   timezone text,
   status text,
+  display_status text,
   banner_path text
 )
 language sql
@@ -51,6 +52,17 @@ as $$
     competition.starts_at,
     competition.timezone,
     competition.status,
+    case
+      when competition.status = 'cancelled' then 'Cancelled'
+      when competition.status = 'draft' then 'Draft'
+      when competition.status = 'completed' then 'Completed'
+      when competition.status = 'live' then 'Live'
+      when competition.status = 'registration_closed' then 'Registration Closed'
+      when competition.status = 'published' and competition.registration_opens_at > now() then 'Upcoming'
+      when competition.status = 'published' and competition.registration_closes_at <= now() then 'Registration Closed'
+      when competition.status = 'published' and competition.registration_closes_at <= now() + interval '48 hours' then 'Registration Closing Soon'
+      else 'Registration Open'
+    end as display_status,
     tournament.banner_path
   from public.competitions as competition
   join public.games as game on game.game_code = competition.game_code
@@ -58,7 +70,7 @@ as $$
     on format.game_code = competition.game_code and format.format_code = competition.format_code
   left join public.tournaments as tournament on tournament.id = competition.legacy_tournament_id
   left join public.competition_entries as entry on entry.competition_id = competition.id
-  where competition.status in ('published', 'registration_closed', 'live')
+  where competition.status in ('published', 'registration_closed', 'live', 'completed')
     and (competition.legacy_tournament_id is null or tournament.publication_status = 'published')
     and (competition.ends_at is null or competition.ends_at > now())
   group by competition.id, game.display_name, format.display_name, tournament.banner_path

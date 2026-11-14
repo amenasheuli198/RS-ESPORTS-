@@ -54,7 +54,13 @@ interface HomepageCompetition {
   starts_at: string
   timezone: string
   status: string
+  display_status: string
   banner_path: string | null
+}
+
+function getCompetitionStatusLabel(item: HomepageCompetition): string {
+  if (item.display_status) return item.display_status
+  return item.status === 'published' ? 'Registration Open' : item.status
 }
 
 function HomePage() {
@@ -100,7 +106,11 @@ function HomePage() {
     return () => { active = false }
   }, [client])
 
-  const visibleTournaments = competitions.filter((item) => item.competition_type === 'tournament' && (activeFilter === 'All' || item.status === activeFilter))
+  const visibleTournaments = competitions.filter((item) => {
+    if (item.competition_type !== 'tournament') return false
+    const statusLabel = getCompetitionStatusLabel(item)
+    return activeFilter === 'All' || statusLabel === activeFilter
+  })
   const visibleQuickMatches = competitions.filter((item) => item.competition_type === 'quick_match')
 
   useEffect(() => {
