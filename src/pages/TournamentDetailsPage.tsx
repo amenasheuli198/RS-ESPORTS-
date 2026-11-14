@@ -118,13 +118,12 @@ function TournamentDetailsPage() {
   const eligibilityReason = !user ? 'Sign in to check your team’s eligibility.'
     : eligibilityError || (isEligibilityLoading ? 'Checking your team roster…' : !teamRole ? 'Create or join a team before registering.'
       : teamRole !== 'captain' ? 'Only the team captain can submit this registration.'
-        : tournament.entry_type !== 'free' || tournament.entry_fee > 0 ? 'This tournament requires a paid entry. Complete registration and follow the payment verification flow before approval.'
-          : tournament.available_slots <= 0 ? 'All tournament slots are currently reserved.'
-            : startingCount < tournament.starting_players_required ? `Your team needs ${tournament.starting_players_required} starting players; ${startingCount} are active.`
-              : tournament.game_code === 'free_fire' && tournament.mode_code === 'battle_royale' && tournament.format_code === 'squad' && startingCount < 4 ? 'Free Fire Battle Royale Squad requires four active starting players.'
-                : substituteCount > 0 && !tournament.substitute_allowed ? 'This tournament does not allow a substitute, but your roster has one.'
-                  : hasActiveRegistration ? 'Your team already has a pending or approved registration.'
-                    : null)
+        : tournament.available_slots <= 0 ? 'All tournament slots are currently reserved.'
+          : startingCount < tournament.starting_players_required ? `Your team needs ${tournament.starting_players_required} starting players; ${startingCount} are active.`
+            : tournament.game_code === 'free_fire' && tournament.mode_code === 'battle_royale' && tournament.format_code === 'squad' && startingCount < 4 ? 'Free Fire Battle Royale Squad requires four active starting players.'
+              : substituteCount > 0 && !tournament.substitute_allowed ? 'This tournament does not allow a substitute, but your roster has one.'
+                : hasActiveRegistration ? 'Your team already has a pending or approved registration.'
+                  : null)
 
   return (
     <>

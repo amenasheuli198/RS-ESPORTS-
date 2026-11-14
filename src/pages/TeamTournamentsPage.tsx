@@ -103,7 +103,6 @@ function TeamTournamentsPage() {
 
   function eligibilityReason(tournament: PublicTournament) {
     if (membership?.role !== 'captain') return 'Only the team captain can submit this registration.'
-    if (tournament.entry_type !== 'free' || tournament.entry_fee !== 0) return 'This tournament requires payment verification before approval. Complete the entry and follow the manual payment instructions.'
     if (tournament.tournament_status !== 'Registration Open' && tournament.tournament_status !== 'Registration Closing Soon') return 'Registration is not open.'
     if (tournament.available_slots <= 0) return 'All tournament slots are reserved.'
     if (registrations.some((item) => item.tournament_id === tournament.id && ['pending', 'approved'].includes(item.status))) return 'Your team already has an active registration.'
@@ -124,6 +123,50 @@ function TeamTournamentsPage() {
     setWorkingId(selectedTournament.id)
     setMessage('')
     try {
+      if (selectedTournament.entry_type === 'paid') {
+        const { data: competition, error: competitionError } = await client.from('competitions')
+          .select('id')
+          .eq('legacy_tournament_id', selectedTournament.id)
+          .maybeSingle()
+
+        if (competitionError || !competition) {
+          setIsError(true)
+          setMessage('This paid tournament is not linked to an active competition entry yet. Refresh and try again.')
+          return
+        }
+
+        const { data: entryId, error: entryError } = await client.rpc('register_competition_team', {
+          p_competition_id: competition.id,
+          p_team_id: team.id,
+        })
+
+        if (entryError) {
+          setIsError(true)
+          const messages: Record<string, string> = {
+            TEAM_CAPTAIN_REQUIRED: 'Only the team captain can register this team.',
+            TEAM_ROSTER_OUT_OF_RANGE: 'Your roster does not meet the tournament requirements.',
+            TEAM_GAME_MISMATCH: 'This team is not eligible for this game format.',
+            GAME_IDENTITY_REQUIRED_FOR_ROSTER: 'All active players must have a valid identity for this game.',
+            COMPETITION_FULL: 'All tournament slots are reserved.',
+            REGISTRATION_CLOSED: 'Registration has closed or the tournament has started.',
+            COMPETITION_NOT_OPEN: 'This competition is not open for registration right now.',
+            PLAYER_PROFILE_COMPLETION_REQUIRED: 'Complete your verified profile before registering.',
+          }
+          setMessage(messages[entryError.message] ?? 'Registration could not be submitted. Please refresh and try again.')
+          return
+        }
+
+        setIsError(false)
+        setSelectedTournament(null)
+        setRulesAccepted(false)
+        setMessage('Registration submitted. Complete the payment verification to confirm your team entry.')
+        await refresh()
+        if (entryId) {
+          window.location.assign(`/payments/${entryId}`)
+        }
+        return
+      }
+
       const { error } = await client.rpc('register_team_for_tournament', {
         p_tournament_id: selectedTournament.id,
         p_team_id: team.id,
@@ -140,7 +183,7 @@ function TeamTournamentsPage() {
           REGISTRATION_CLOSED: 'Registration has closed or the tournament has started.',
           TOURNAMENT_NOT_PUBLISHED: 'This tournament is no longer available.',
           TEAM_ALREADY_REGISTERED: 'Your team already has an active registration.',
-          PAYMENT_VERIFICATION_REQUIRED: 'Paid tournaments cannot be registered without payment verification.',
+          PAYMENT_VERIFICATION_REQUIRED: 'This tournament requires payment verification before approval.',
         }
         setMessage(messages[error.message] ?? 'Registration could not be submitted. Please refresh and try again.')
       } else {
