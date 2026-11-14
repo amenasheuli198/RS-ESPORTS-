@@ -49,7 +49,10 @@ function TeamInvitationsPage() {
           TEAM_CODE_NOT_FOUND: 'No team has this code. Check it with the captain and try again.',
           TEAM_CODE_EMAIL_MISMATCH: 'This code is restricted to a different verified email address.',
           PLAYER_ALREADY_ON_ACTIVE_TEAM: 'You are already active on another team roster.',
-          TEAM_ROSTER_FULL: 'The roster slot has already been filled. Ask the captain for a new code.',
+          TEAM_ROSTER_FULL: 'The database is still enforcing the old roster limit. Apply the latest team-code migration and retry.',
+          STARTING_LINEUP_FULL: 'The database is still enforcing the old roster limit. Apply the latest team-code migration and retry.',
+          SUBSTITUTE_SLOT_FULL: 'The database is still enforcing the old roster limit. Apply the latest team-code migration and retry.',
+          INVALID_TEAM_CODE: 'Enter the Team Code exactly as the captain shared it.',
           INVALID_PLAYER_IGN: 'IGN must be 2-32 characters.',
           INVALID_FREE_FIRE_UID: 'Free Fire UID must contain 5-20 digits.',
         }

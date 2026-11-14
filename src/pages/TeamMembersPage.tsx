@@ -55,12 +55,12 @@ function TeamMembersPage() {
       <SectionHeading eyebrow="Team / squad members" title="The lineup." description={`${activeMembers.length} active player${activeMembers.length === 1 ? '' : 's'} on this roster.`} />
       {message && <p className={isError ? 'team-form-error' : 'team-form-success'} role={isError ? 'alert' : 'status'}>{message}</p>}
       <section className="team-panel team-public-code" aria-label="Team Code">
-        <div><p className="auth-eyebrow">TEAM CODE / JOIN THIS ROSTER</p><p>Share this unique code with a verified player. The roster must have an open slot.</p><code>{team.team_code}</code></div>
+        <div><p className="auth-eyebrow">TEAM CODE / JOIN THIS ROSTER</p><p>Share this code with verified players. There is no roster-size limit.</p><code>{team.team_code}</code></div>
         <button className="team-button team-button--secondary" type="button" onClick={() => void copyTeamCode()}><Copy size={15} /> Copy Team Code</button>
       </section>
       <div className="team-members-layout">
         <section className="team-panel" aria-labelledby="roster-title">
-          <div className="team-panel__title"><Shield size={18} /><h2 id="roster-title">Active roster</h2><span>{activeMembers.length} / 5</span></div>
+          <div className="team-panel__title"><Shield size={18} /><h2 id="roster-title">Active roster</h2><span>{activeMembers.length} active</span></div>
           <div className="team-member-cards">
             {activeMembers.map((member) => {
               const isSelf = member.user_id === user?.id
