@@ -5,6 +5,8 @@ import { PlatformEmblem } from '../ui'
 
 const adminLinks = [
   { label: 'Dashboard', path: '/admin/dashboard', icon: LayoutDashboard },
+  { label: 'Members', path: '/admin/members', icon: Users },
+  { label: 'Payments', path: '/admin/payments', icon: ShieldCheck },
   { label: 'Content', path: '/admin/content', icon: Megaphone },
   { label: 'Settings', path: '/admin/settings', icon: Settings },
   { label: 'Tournaments', path: '/admin/tournaments', icon: Trophy },

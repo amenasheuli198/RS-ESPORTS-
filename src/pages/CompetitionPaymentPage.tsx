@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react'
-import { ArrowLeft, Check, Clipboard, Copy, ShieldCheck } from 'lucide-react'
+import { ArrowLeft, Check, Copy, ShieldCheck } from 'lucide-react'
 import { Link, useParams } from 'react-router-dom'
 import { useAuth } from '../auth/AuthProvider'
 import SiteFooter from '../components/SiteFooter'

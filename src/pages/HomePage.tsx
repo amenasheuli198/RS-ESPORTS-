@@ -5,12 +5,13 @@ import LeaderboardPreview from '../components/LeaderboardPreview'
 import SiteFooter from '../components/SiteFooter'
 import SiteHeader from '../components/SiteHeader'
 import StatisticsSection from '../components/StatisticsSection'
-import TournamentCard from '../components/TournamentCard'
 import TournamentFilters from '../components/TournamentFilters'
 import { PrimaryButton, SectionHeading } from '../components/ui'
-import { demoAnnouncements, demoTournaments } from '../data/homepage'
+import { demoAnnouncements } from '../data/homepage'
 import type { TournamentFilter } from '../types/homepage'
-import { ArrowDownRight, Award, Check, ChevronRight, Crosshair, Flag, Gamepad2, Medal, Trophy, UsersRound } from 'lucide-react'
+import { ArrowDownRight, Award, CalendarDays, Check, ChevronRight, Crosshair, Flag, Gamepad2, Medal, Trophy, UsersRound } from 'lucide-react'
+import { useAuth } from '../auth/AuthProvider'
+import { formatTournamentDate, formatTournamentMoney } from '../tournaments/format'
 
 const steps = [
   { number: '01', title: 'Create your account', description: 'Set up your player profile and get ready to compete.', icon: Flag },
@@ -32,11 +33,75 @@ const platformFeatures = [
   { title: 'Rewards & recognition', description: 'Celebrate placements and rewards only when they are verified.', icon: Award },
 ]
 
+interface HomepageCompetition {
+  competition_id: string
+  competition_type: 'tournament' | 'quick_match'
+  legacy_tournament_id: string | null
+  title: string
+  slug: string
+  description: string
+  game_code: string
+  game_name: string
+  format_code: string
+  format_name: string
+  entry_type: 'free' | 'paid'
+  entry_fee: number
+  currency: string
+  capacity: number
+  registered_count: number
+  registration_opens_at: string
+  registration_closes_at: string
+  starts_at: string
+  timezone: string
+  status: string
+  banner_path: string | null
+}
+
 function HomePage() {
+  const { client } = useAuth()
   const [activeFilter, setActiveFilter] = useState<TournamentFilter>('All')
-  const visibleTournaments = demoTournaments.filter((tournament) => (
-    activeFilter === 'All' || tournament.status === activeFilter
-  ))
+  const [competitions, setCompetitions] = useState<HomepageCompetition[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [errorMessage, setErrorMessage] = useState('')
+
+  useEffect(() => {
+    let active = true
+
+    async function loadCompetitions() {
+      if (!client) {
+        if (active) {
+          setCompetitions([])
+          setIsLoading(false)
+        }
+        return
+      }
+
+      try {
+        const { data, error } = await client.rpc('get_homepage_competitions')
+        if (!active) return
+
+        if (error) {
+          setErrorMessage('Homepage competition data could not be loaded.')
+          setCompetitions([])
+        } else {
+          setCompetitions((data ?? []) as HomepageCompetition[])
+          setErrorMessage('')
+        }
+      } catch {
+        if (!active) return
+        setErrorMessage('Homepage competition data could not be loaded.')
+        setCompetitions([])
+      } finally {
+        if (active) setIsLoading(false)
+      }
+    }
+
+    void loadCompetitions()
+    return () => { active = false }
+  }, [client])
+
+  const visibleTournaments = competitions.filter((item) => item.competition_type === 'tournament' && (activeFilter === 'All' || item.status === activeFilter))
+  const visibleQuickMatches = competitions.filter((item) => item.competition_type === 'quick_match')
 
   useEffect(() => {
     const revealElements = Array.from(document.querySelectorAll<HTMLElement>('[data-home-reveal]'))
@@ -85,9 +150,30 @@ function HomePage() {
               <TournamentFilters activeFilter={activeFilter} onChange={setActiveFilter} />
               <span className="demo-note"><span /> OFFICIAL EVENTS ONLY</span>
             </div>
-            {visibleTournaments.length > 0 ? (
+            {isLoading ? (
+              <div className="empty-state" role="status"><ArrowDownRight aria-hidden="true" size={24} /><h3>Loading competitions…</h3><p>Fetching published tournaments and quick matches.</p></div>
+            ) : errorMessage ? (
+              <div className="empty-state" role="status"><ArrowDownRight aria-hidden="true" size={24} /><h3>Competitions unavailable</h3><p>{errorMessage}</p></div>
+            ) : visibleTournaments.length > 0 ? (
               <div className="tournament-grid" aria-live="polite" aria-relevant="additions removals">
-                {visibleTournaments.map((tournament) => <TournamentCard key={tournament.id} tournament={tournament} />)}
+                {visibleTournaments.map((tournament) => (
+                  <article className="tournament-card" key={tournament.competition_id}>
+                    <div className="tournament-card__image-wrap">
+                      <img src={tournament.banner_path ?? 'https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1200&q=80'} alt={tournament.title} className="tournament-card__image" />
+                      <span className="status-badge status-badge--live">{tournament.status}</span>
+                    </div>
+                    <div className="tournament-card__body">
+                      <p className="tournament-card__game">{tournament.game_name}<span />{tournament.format_name}</p>
+                      <h3>{tournament.title}</h3>
+                      <div className="tournament-card__details">
+                        <div><span className="tournament-card__coin">৳</span><span><b>{formatTournamentMoney(tournament.entry_fee, tournament.entry_type, tournament.currency)}</b><small>Entry</small></span></div>
+                        <div><UsersRound aria-hidden="true" size={16} /><span><b>{tournament.registered_count} / {tournament.capacity}</b><small>Registered</small></span></div>
+                        <div><CalendarDays aria-hidden="true" size={16} /><span><b>{formatTournamentDate(tournament.starts_at, tournament.timezone, true)}</b><small>Starts</small></span></div>
+                      </div>
+                      <PrimaryButton className="tournament-card__button" href={tournament.slug ? `/tournaments/${tournament.slug}` : '/tournaments'}>View details</PrimaryButton>
+                    </div>
+                  </article>
+                ))}
               </div>
             ) : (
               <div className="empty-state" role="status">
@@ -110,7 +196,7 @@ function HomePage() {
             <div className="games-grid">
               {supportedGames.map((game) => {
                 const Icon = game.icon
-                const eventCount = demoTournaments.filter((tournament) => tournament.game.toLowerCase().includes(game.name.toLowerCase())).length
+                const eventCount = competitions.filter((competition) => competition.game_name.toLowerCase().includes(game.name.toLowerCase())).length
                 return (
                   <a className="game-tile" href="#tournaments" key={game.name} data-home-reveal>
                     <span className="game-tile__icon"><Icon aria-hidden="true" size={24} /></span>
@@ -168,6 +254,41 @@ function HomePage() {
                 )
               })}
             </ol>
+          </div>
+        </section>
+
+        <section className="section" aria-labelledby="quick-matches-heading" data-home-reveal>
+          <div className="page-width">
+            <SectionHeading
+              eyebrow="Quick play"
+              title="Quick matches"
+              description="Standalone matches with their own entry, schedule, and assignment flow."
+              id="quick-matches-heading"
+            />
+            {visibleQuickMatches.length > 0 ? (
+              <div className="tournament-grid">
+                {visibleQuickMatches.map((match) => (
+                  <article className="tournament-card" key={match.competition_id}>
+                    <div className="tournament-card__image-wrap">
+                      <img src={match.banner_path ?? 'https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1200&q=80'} alt={match.title} className="tournament-card__image" />
+                      <span className="status-badge status-badge--live">{match.status}</span>
+                    </div>
+                    <div className="tournament-card__body">
+                      <p className="tournament-card__game">{match.game_name}<span />{match.format_name}</p>
+                      <h3>{match.title}</h3>
+                      <div className="tournament-card__details">
+                        <div><span className="tournament-card__coin">৳</span><span><b>{formatTournamentMoney(match.entry_fee, match.entry_type, match.currency)}</b><small>Entry</small></span></div>
+                        <div><UsersRound aria-hidden="true" size={16} /><span><b>{match.registered_count} / {match.capacity}</b><small>Players</small></span></div>
+                        <div><CalendarDays aria-hidden="true" size={16} /><span><b>{formatTournamentDate(match.starts_at, match.timezone, true)}</b><small>Start</small></span></div>
+                      </div>
+                      <PrimaryButton className="tournament-card__button" href="/quick-matches">View details</PrimaryButton>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            ) : (
+              <div className="empty-state" role="status"><ArrowDownRight aria-hidden="true" size={24} /><h3>No quick matches published yet</h3><p>Published quick matches will appear here automatically.</p></div>
+            )}
           </div>
         </section>
 
