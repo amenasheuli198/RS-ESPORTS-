@@ -53,8 +53,14 @@ function TeamInvitationsPage() {
           INVALID_PLAYER_IGN: 'IGN must be 2-32 characters.',
           INVALID_FREE_FIRE_UID: 'Free Fire UID must contain 5-20 digits.',
         }
+        const fallback = error.message ?? ''
         setIsError(true)
-        setMessage(messages[error.message] ?? 'The Team Code could not be redeemed.')
+        setMessage(
+          messages[error.message]
+            ?? (fallback.toLowerCase().includes('does not exist') || fallback.toLowerCase().includes('function')
+              ? 'The Team Code backend is not active in the database yet. Apply the latest team join migration and retry.'
+              : 'The Team Code could not be redeemed.')
+        )
       } else {
         setMessage('Team Code accepted. You have joined the roster.')
         setJoinCode('')
