@@ -46,7 +46,7 @@ const openStatuses = ['Registration Open', 'Registration Closing Soon']
 
 function TeamTournamentsPage() {
   const { client, user } = useAuth()
-  const { team, membership, roster } = useTeam()
+  const { team, membership } = useTeam()
   const [searchParams, setSearchParams] = useSearchParams()
   const [availableTournaments, setAvailableTournaments] = useState<PublicTournament[]>([])
   const [registrations, setRegistrations] = useState<RegistrationRecord[]>([])
@@ -99,8 +99,6 @@ function TeamTournamentsPage() {
     setSearchParams(next, { replace: true })
   }, [availableTournaments, searchParams, setSearchParams])
 
-  const activeStarters = roster.filter((member) => member.status === 'active' && member.role !== 'substitute').length
-  const activeSubstitutes = roster.filter((member) => member.status === 'active' && member.role === 'substitute').length
   const visibleTournaments = useMemo(() => availableTournaments.filter((tournament) => {
     const matchesSearch = tournament.name.toLowerCase().includes(search.trim().toLowerCase())
     const registration = registrations.find((item) => item.tournament_id === tournament.id && ['pending', 'approved'].includes(item.status))
@@ -112,9 +110,6 @@ function TeamTournamentsPage() {
     if (tournament.tournament_status !== 'Registration Open' && tournament.tournament_status !== 'Registration Closing Soon') return 'Registration is not open.'
     if (tournament.available_slots <= 0) return 'All tournament slots are reserved.'
     if (registrations.some((item) => item.tournament_id === tournament.id && ['pending', 'approved'].includes(item.status))) return 'Your team already has an active registration.'
-    if (activeStarters < tournament.starting_players_required) return `Your team needs ${tournament.starting_players_required} starting players; ${activeStarters} are active.`
-    if (tournament.game_code === 'free_fire' && tournament.mode_code === 'battle_royale' && tournament.format_code === 'squad' && activeStarters < 4) return 'Free Fire Battle Royale Squad requires four active starting players.'
-    if (activeSubstitutes > 0 && !tournament.substitute_allowed) return 'This tournament does not allow a substitute, but your roster has one.'
     return null
   }
 
@@ -147,15 +142,31 @@ function TeamTournamentsPage() {
           return
         }
 
-        const { data: entryId, error: entryError } = await client.rpc('register_competition_team', {
+        let entryId: string | null = null
+        let entryError = null
+        const manualPayload = manualMembers.map((member) => ({
+          member_name: member.member_name.trim(),
+          member_email: member.email.trim() || null,
+          member_phone: member.phone.trim() || null,
+        }))
+
+        const primaryAttempt = await client.rpc('register_competition_team', {
           p_competition_id: competition.id,
           p_team_id: team.id,
-          p_manual_members: manualMembers.map((member) => ({
-            member_name: member.member_name.trim(),
-            member_email: member.email.trim() || null,
-            member_phone: member.phone.trim() || null,
-          })),
+          p_manual_members: manualPayload,
         })
+
+        if (primaryAttempt.error && /does not exist|function .* not found|invalid input syntax|column .* does not exist/i.test(primaryAttempt.error.message ?? '')) {
+          const fallbackAttempt = await client.rpc('register_competition_team', {
+            p_competition_id: competition.id,
+            p_team_id: team.id,
+          })
+          entryId = fallbackAttempt.data
+          entryError = fallbackAttempt.error
+        } else {
+          entryId = primaryAttempt.data
+          entryError = primaryAttempt.error
+        }
 
         if (entryError) {
           setIsError(true)
@@ -303,7 +314,7 @@ function TeamTournamentsPage() {
         <section className="registration-dialog" role="dialog" aria-modal="true" aria-labelledby="registration-dialog-title">
           <button className="registration-dialog__close" type="button" aria-label="Close registration confirmation" disabled={Boolean(workingId)} onClick={() => { setSelectedTournament(null); setManualMembers(createDefaultTeamRegistrationMembers()) }}><X size={18} /></button>
           <p className="section-heading__eyebrow">FINAL CHECK / TEAM REGISTRATION</p><h2 id="registration-dialog-title">Confirm your entry.</h2>
-          <div className="registration-dialog__summary"><span>Tournament</span><b>{selectedTournament.name}</b><span>Team</span><b>{team?.name}</b><span>Entry fee</span><b>{formatTournamentMoney(selectedTournament.entry_fee, selectedTournament.entry_type)}</b><span>Starting roster</span><b>{activeStarters} / {selectedTournament.starting_players_required} players</b><span>Registration closes</span><b>{formatTournamentDate(selectedTournament.registration_closes_at, selectedTournament.timezone, true)}</b></div>
+          <div className="registration-dialog__summary"><span>Tournament</span><b>{selectedTournament.name}</b><span>Team</span><b>{team?.name}</b><span>Entry fee</span><b>{formatTournamentMoney(selectedTournament.entry_fee, selectedTournament.entry_type)}</b><span>Roster requirement</span><b>4 members</b><span>Registration closes</span><b>{formatTournamentDate(selectedTournament.registration_closes_at, selectedTournament.timezone, true)}</b></div>
           <div className="registration-dialog__rules"><b>Key requirements</b><p>{selectedTournament.participation_requirements || selectedTournament.eligibility || 'Review the complete tournament rules before confirming.'}</p><Link to={`/tournaments/${selectedTournament.slug}`} target="_blank" rel="noreferrer">Read all tournament rules</Link></div>
           <div className="team-registration-roster-form" aria-label="Team roster information">
             <h3>Four-player roster</h3>
