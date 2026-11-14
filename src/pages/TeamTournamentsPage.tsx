@@ -142,31 +142,17 @@ function TeamTournamentsPage() {
           return
         }
 
-        let entryId: string | null = null
-        let entryError = null
         const manualPayload = manualMembers.map((member) => ({
           member_name: member.member_name.trim(),
           member_email: member.email.trim() || null,
           member_phone: member.phone.trim() || null,
         }))
 
-        const primaryAttempt = await client.rpc('register_competition_team', {
+        const { data: entryId, error: entryError } = await client.rpc('register_competition_team', {
           p_competition_id: competition.id,
           p_team_id: team.id,
           p_manual_members: manualPayload,
         })
-
-        if (primaryAttempt.error && /does not exist|function .* not found|invalid input syntax|column .* does not exist/i.test(primaryAttempt.error.message ?? '')) {
-          const fallbackAttempt = await client.rpc('register_competition_team', {
-            p_competition_id: competition.id,
-            p_team_id: team.id,
-          })
-          entryId = fallbackAttempt.data
-          entryError = fallbackAttempt.error
-        } else {
-          entryId = primaryAttempt.data
-          entryError = primaryAttempt.error
-        }
 
         if (entryError) {
           setIsError(true)

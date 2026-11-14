@@ -6,7 +6,6 @@ import TournamentBanner from '../components/tournaments/TournamentBanner'
 import TournamentStatusBadge from '../components/tournaments/TournamentStatusBadge'
 import { formatTournamentDate, formatTournamentMoney, getScheduleLines } from '../tournaments/format'
 import type { PublicTournament } from '../tournaments/types'
-import type { TeamMember } from '../types/team'
 import { getSupabaseConfigurationError } from '../services/supabase/client'
 import SiteHeader from '../components/SiteHeader'
 import SiteFooter from '../components/SiteFooter'
@@ -19,8 +18,6 @@ function TournamentDetailsPage() {
   const [errorMessage, setErrorMessage] = useState('')
   const [teamName, setTeamName] = useState('')
   const [teamRole, setTeamRole] = useState<string | null>(null)
-  const [startingCount, setStartingCount] = useState(0)
-  const [substituteCount, setSubstituteCount] = useState(0)
   const [hasActiveRegistration, setHasActiveRegistration] = useState(false)
   const [isEligibilityLoading, setIsEligibilityLoading] = useState(false)
   const [eligibilityError, setEligibilityError] = useState('')
@@ -59,8 +56,6 @@ function TournamentDetailsPage() {
     let active = true
     setTeamName('')
     setTeamRole(null)
-    setStartingCount(0)
-    setSubstituteCount(0)
     setHasActiveRegistration(false)
     setEligibilityError('')
     if (!client || !user || !tournament) {
@@ -81,18 +76,14 @@ function TournamentDetailsPage() {
         if (membershipError) throw membershipError
         if (!membership) return
 
-        const [{ data: team, error: teamError }, { data: roster, error: rosterError }, { data: registrations, error: registrationsError }] = await Promise.all([
+        const [{ data: team, error: teamError }, { data: registrations, error: registrationsError }] = await Promise.all([
           supabaseClient.from('teams').select('name').eq('id', membership.team_id).maybeSingle(),
-          supabaseClient.rpc('get_team_roster', { p_team_id: membership.team_id }),
           supabaseClient.rpc('get_my_team_registration_records', { p_team_id: membership.team_id }),
         ])
-        if (teamError || rosterError || registrationsError) throw new Error('ELIGIBILITY_LOOKUP_FAILED')
+        if (teamError || registrationsError) throw new Error('ELIGIBILITY_LOOKUP_FAILED')
         if (!active) return
         setTeamName(team?.name ?? '')
         setTeamRole(membership.role)
-        const activeRoster = (roster ?? []) as TeamMember[]
-        setStartingCount(activeRoster.filter((member) => member.status === 'active' && member.role !== 'substitute').length)
-        setSubstituteCount(activeRoster.filter((member) => member.status === 'active' && member.role === 'substitute').length)
         setHasActiveRegistration((registrations ?? []).some((record: { tournament_id: string; status: string }) => record.tournament_id === tournament.id && ['pending', 'approved'].includes(record.status)))
       } catch {
         if (active) setEligibilityError('Team eligibility could not be checked. Open the team dashboard to refresh your roster.')
@@ -119,11 +110,8 @@ function TournamentDetailsPage() {
     : eligibilityError || (isEligibilityLoading ? 'Checking your team roster…' : !teamRole ? 'Create or join a team before registering.'
       : teamRole !== 'captain' ? 'Only the team captain can submit this registration.'
         : tournament.available_slots <= 0 ? 'All tournament slots are currently reserved.'
-          : startingCount < tournament.starting_players_required ? `Your team needs ${tournament.starting_players_required} starting players; ${startingCount} are active.`
-            : tournament.game_code === 'free_fire' && tournament.mode_code === 'battle_royale' && tournament.format_code === 'squad' && startingCount < 4 ? 'Free Fire Battle Royale Squad requires four active starting players.'
-              : substituteCount > 0 && !tournament.substitute_allowed ? 'This tournament does not allow a substitute, but your roster has one.'
-                : hasActiveRegistration ? 'Your team already has a pending or approved registration.'
-                  : null)
+          : hasActiveRegistration ? 'Your team already has a pending or approved registration.'
+            : null)
 
   return (
     <>
@@ -155,7 +143,7 @@ function TournamentDetailsPage() {
                 <article><MapPin size={17} /><span><small>Timezone</small><b>{tournament.timezone}</b></span></article>
               </div>
               <p className="tournament-capacity-note">Pending and approved registrations reserve team slots.</p>
-              <div className="tournament-squad-note"><ShieldCheck size={17} /><span><b>{tournament.starting_players_required} starting players required</b><small>{tournament.substitute_allowed ? 'Substitute allowed' : 'No substitute slot configured'}</small></span></div>
+              <div className="tournament-squad-note"><ShieldCheck size={17} /><span><b>Any roster size accepted</b><small>Captain may register alone or with any number of teammates</small></span></div>
             </section>
 
             <section className="tournament-rules-panel" aria-labelledby="tournament-rules-title">

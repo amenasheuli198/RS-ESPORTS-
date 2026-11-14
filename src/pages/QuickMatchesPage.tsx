@@ -163,14 +163,18 @@ function QuickMatchesPage() {
     setMessage('')
     try {
       const { error } = participantKind === 'team'
-        ? await client.rpc('register_competition_team', { p_competition_id: competition.id, p_team_id: team!.id })
+        ? await client.rpc('register_competition_team', { p_competition_id: competition.id, p_team_id: team!.id, p_manual_members: null })
         : await client.rpc('register_competition_individual', { p_competition_id: competition.id })
       if (error) {
         const messages: Record<string, string> = {
           PLAYER_PROFILE_COMPLETION_REQUIRED: 'Complete your verified player profile before registering.',
           TEAM_CAPTAIN_REQUIRED: 'Only your active team captain can register the team.',
           TEAM_ENTRY_NOT_SUPPORTED: 'This Quick Match does not accept team entries.',
+          TEAM_GAME_MISMATCH: 'Your active team is set up for a different game.',
+          TEAM_ROSTER_OUT_OF_RANGE: 'The registration service still has an older roster rule. Refresh after the database update is applied.',
+          GAME_IDENTITY_REQUIRED_FOR_ROSTER: 'The registration service still requires player game IDs. Refresh after the database update is applied.',
           INDIVIDUAL_ENTRY_NOT_SUPPORTED: 'This Quick Match does not accept individual entries.',
+          COMPETITION_NOT_OPEN: 'This Quick Match is not open for registration.',
           REGISTRATION_CLOSED: 'Registration is closed for this Quick Match.',
           COMPETITION_FULL: 'This Quick Match has reached its participant limit.',
         }
