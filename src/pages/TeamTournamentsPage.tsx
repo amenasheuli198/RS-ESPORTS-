@@ -314,19 +314,18 @@ function TeamTournamentsPage() {
         <section className="registration-dialog" role="dialog" aria-modal="true" aria-labelledby="registration-dialog-title">
           <button className="registration-dialog__close" type="button" aria-label="Close registration confirmation" disabled={Boolean(workingId)} onClick={() => { setSelectedTournament(null); setManualMembers(createDefaultTeamRegistrationMembers()) }}><X size={18} /></button>
           <p className="section-heading__eyebrow">FINAL CHECK / TEAM REGISTRATION</p><h2 id="registration-dialog-title">Confirm your entry.</h2>
-          <div className="registration-dialog__summary"><span>Tournament</span><b>{selectedTournament.name}</b><span>Team</span><b>{team?.name}</b><span>Entry fee</span><b>{formatTournamentMoney(selectedTournament.entry_fee, selectedTournament.entry_type)}</b><span>Roster requirement</span><b>4 members</b><span>Registration closes</span><b>{formatTournamentDate(selectedTournament.registration_closes_at, selectedTournament.timezone, true)}</b></div>
+          <div className="registration-dialog__summary"><span>Tournament</span><b>{selectedTournament.name}</b><span>Team</span><b>{team?.name}</b><span>Entry fee</span><b>{formatTournamentMoney(selectedTournament.entry_fee, selectedTournament.entry_type)}</b><span>Roster rule</span><b>No limit</b><span>Registration closes</span><b>{formatTournamentDate(selectedTournament.registration_closes_at, selectedTournament.timezone, true)}</b></div>
           <div className="registration-dialog__rules"><b>Key requirements</b><p>{selectedTournament.participation_requirements || selectedTournament.eligibility || 'Review the complete tournament rules before confirming.'}</p><Link to={`/tournaments/${selectedTournament.slug}`} target="_blank" rel="noreferrer">Read all tournament rules</Link></div>
           <div className="team-registration-roster-form" aria-label="Team roster information">
-            <h3>Four-player roster</h3>
-            <p>Every member name is required. Email and phone are optional and will not block registration.</p>
+            <h3>Optional team roster details</h3>
+            <p>There are no player-count or roster restrictions. Captain can register with a single-player team or any larger roster. Fill in these fields only if you want to record them.</p>
             <div className="team-registration-roster-grid">
               {manualMembers.map((member, index) => (
                 <div className="team-registration-member-card" key={`member-${index}`}>
                   <label className="form-field">
-                    <span>Member {index + 1} name</span>
+                    <span>Member {index + 1} name <small>Optional</small></span>
                     <input
                       type="text"
-                      required
                       maxLength={100}
                       value={member.member_name}
                       onChange={(event) => setManualMembers((current) => current.map((item, itemIndex) => itemIndex === index ? { ...item, member_name: event.target.value } : item))}

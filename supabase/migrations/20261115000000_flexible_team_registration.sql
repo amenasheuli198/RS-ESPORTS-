@@ -30,9 +30,6 @@ declare
   v_team public.teams%rowtype;
   v_entry_id uuid := gen_random_uuid();
   v_status text;
-  v_starters integer;
-  v_substitutes integer;
-  v_roster integer;
   v_reserved integer;
   v_manual_index integer;
   v_manual_entry jsonb;
@@ -68,48 +65,6 @@ begin
     raise exception using errcode = '42501', message = 'TEAM_CAPTAIN_REQUIRED';
   end if;
 
-  if p_manual_members is not null then
-    if jsonb_typeof(p_manual_members) <> 'array' then
-      raise exception using errcode = '23514', message = 'TEAM_ROSTER_OUT_OF_RANGE';
-    end if;
-    if jsonb_array_length(p_manual_members) <> 4 then
-      raise exception using errcode = '23514', message = 'TEAM_ROSTER_OUT_OF_RANGE';
-    end if;
-
-    for v_manual_index in 1..jsonb_array_length(p_manual_members)
-    loop
-      v_manual_entry := p_manual_members -> (v_manual_index - 1);
-      v_member_name := nullif(btrim(coalesce(v_manual_entry ->> 'member_name', '')), '');
-      if v_member_name is null or char_length(v_member_name) not between 2 and 100 or v_member_name ~ '[[:cntrl:]]' then
-        raise exception using errcode = '23514', message = 'TEAM_ROSTER_OUT_OF_RANGE';
-      end if;
-      v_member_email := nullif(btrim(coalesce(v_manual_entry ->> 'member_email', '')), '');
-      if v_member_email is not null and v_member_email !~ '^[^@[:space:]]+@[^@[:space:]]+\.[^@[:space:]]+$' then
-        raise exception using errcode = '23514', message = 'TEAM_ROSTER_OUT_OF_RANGE';
-      end if;
-      v_member_phone := nullif(btrim(coalesce(v_manual_entry ->> 'member_phone', '')), '');
-      if v_member_phone is not null and v_member_phone !~ '^[0-9+()\-\s]{7,24}$' then
-        raise exception using errcode = '23514', message = 'TEAM_ROSTER_OUT_OF_RANGE';
-      end if;
-    end loop;
-  else
-    select count(*) filter (where member.role in ('captain', 'starting_player')),
-           count(*) filter (where member.role = 'substitute'), count(*)
-    into v_starters, v_substitutes, v_roster
-    from public.team_members as member
-    where member.team_id = p_team_id and member.status = 'active';
-    if v_starters < v_competition.min_team_size or v_starters > v_competition.max_team_size
-      or v_substitutes > v_competition.max_substitutes or v_roster <> v_starters + v_substitutes then
-      raise exception using errcode = '23514', message = 'TEAM_ROSTER_OUT_OF_RANGE';
-    end if;
-    if v_competition.game_code <> 'free_fire' and exists (
-      select 1 from public.team_members member
-      where member.team_id = p_team_id and member.status = 'active'
-        and not exists (select 1 from public.player_game_identities identity
-          where identity.user_id = member.user_id and identity.game_code = v_competition.game_code)
-    ) then raise exception using errcode = '23514', message = 'GAME_IDENTITY_REQUIRED_FOR_ROSTER'; end if;
-  end if;
-
   select count(*) into v_reserved from public.competition_entries entry
   where entry.competition_id = p_competition_id
     and entry.status in ('pending_payment', 'payment_rejected', 'pending_review', 'confirmed');
@@ -119,11 +74,14 @@ begin
   insert into public.competition_entries (id, competition_id, team_id, registered_by, status)
   values (v_entry_id, p_competition_id, p_team_id, v_user_id, v_status);
 
-  if p_manual_members is not null then
+  if p_manual_members is not null and jsonb_typeof(p_manual_members) = 'array' then
     for v_manual_index in 1..jsonb_array_length(p_manual_members)
     loop
       v_manual_entry := p_manual_members -> (v_manual_index - 1);
       v_member_name := nullif(btrim(coalesce(v_manual_entry ->> 'member_name', '')), '');
+      if v_member_name is null then
+        continue;
+      end if;
       v_member_email := nullif(btrim(coalesce(v_manual_entry ->> 'member_email', '')), '');
       v_member_phone := nullif(btrim(coalesce(v_manual_entry ->> 'member_phone', '')), '');
       insert into public.competition_entry_members (

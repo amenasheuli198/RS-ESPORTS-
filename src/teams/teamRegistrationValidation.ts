@@ -13,29 +13,21 @@ function normalizeOptionalValue(rawValue: string | null | undefined): string {
 }
 
 export function validateTeamRegistrationMembers(members: TeamRegistrationMemberInput[] | null | undefined) {
-  const normalizedMembers = Array.isArray(members) ? members.map((member) => ({
-    member_name: normalizeOptionalValue(member?.member_name),
-    email: normalizeOptionalValue(member?.email),
-    phone: normalizeOptionalValue(member?.phone),
-  })) : []
+  if (!Array.isArray(members)) return null
 
-  if (normalizedMembers.length !== 4) {
-    return 'Team registration requires exactly four members.'
-  }
+  for (const member of members) {
+    const memberName = normalizeOptionalValue(member?.member_name)
+    const email = normalizeOptionalValue(member?.email)
+    const phone = normalizeOptionalValue(member?.phone)
 
-  for (let index = 0; index < normalizedMembers.length; index += 1) {
-    const member = normalizedMembers[index]
-    if (!member.member_name || member.member_name.length < 2 || member.member_name.length > 100) {
-      return `Member ${index + 1} name is required and must be 2-100 characters.`
+    if (memberName && /[\u0000-\u001f\u007f]/.test(memberName)) {
+      return 'Roster member names cannot contain control characters.'
     }
-    if (/[\u0000-\u001f\u007f]/.test(member.member_name)) {
-      return `Member ${index + 1} name contains invalid characters.`
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return 'Roster member email is invalid. Leave it blank if not available.'
     }
-    if (member.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(member.email)) {
-      return `Member ${index + 1} email is invalid. Leave it blank if not available.`
-    }
-    if (member.phone && !/^[+()\d\s-]{7,24}$/.test(member.phone)) {
-      return `Member ${index + 1} phone number is invalid. Leave it blank if not available.`
+    if (phone && !/^[+()\d\s-]{7,24}$/.test(phone)) {
+      return 'Roster member phone number is invalid. Leave it blank if not available.'
     }
   }
 
