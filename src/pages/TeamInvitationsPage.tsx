@@ -8,7 +8,7 @@ import { SectionHeading } from '../components/ui'
 
 function TeamInvitationsPage() {
   const { client } = useAuth()
-  const { team, membership, incomingInvitations, outgoingInvitations, refreshTeam } = useTeam()
+  const { team, membership, incomingInvitations, outgoingInvitations, error: teamError, refreshTeam } = useTeam()
   const navigate = useNavigate()
   const [credentials, setCredentials] = useState<Record<string, { ign: string; uid: string }>>({})
   const [joinCode, setJoinCode] = useState('')
@@ -158,6 +158,7 @@ function TeamInvitationsPage() {
   return (
     <div className="team-invitations-page">
       <SectionHeading eyebrow="Team / invitations" title="Roster invitations." description="Join a roster with a captain-issued Team Code or respond to an existing account invitation." />
+      {teamError && <p className="team-form-hint" role="status">Team status could not be loaded. You can still submit a code; the server will check whether you are eligible.</p>}
       {message && <p className={isError ? 'team-form-error' : 'team-form-success'} role={isError ? 'alert' : 'status'}>{message}</p>}
       <section className="team-panel team-code-join-panel" aria-labelledby="team-code-join-title">
         <div className="team-panel__heading"><span className="team-feature-icon"><Mail size={18} /></span><div><h2 id="team-code-join-title">Join with Team Code</h2><p>The code is one-time use and may be restricted to your verified email.</p></div></div>

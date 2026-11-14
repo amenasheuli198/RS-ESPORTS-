@@ -73,8 +73,7 @@ export function TeamProvider({ children }: { children?: ReactNode }) {
 
         if (membershipData.role === 'captain') {
           const { data, error: invitationsError } = await client.rpc('get_team_invitations', { p_team_id: teamData.id })
-          if (invitationsError) throw invitationsError
-          setOutgoingInvitations((data ?? []) as TeamInvitation[])
+          setOutgoingInvitations(invitationsError ? [] : (data ?? []) as TeamInvitation[])
         } else {
           setOutgoingInvitations([])
         }
@@ -86,8 +85,7 @@ export function TeamProvider({ children }: { children?: ReactNode }) {
       }
 
       const { data: incomingData, error: incomingError } = await client.rpc('get_my_team_invitations')
-      if (incomingError) throw incomingError
-      setIncomingInvitations((incomingData ?? []) as TeamInvitation[])
+      setIncomingInvitations(incomingError ? [] : (incomingData ?? []) as TeamInvitation[])
     } catch {
       setTeam(null)
       setMembership(null)

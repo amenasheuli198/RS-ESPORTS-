@@ -27,7 +27,7 @@ function TeamDashboardLayout() {
     return <main className="team-loading" role="status"><span className="auth-spinner" aria-hidden="true" /> Loading team workspace...</main>
   }
 
-  if (error) {
+  if (error && !isInvitationPage) {
     return <main className="team-empty-state page-width" role="alert"><h1>Team workspace unavailable.</h1><p>{error}</p><button className="team-button team-button--secondary" onClick={() => void refreshTeam()} type="button">Try again</button></main>
   }
 
