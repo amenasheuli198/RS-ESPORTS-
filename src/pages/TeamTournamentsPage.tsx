@@ -103,7 +103,7 @@ function TeamTournamentsPage() {
 
   function eligibilityReason(tournament: PublicTournament) {
     if (membership?.role !== 'captain') return 'Only the team captain can submit this registration.'
-    if (tournament.entry_type !== 'free' || tournament.entry_fee !== 0) return 'This tournament requires payment verification, which is not supported.'
+    if (tournament.entry_type !== 'free' || tournament.entry_fee !== 0) return 'This tournament requires payment verification before approval. Complete the entry and follow the manual payment instructions.'
     if (tournament.tournament_status !== 'Registration Open' && tournament.tournament_status !== 'Registration Closing Soon') return 'Registration is not open.'
     if (tournament.available_slots <= 0) return 'All tournament slots are reserved.'
     if (registrations.some((item) => item.tournament_id === tournament.id && ['pending', 'approved'].includes(item.status))) return 'Your team already has an active registration.'

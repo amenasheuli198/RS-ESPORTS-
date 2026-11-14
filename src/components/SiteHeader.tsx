@@ -40,10 +40,17 @@ function SiteHeader() {
         </nav>
 
         <div className="site-header__actions">
-          {user ? <NotificationBell /> : <>
-            <Link className="header-login" to="/login">Login</Link>
-            <Link className="header-register" to="/register">Register</Link>
-          </>}
+          {user ? (
+            <>
+              <Link className="header-login" to="/account">My Account</Link>
+              <NotificationBell />
+            </>
+          ) : (
+            <>
+              <Link className="header-login" to="/login">Login</Link>
+              <Link className="header-register" to="/register">Register</Link>
+            </>
+          )}
           <PrimaryButton href="/tournaments" className="header-explore">Explore tournaments</PrimaryButton>
         </div>
 
@@ -65,10 +72,17 @@ function SiteHeader() {
             <Link key={link.label} to={link.href} onClick={closeMenu}>{link.label}</Link>
           ))}
           <div className="mobile-nav__actions">
-            {user ? <NotificationBell /> : <>
-              <Link className="mobile-nav__auth-link mobile-nav__auth-link--login" to="/login" onClick={closeMenu}>Login</Link>
-              <Link className="mobile-nav__auth-link mobile-nav__auth-link--register" to="/register" onClick={closeMenu}>Register</Link>
-            </>}
+            {user ? (
+              <>
+                <Link className="mobile-nav__auth-link mobile-nav__auth-link--login" to="/account" onClick={closeMenu}>My Account</Link>
+                <NotificationBell />
+              </>
+            ) : (
+              <>
+                <Link className="mobile-nav__auth-link mobile-nav__auth-link--login" to="/login" onClick={closeMenu}>Login</Link>
+                <Link className="mobile-nav__auth-link mobile-nav__auth-link--register" to="/register" onClick={closeMenu}>Register</Link>
+              </>
+            )}
             <PrimaryButton href="/tournaments" onClick={closeMenu}>Explore tournaments</PrimaryButton>
           </div>
         </nav>
