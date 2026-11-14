@@ -8,6 +8,11 @@ import { formatTournamentDate, formatTournamentMoney } from '../tournaments/form
 import TournamentBanner from '../components/tournaments/TournamentBanner'
 import TournamentStatusBadge from '../components/tournaments/TournamentStatusBadge'
 import { SectionHeading } from '../components/ui'
+import {
+  createDefaultTeamRegistrationMembers,
+  validateTeamRegistrationMembers,
+  type TeamRegistrationMemberInput,
+} from '../teams/teamRegistrationValidation'
 
 interface RegistrationRecord {
   registration_id: string
@@ -54,6 +59,7 @@ function TeamTournamentsPage() {
   const [isError, setIsError] = useState(false)
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
+  const [manualMembers, setManualMembers] = useState<TeamRegistrationMemberInput[]>(() => createDefaultTeamRegistrationMembers())
 
   const refresh = useCallback(async () => {
     if (!client || !team || !user) {
@@ -114,6 +120,12 @@ function TeamTournamentsPage() {
 
   async function submitRegistration() {
     if (!client || !team || !selectedTournament || !rulesAccepted) return
+    const memberIssue = validateTeamRegistrationMembers(manualMembers)
+    if (memberIssue) {
+      setIsError(true)
+      setMessage(memberIssue)
+      return
+    }
     const reason = eligibilityReason(selectedTournament)
     if (reason) {
       setIsError(true)
@@ -138,6 +150,11 @@ function TeamTournamentsPage() {
         const { data: entryId, error: entryError } = await client.rpc('register_competition_team', {
           p_competition_id: competition.id,
           p_team_id: team.id,
+          p_manual_members: manualMembers.map((member) => ({
+            member_name: member.member_name.trim(),
+            member_email: member.email.trim() || null,
+            member_phone: member.phone.trim() || null,
+          })),
         })
 
         if (entryError) {
@@ -159,6 +176,7 @@ function TeamTournamentsPage() {
         setIsError(false)
         setSelectedTournament(null)
         setRulesAccepted(false)
+        setManualMembers(createDefaultTeamRegistrationMembers())
         setMessage('Registration submitted. Complete the payment verification to confirm your team entry.')
         await refresh()
         if (entryId) {
@@ -191,6 +209,7 @@ function TeamTournamentsPage() {
         setMessage('Registration submitted. Your team has a pending review and its slot is reserved.')
         setSelectedTournament(null)
         setRulesAccepted(false)
+        setManualMembers(createDefaultTeamRegistrationMembers())
         await refresh()
       }
     } catch {
@@ -253,7 +272,7 @@ function TeamTournamentsPage() {
               <TournamentBanner path={tournament.banner_path} name={tournament.name} className="team-tournament-card__banner" />
               <div className="team-tournament-card__body"><div className="team-tournament-card__top"><span>{tournament.game_code.replaceAll('_', ' ')} / {tournament.format_code.replaceAll('_', ' ')}</span><TournamentStatusBadge status={tournament.tournament_status} /></div><h3>{tournament.name}</h3>
                 <div className="team-tournament-card__facts"><span><b>{tournament.available_slots}/{tournament.max_teams}</b><small>Available / total</small></span><span><b>{formatTournamentMoney(tournament.entry_fee, tournament.entry_type)}</b><small>Entry</small></span><span><b>{formatTournamentMoney(tournament.prize_pool)}</b><small>Prize</small></span><span><b>{formatTournamentDate(tournament.starts_at, tournament.timezone)}</b><small>Tournament date</small></span></div>
-                {registration ? <p className="team-tournament-card__registered"><CheckCircle2 size={15} /> Registered / {registration.status}</p> : reason ? <p className="team-tournament-card__reason"><ShieldAlert size={14} /> {reason}</p> : <button className="team-button" type="button" onClick={() => { setSelectedTournament(tournament); setRulesAccepted(false) }}>Register team</button>}
+                {registration ? <p className="team-tournament-card__registered"><CheckCircle2 size={15} /> Registered / {registration.status}</p> : reason ? <p className="team-tournament-card__reason"><ShieldAlert size={14} /> {reason}</p> : <button className="team-button" type="button" onClick={() => { setSelectedTournament(tournament); setRulesAccepted(false); setManualMembers(createDefaultTeamRegistrationMembers()) }}>Register team</button>}
                 <Link to={`/tournaments/${tournament.slug}`}>Tournament details <span>↗</span></Link>
               </div>
             </article>
@@ -280,14 +299,52 @@ function TeamTournamentsPage() {
         {notifications.length ? <div className="team-notification-list">{notifications.map((notification) => <button className={`team-notification${notification.read_at ? '' : ' is-unread'}`} type="button" key={notification.id} onClick={() => void markNotificationRead(notification)}><span className="team-notification__icon"><Bell size={14} /></span><span><b>{notification.message}</b><small>{formatTournamentDate(notification.created_at, 'UTC', true)} · {notification.event_type.replaceAll('_', ' ')}</small></span>{!notification.read_at && <i aria-label="Unread" />}</button>)}</div> : <div className="team-empty-inline">No registration updates yet.</div>}
       </section>
 
-      {selectedTournament && <div className="registration-dialog-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget && !workingId) setSelectedTournament(null) }}>
+      {selectedTournament && <div className="registration-dialog-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget && !workingId) { setSelectedTournament(null); setManualMembers(createDefaultTeamRegistrationMembers()) } }}>
         <section className="registration-dialog" role="dialog" aria-modal="true" aria-labelledby="registration-dialog-title">
-          <button className="registration-dialog__close" type="button" aria-label="Close registration confirmation" disabled={Boolean(workingId)} onClick={() => setSelectedTournament(null)}><X size={18} /></button>
+          <button className="registration-dialog__close" type="button" aria-label="Close registration confirmation" disabled={Boolean(workingId)} onClick={() => { setSelectedTournament(null); setManualMembers(createDefaultTeamRegistrationMembers()) }}><X size={18} /></button>
           <p className="section-heading__eyebrow">FINAL CHECK / TEAM REGISTRATION</p><h2 id="registration-dialog-title">Confirm your entry.</h2>
           <div className="registration-dialog__summary"><span>Tournament</span><b>{selectedTournament.name}</b><span>Team</span><b>{team?.name}</b><span>Entry fee</span><b>{formatTournamentMoney(selectedTournament.entry_fee, selectedTournament.entry_type)}</b><span>Starting roster</span><b>{activeStarters} / {selectedTournament.starting_players_required} players</b><span>Registration closes</span><b>{formatTournamentDate(selectedTournament.registration_closes_at, selectedTournament.timezone, true)}</b></div>
           <div className="registration-dialog__rules"><b>Key requirements</b><p>{selectedTournament.participation_requirements || selectedTournament.eligibility || 'Review the complete tournament rules before confirming.'}</p><Link to={`/tournaments/${selectedTournament.slug}`} target="_blank" rel="noreferrer">Read all tournament rules</Link></div>
+          <div className="team-registration-roster-form" aria-label="Team roster information">
+            <h3>Four-player roster</h3>
+            <p>Every member name is required. Email and phone are optional and will not block registration.</p>
+            <div className="team-registration-roster-grid">
+              {manualMembers.map((member, index) => (
+                <div className="team-registration-member-card" key={`member-${index}`}>
+                  <label className="form-field">
+                    <span>Member {index + 1} name</span>
+                    <input
+                      type="text"
+                      required
+                      maxLength={100}
+                      value={member.member_name}
+                      onChange={(event) => setManualMembers((current) => current.map((item, itemIndex) => itemIndex === index ? { ...item, member_name: event.target.value } : item))}
+                    />
+                  </label>
+                  <label className="form-field">
+                    <span>Email address <small>Optional</small></span>
+                    <input
+                      type="email"
+                      maxLength={254}
+                      value={member.email}
+                      onChange={(event) => setManualMembers((current) => current.map((item, itemIndex) => itemIndex === index ? { ...item, email: event.target.value } : item))}
+                    />
+                  </label>
+                  <label className="form-field">
+                    <span>Phone number <small>Optional</small></span>
+                    <input
+                      type="tel"
+                      maxLength={24}
+                      value={member.phone}
+                      onChange={(event) => setManualMembers((current) => current.map((item, itemIndex) => itemIndex === index ? { ...item, phone: event.target.value } : item))}
+                    />
+                  </label>
+                </div>
+              ))}
+            </div>
+          </div>
           <label className="registration-dialog__accept"><input type="checkbox" checked={rulesAccepted} onChange={(event) => setRulesAccepted(event.target.checked)} /><span>I have reviewed and agree to the tournament rules and participation requirements.</span></label>
-          <div className="registration-dialog__actions"><button className="team-button team-button--secondary" type="button" disabled={Boolean(workingId)} onClick={() => setSelectedTournament(null)}>Go back</button><button className="team-button" type="button" disabled={!rulesAccepted || Boolean(workingId)} onClick={() => void submitRegistration()}>{workingId === selectedTournament.id ? 'Submitting...' : 'Confirm registration'}</button></div>
+          <div className="registration-dialog__actions"><button className="team-button team-button--secondary" type="button" disabled={Boolean(workingId)} onClick={() => { setSelectedTournament(null); setManualMembers(createDefaultTeamRegistrationMembers()) }}>Go back</button><button className="team-button" type="button" disabled={!rulesAccepted || Boolean(workingId)} onClick={() => void submitRegistration()}>{workingId === selectedTournament.id ? 'Submitting...' : 'Confirm registration'}</button></div>
         </section>
       </div>}
     </div>
