@@ -16,9 +16,9 @@ export function formatTournamentDate(value: string, timeZone = 'UTC', includeTim
   }).format(date)
 }
 
-export function formatTournamentMoney(value: number, entryType?: 'free' | 'paid'): string {
+export function formatTournamentMoney(value: number, entryType?: 'free' | 'paid', currency = 'BDT'): string {
   if (entryType === 'free') return 'Free entry'
-  return new Intl.NumberFormat(undefined, { style: 'currency', currency: 'USD', maximumFractionDigits: 2 }).format(value)
+  return new Intl.NumberFormat(undefined, { style: 'currency', currency, maximumFractionDigits: 2 }).format(value)
 }
 
 export function getTournamentStatusClass(status: TournamentStatus): string {

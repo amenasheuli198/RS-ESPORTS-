@@ -189,7 +189,7 @@ insert into public.competitions (
 select
   'tournament', tournament.id, tournament.name, tournament.slug, tournament.description,
   tournament.game_code, tournament.format_code, tournament.entry_type, tournament.entry_fee,
-  'USD', tournament.max_teams, tournament.starting_players_required,
+  'BDT', tournament.max_teams, tournament.starting_players_required,
   greatest(tournament.starting_players_required, game_format.max_team_size),
   case when tournament.substitute_allowed then 1 else 0 end,
   tournament.registration_opens_at, tournament.registration_closes_at, tournament.starts_at,
@@ -264,7 +264,7 @@ begin
     registration_closes_at, starts_at, ends_at, timezone, status, created_by, created_at, updated_at
   ) values (
     'tournament', new.id, new.name, new.slug, new.description,
-    new.game_code, new.format_code, new.entry_type, new.entry_fee, 'USD', new.max_teams,
+    new.game_code, new.format_code, new.entry_type, new.entry_fee, 'BDT', new.max_teams,
     new.starting_players_required, greatest(new.starting_players_required, v_format.max_team_size),
     case when new.substitute_allowed then 1 else 0 end, new.registration_opens_at,
     new.registration_closes_at, new.starts_at, new.ends_at, new.timezone,
