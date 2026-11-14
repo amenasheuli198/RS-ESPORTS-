@@ -7,12 +7,23 @@ alter table public.competition_entry_members
   add column if not exists member_phone text,
   add column if not exists is_manual boolean not null default false;
 
-alter table public.competition_entry_members
-  add constraint competition_entry_members_manual_snapshot_check
-  check (
-    (user_id is not null and member_name is null and is_manual = false)
-    or (user_id is null and member_name is not null and char_length(btrim(member_name)) between 2 and 100 and is_manual = true)
-  );
+do $$
+begin
+  if not exists (
+    select 1
+    from pg_constraint
+    where conname = 'competition_entry_members_manual_snapshot_check'
+      and conrelid = 'public.competition_entry_members'::regclass
+  ) then
+    alter table public.competition_entry_members
+      add constraint competition_entry_members_manual_snapshot_check
+      check (
+        (user_id is not null and member_name is null and is_manual = false)
+        or (user_id is null and member_name is not null and char_length(btrim(member_name)) between 2 and 100 and is_manual = true)
+      );
+  end if;
+end;
+$$;
 
 create or replace function public.register_competition_team(
   p_competition_id uuid,
