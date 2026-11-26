@@ -160,13 +160,19 @@ function TeamTournamentsPage() {
             TEAM_CAPTAIN_REQUIRED: 'Only the team captain can register this team.',
             TEAM_ROSTER_OUT_OF_RANGE: 'Your roster does not meet the tournament requirements.',
             TEAM_GAME_MISMATCH: 'This team is not eligible for this game format.',
+            TEAM_ENTRY_NOT_SUPPORTED: 'This tournament format does not accept team registrations.',
             GAME_IDENTITY_REQUIRED_FOR_ROSTER: 'All active players must have a valid identity for this game.',
             COMPETITION_FULL: 'All tournament slots are reserved.',
             REGISTRATION_CLOSED: 'Registration has closed or the tournament has started.',
             COMPETITION_NOT_OPEN: 'This competition is not open for registration right now.',
+            PAYMENT_UNAVAILABLE_FOR_CURRENCY: 'Payment is not available for this tournament currency.',
             PLAYER_PROFILE_COMPLETION_REQUIRED: 'Complete your verified profile before registering.',
           }
-          setMessage(messages[entryError.message] ?? 'Registration could not be submitted. Please refresh and try again.')
+          const uniqueTeamConflict = entryError.code === '23505'
+            && entryError.details?.includes('competition_entries_active_team_unique')
+          setMessage(uniqueTeamConflict
+            ? 'Your team already has an active registration for this tournament.'
+            : messages[entryError.message] ?? 'Registration could not be submitted. Please refresh and try again.')
           return
         }
 
