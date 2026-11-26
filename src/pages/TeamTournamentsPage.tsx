@@ -142,7 +142,7 @@ function TeamTournamentsPage() {
           return
         }
 
-        const manualPayload = manualMembers.map((member) => ({
+        const manualPayload = manualMembers.filter((member) => member.member_name.trim()).map((member) => ({
           member_name: member.member_name.trim(),
           member_email: member.email.trim() || null,
           member_phone: member.phone.trim() || null,
@@ -151,7 +151,7 @@ function TeamTournamentsPage() {
         const { data: entryId, error: entryError } = await client.rpc('register_competition_team', {
           p_competition_id: competition.id,
           p_team_id: team.id,
-          p_manual_members: manualPayload,
+          p_manual_members: manualPayload.length ? manualPayload : null,
         })
 
         if (entryError) {
@@ -170,15 +170,19 @@ function TeamTournamentsPage() {
           return
         }
 
+        if (!entryId) {
+          setIsError(true)
+          setMessage('Your registration was saved, but its payment page could not be opened. Refresh your registrations and try again.')
+          await refresh()
+          return
+        }
+
         setIsError(false)
         setSelectedTournament(null)
         setRulesAccepted(false)
         setManualMembers(createDefaultTeamRegistrationMembers())
         setMessage('Registration submitted. Complete the payment verification to confirm your team entry.')
-        await refresh()
-        if (entryId) {
-          window.location.assign(`/payments/${entryId}`)
-        }
+        window.location.assign(`/payments/${entryId}`)
         return
       }
 
@@ -260,7 +264,7 @@ function TeamTournamentsPage() {
       {message && <p className={isError ? 'team-form-error' : 'team-form-success'} role={isError ? 'alert' : 'status'}>{message}</p>}
 
       <section className="team-registration-section" aria-labelledby="team-open-events-title">
-        <div className="team-registration-toolbar"><div><h2 id="team-open-events-title">Open tournaments</h2><p>Free tournaments only. Pending registrations reserve a team slot.</p></div><div className="team-registration-filters"><label className="visually-hidden" htmlFor="team-tournament-search">Search tournaments</label><input id="team-tournament-search" type="search" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search tournaments" /><select aria-label="Filter tournaments" value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)}><option value="all">All available</option><option value="available">Not registered</option><option value="registered">Already registered</option></select></div></div>
+        <div className="team-registration-toolbar"><div><h2 id="team-open-events-title">Open tournaments</h2><p>Paid entries continue to payment after registration. Pending entries reserve a team slot.</p></div><div className="team-registration-filters"><label className="visually-hidden" htmlFor="team-tournament-search">Search tournaments</label><input id="team-tournament-search" type="search" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search tournaments" /><select aria-label="Filter tournaments" value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)}><option value="all">All available</option><option value="available">Not registered</option><option value="registered">Already registered</option></select></div></div>
         {isLoading ? <div className="team-tournament-skeletons" aria-busy="true">{Array.from({ length: 3 }, (_, index) => <div key={index} />)}</div>
           : visibleTournaments.length ? <div className="team-tournament-grid">{visibleTournaments.map((tournament) => {
             const registration = registrations.find((item) => item.tournament_id === tournament.id && ['pending', 'approved'].includes(item.status))

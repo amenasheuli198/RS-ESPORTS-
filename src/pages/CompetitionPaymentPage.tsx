@@ -105,10 +105,15 @@ function CompetitionPaymentPage() {
         p_amount: context.entry_fee,
       })
       if (error) {
+        const duplicateTxid = error.message === 'TXID_ALREADY_USED'
+          || (error.code === '23505' && [error.message, error.details].some((detail) =>
+            detail?.includes('payments_provider_txid_unique')
+            || detail?.includes('payments_txid_trimmed_unique')
+            || detail?.includes('payments_normalized_txid_key')))
         const errors: Record<string, string> = {
           PAYMENT_AMOUNT_MISMATCH: 'The required amount changed. Refresh this page and check the current fee.',
           PAYMENT_ALREADY_EXISTS_FOR_ENTRY: 'A payment has already been submitted for this registration.',
-          TXID_ALREADY_USED: 'That TXID has already been submitted. Check the transaction ID and try again.',
+          TXID_ALREADY_USED: 'This Transaction ID has already been used. Please enter a valid, unused bKash TXID.',
           INVALID_SENDER_NUMBER: 'Enter a valid sender bKash number.',
           INVALID_TXID: 'Enter a valid transaction ID.',
           ENTRY_NOT_PAYABLE: 'This registration is no longer waiting for payment.',
@@ -116,7 +121,7 @@ function CompetitionPaymentPage() {
           PLAYER_PROFILE_COMPLETION_REQUIRED: 'Complete your profile before submitting payment.',
         }
         setIsError(true)
-        setMessage(errors[error.message] ?? 'Payment could not be submitted. Refresh the page and try again.')
+        setMessage(duplicateTxid ? errors.TXID_ALREADY_USED : errors[error.message] ?? 'Payment could not be submitted. Refresh the page and try again.')
       } else {
         setMessage(successMessage)
         setSenderNumber('')

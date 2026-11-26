@@ -22,8 +22,17 @@ test('allows optional email and phone values without blocking registration', () 
   const members = createDefaultTeamRegistrationMembers()
   members[0].member_name = 'Captain'
   members[1].member_name = 'Teammate'
+  members[2].member_name = 'Third Player'
+  members[3].member_name = 'Fourth Player'
   members[2].email = 'captain@example.com'
   members[3].phone = '+8801712345678'
 
   assert.equal(validateTeamRegistrationMembers(members), null)
+})
+
+test('requires a roster member name when contact details are supplied', () => {
+  const members = createDefaultTeamRegistrationMembers()
+  members[0].email = 'captain@example.com'
+
+  assert.equal(validateTeamRegistrationMembers(members), 'Add a roster member name before entering their email or phone number.')
 })

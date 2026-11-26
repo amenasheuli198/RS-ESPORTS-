@@ -20,6 +20,9 @@ export function validateTeamRegistrationMembers(members: TeamRegistrationMemberI
     const email = normalizeOptionalValue(member?.email)
     const phone = normalizeOptionalValue(member?.phone)
 
+    if (!memberName && (email || phone)) {
+      return 'Add a roster member name before entering their email or phone number.'
+    }
     if (memberName && /[\u0000-\u001f\u007f]/.test(memberName)) {
       return 'Roster member names cannot contain control characters.'
     }

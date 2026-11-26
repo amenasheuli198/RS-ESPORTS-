@@ -59,7 +59,9 @@ function TeamInvitationsPage() {
         const fallback = error.message ?? ''
         setIsError(true)
         setMessage(
-          messages[error.message]
+          error.code === '23514' && fallback.includes('team_members_check')
+            ? 'The database still has the old fixed roster limit. Apply the latest team-code migration and retry.'
+            : messages[error.message]
             ?? (fallback.toLowerCase().includes('does not exist') || fallback.toLowerCase().includes('function')
               ? 'The Team Code backend is not active in the database yet. Apply the latest team join migration and retry.'
               : 'The Team Code could not be redeemed.')

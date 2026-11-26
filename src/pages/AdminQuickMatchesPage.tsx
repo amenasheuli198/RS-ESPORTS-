@@ -96,6 +96,8 @@ function AdminQuickMatchesPage() {
   const [slug, setSlug] = useState('')
   const [slugTouched, setSlugTouched] = useState(false)
   const [description, setDescription] = useState('')
+  const [entryType, setEntryType] = useState<'free' | 'paid'>('free')
+  const [entryFee, setEntryFee] = useState('')
   const [formatKey, setFormatKey] = useState('')
   const [capacity, setCapacity] = useState('48')
   const [registrationOpens, setRegistrationOpens] = useState('')
@@ -191,6 +193,12 @@ function AdminQuickMatchesPage() {
       setMessage('Complete the title, slug, registration window, and start time.')
       return
     }
+    const fee = entryType === 'paid' ? Number(entryFee) : 0
+    if (entryType === 'paid' && (!Number.isFinite(fee) || fee <= 0)) {
+      setIsError(true)
+      setMessage('Enter a valid paid entry fee greater than zero.')
+      return
+    }
     setIsSaving(true)
     setMessage('')
     try {
@@ -198,7 +206,7 @@ function AdminQuickMatchesPage() {
         p_competition: {
           competition_type: 'quick_match', title: title.trim(), slug: slug.trim(), description: description.trim(),
           game_code: selectedFormat.game_code, format_code: selectedFormat.format_code,
-          entry_type: 'free', entry_fee: 0, currency: 'BDT', capacity: Number(capacity),
+          entry_type: entryType, entry_fee: fee, currency: 'BDT', capacity: Number(capacity),
           min_team_size: selectedFormat.min_team_size, max_team_size: selectedFormat.max_team_size,
           max_substitutes: selectedFormat.max_substitutes,
           registration_opens_at: toTimestamp(registrationOpens, timezone),
@@ -411,11 +419,13 @@ function AdminQuickMatchesPage() {
       <div className="admin-tournament-heading"><div><p className="section-heading__eyebrow">CONTROL ROOM / QUICK MATCHES</p><h1>Quick Match operations.</h1><p>Create standalone events, confirm entries, assign matches, and release room access.</p></div></div>
       {message && <p className={isError ? 'admin-form-error' : 'admin-notice'} role={isError ? 'alert' : 'status'}>{message}</p>}
       <form className="admin-match-form" onSubmit={(event) => void createQuickMatch(event)}>
-        <div className="admin-match-form__heading"><Plus size={18} /><div><h2>Create a Quick Match</h2><p>Free entry is enabled; paid registration remains unavailable until the payment workflow is reconciled.</p></div></div>
+        <div className="admin-match-form__heading"><Plus size={18} /><div><h2>Create a Quick Match</h2><p>Configure free entry or manual bKash payment.</p></div></div>
         <div className="admin-form-grid admin-form-grid--three">
           <label className="form-field"><span>Title</span><input required minLength={3} maxLength={140} value={title} onChange={(event) => { setTitle(event.target.value); if (!slugTouched) setSlug(slugifyTournamentName(event.target.value)) }} /></label>
           <label className="form-field"><span>Slug</span><input required maxLength={120} pattern="[a-z0-9]+(-[a-z0-9]+)*" value={slug} onChange={(event) => { setSlugTouched(true); setSlug(event.target.value) }} /></label>
           <label className="form-field"><span>Game format</span><select value={formatKey} onChange={(event) => setFormatKey(event.target.value)}>{formats.map((format) => <option key={`${format.game_code}:${format.format_code}`} value={`${format.game_code}:${format.format_code}`}>{format.game_code.replaceAll('_', ' ')} / {format.display_name} ({format.participant_kind})</option>)}</select></label>
+          <label className="form-field"><span>Entry type</span><select value={entryType} onChange={(event) => setEntryType(event.target.value as 'free' | 'paid')}><option value="free">Free</option><option value="paid">Paid / manual bKash</option></select></label>
+          {entryType === 'paid' && <label className="form-field"><span>Entry fee (BDT)</span><input type="number" min="0.01" max="1000000000" step="0.01" required value={entryFee} onChange={(event) => setEntryFee(event.target.value)} /></label>}
           <label className="form-field"><span>Capacity</span><input type="number" min="1" max="10000" required value={capacity} onChange={(event) => setCapacity(event.target.value)} /></label>
           <label className="form-field"><span>Timezone</span><select value={timezone} onChange={(event) => setTimezone(event.target.value)}>{timezones.map((zone) => <option key={zone}>{zone}</option>)}</select></label>
           <label className="form-field"><span>Description</span><input maxLength={5000} value={description} onChange={(event) => setDescription(event.target.value)} /></label>

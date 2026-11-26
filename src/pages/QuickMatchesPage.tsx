@@ -144,11 +144,6 @@ function QuickMatchesPage() {
   async function register(competition: QuickCompetition) {
     if (!client || !user) return
     const participantKind = participantKinds[`${competition.game_code}:${competition.format_code}`]
-    if (competition.entry_type !== 'free') {
-      setIsError(true)
-      setMessage('Paid Quick Match registration is not available until the payment workflow is reconciled.')
-      return
-    }
     if (participantKind === 'team' && (!team || team.game_code !== competition.game_code)) {
       setIsError(true)
       setMessage('Create or join a team for this game before registering.')
@@ -162,7 +157,7 @@ function QuickMatchesPage() {
     setWorkingId(competition.id)
     setMessage('')
     try {
-      const { error } = participantKind === 'team'
+      const { data: entryId, error } = participantKind === 'team'
         ? await client.rpc('register_competition_team', { p_competition_id: competition.id, p_team_id: team!.id, p_manual_members: null })
         : await client.rpc('register_competition_individual', { p_competition_id: competition.id })
       if (error) {
@@ -180,6 +175,13 @@ function QuickMatchesPage() {
         }
         setIsError(true)
         setMessage(messages[error.message] ?? 'Registration could not be submitted. Refresh and try again.')
+      } else if (competition.entry_type === 'paid') {
+        if (!entryId) {
+          setIsError(true)
+          setMessage('Your registration was saved, but its payment page could not be opened. Refresh your entries and try again.')
+          return
+        }
+        window.location.assign(`/payments/${entryId}`)
       } else {
         setIsError(false)
         setMessage('Registration submitted. An administrator must confirm your entry before match assignment.')
@@ -255,9 +257,8 @@ function QuickMatchesPage() {
                 </div>
                 {!user ? <Link className="arena-state__button" to="/login" state={{ from: '/quick-matches' }}>Sign in to register</Link>
                   : myEntry ? <p className="quick-match-event__entry"><CheckCircle2 size={16} /> Your entry: {myEntry.status.replaceAll('_', ' ')}</p>
-                    : competition.entry_type === 'paid' ? <p className="quick-match-event__notice">Paid registration is currently unavailable.</p>
-                      : participantKind === 'team' && !team ? <Link className="quick-matches-text-link" to="/teams">Create or join a team to enter</Link>
-                        : <button className="team-button" type="button" disabled={!open || Boolean(workingId)} onClick={() => void register(competition)}>{workingId === competition.id ? 'Registering...' : open ? (participantKind === 'team' ? 'Register your team' : 'Register') : 'Registration closed'}</button>}
+                    : participantKind === 'team' && !team ? <Link className="quick-matches-text-link" to="/teams">Create or join a team to enter</Link>
+                      : <button className="team-button" type="button" disabled={!open || Boolean(workingId)} onClick={() => void register(competition)}>{workingId === competition.id ? 'Registering...' : open ? (competition.entry_type === 'paid' ? 'Register and pay' : participantKind === 'team' ? 'Register your team' : 'Register') : 'Registration closed'}</button>}
                 {eventMatches.map((match) => {
                   const assignedToMe = eventEntries.some((entry) => assignedMatchEntries.has(`${match.id}:${entry.id}`))
                   const room = rooms[match.id]
