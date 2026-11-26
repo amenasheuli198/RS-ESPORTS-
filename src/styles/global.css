@@ -5443,6 +5443,84 @@ img {
     font-size: 9px;
   }
 
+  .admin-payment-toolbar {
+    display: grid;
+    grid-template-columns: auto minmax(220px, 1fr) 150px;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 13px;
+    padding: 10px 0;
+    border-top: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .admin-payment-count {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    color: var(--color-text-muted);
+    font-size: 9px;
+    white-space: nowrap;
+  }
+
+  .admin-payment-count b {
+    color: var(--color-text);
+    font-size: 14px;
+  }
+
+  .admin-payment-count i {
+    width: 1px;
+    height: 14px;
+    margin: 0 4px;
+    background: var(--color-border);
+  }
+
+  .admin-payment-search {
+    display: flex;
+    min-width: 0;
+    min-height: 36px;
+    align-items: center;
+    gap: 8px;
+    padding: 0 10px;
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+    color: var(--color-text-muted);
+  }
+
+  .admin-payment-search:focus-within {
+    border-color: var(--color-primary-hover);
+  }
+
+  .admin-payment-search input {
+    width: 100%;
+    min-width: 0;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: var(--color-text);
+    font: inherit;
+    font-size: 10px;
+  }
+
+  .admin-payment-search input::placeholder {
+    color: var(--color-text-muted);
+  }
+
+  .admin-payment-status-filter {
+    min-height: 36px;
+    padding: 0 9px;
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+    color: var(--color-text);
+    font: inherit;
+    font-size: 10px;
+  }
+
+  .admin-payment-reviewed {
+    color: var(--color-text-muted);
+    font-size: 9px;
+  }
+
   .admin-refresh-button {
     display: inline-flex;
     min-height: 34px;
@@ -6256,6 +6334,14 @@ img {
   }
 
   @media (max-width: 620px) {
+    .admin-payment-toolbar {
+      grid-template-columns: minmax(0, 1fr) minmax(110px, 0.6fr);
+    }
+
+    .admin-payment-count {
+      grid-column: 1 / -1;
+    }
+
     .tournament-arena-hero {
       min-height: 220px;
     }
