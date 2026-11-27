@@ -6,6 +6,7 @@ import { AuthProvider } from './auth/AuthProvider'
 import AppSeo from './components/AppSeo'
 import './styles/global.css'
 import './styles/quick-matches.css'
+import './styles/admin.css'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>

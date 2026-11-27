@@ -10,6 +10,8 @@ interface PaymentQueueItem {
   competition_name: string
   competition_type: string
   game_name: string
+  team_id: string | null
+  team_name: string | null
   participant_name: string
   participant_email: string
   participant_phone: string
@@ -43,7 +45,7 @@ function AdminPaymentsPage() {
     setIsError(false)
     setMessage('')
     try {
-      const { data, error } = await client.rpc('get_admin_bkash_payment_queue')
+      const { data, error } = await client.rpc('get_admin_bkash_payment_queue_v2')
       if (error) {
         if (error.message.includes('PAYMENT_REVIEWER_REQUIRED') || error.code === '42501') {
           throw new Error('PAYMENT_REVIEWER_REQUIRED')
@@ -131,7 +133,7 @@ function AdminPaymentsPage() {
             <article className="admin-tournament-row" key={item.payment_id}>
               <div className="admin-tournament-row__main">
                 <div className="admin-tournament-row__title"><h2>{item.competition_name}</h2><span className={`registration-status registration-status--${item.status}`}>{item.status}</span></div>
-                <p>{item.game_name} / {item.competition_type} · {item.participant_name}</p>
+                <p>{item.team_name ? `${item.team_name} · ` : ''}{item.game_name} / {item.competition_type} · {item.participant_name}</p>
                 <small>{formatTournamentDate(item.submitted_at, 'Asia/Dhaka', true)} · {formatTournamentMoney(item.amount, 'paid', item.currency)} · Sender {item.sender_number}</small>
                 <small>TXID: {item.txid} · Email: {item.participant_email}</small>
                 {item.rejection_reason && <small>Reason: {item.rejection_reason}</small>}

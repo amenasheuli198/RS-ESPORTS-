@@ -15,7 +15,6 @@ interface DashboardStats {
   liveMatches: number
   completedMatches: number
   publishedResults: number
-  adminUnreadNotifications: string
 }
 
 interface TrendStats {
@@ -61,7 +60,6 @@ function AdminDashboardPage() {
     liveMatches: 0,
     completedMatches: 0,
     publishedResults: 0,
-    adminUnreadNotifications: 'Unavailable',
   })
   const [trends, setTrends] = useState<TrendStats>({
     newUsers: 0,
@@ -101,16 +99,13 @@ function AdminDashboardPage() {
         recentResultsResult,
         nextTournamentsResult,
         nextMatchesResult,
-        trendUsersResult,
-        trendTeamsResult,
-        trendTournamentsResult,
-        trendRegistrationsResult,
+        trendMetricsResult,
       ] = await Promise.all([
-        client.from('profiles').select('id', { count: 'exact', head: true }),
-        client.from('teams').select('id', { count: 'exact', head: true }),
+        client.rpc('get_admin_members_directory', { p_search: '', p_limit: 1, p_offset: 0 }),
+        client.rpc('get_admin_teams_directory', { p_search: '', p_limit: 1, p_offset: 0 }),
         client.from('tournaments').select('id', { count: 'exact', head: true }),
         client.from('tournaments').select('id', { count: 'exact', head: true }).eq('publication_status', 'published').neq('lifecycle_status', 'completed'),
-        client.from('tournament_registrations').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
+        client.rpc('get_admin_pending_registrations', { p_search: '', p_limit: 1, p_offset: 0 }),
         client.from('matches').select('id', { count: 'exact', head: true }).eq('status', 'scheduled'),
         client.from('matches').select('id', { count: 'exact', head: true }).eq('status', 'live'),
         client.from('matches').select('id', { count: 'exact', head: true }).eq('status', 'completed'),
@@ -118,10 +113,7 @@ function AdminDashboardPage() {
         client.from('match_results').select('id, total_points, published_at, team_id, match_id').eq('status', 'published').order('published_at', { ascending: false }).limit(5),
         client.from('tournaments').select('id, name, starts_at, publication_status, slug').eq('publication_status', 'published').gte('starts_at', new Date().toISOString()).order('starts_at', { ascending: true }).limit(4),
         client.from('matches').select('id, name, match_number, scheduled_at, status, round_name, tournament_id').order('scheduled_at', { ascending: true }).limit(5),
-        client.from('profiles').select('id', { count: 'exact', head: true }).gte('created_at', cutoff),
-        client.from('teams').select('id', { count: 'exact', head: true }).gte('created_at', cutoff),
-        client.from('tournaments').select('id', { count: 'exact', head: true }).gte('created_at', cutoff),
-        client.from('tournament_registrations').select('id', { count: 'exact', head: true }).gte('registered_at', cutoff),
+        client.rpc('get_admin_growth_metrics', { p_since: cutoff }),
       ])
 
       if ([
@@ -137,10 +129,7 @@ function AdminDashboardPage() {
         recentResultsResult.error,
         nextTournamentsResult.error,
         nextMatchesResult.error,
-        trendUsersResult.error,
-        trendTeamsResult.error,
-        trendTournamentsResult.error,
-        trendRegistrationsResult.error,
+        trendMetricsResult.error,
       ].some(Boolean)) {
         throw new Error('DASHBOARD_DATA_FAILED')
       }
@@ -149,24 +138,23 @@ function AdminDashboardPage() {
       const nextTournaments = (nextTournamentsResult.data ?? []) as Array<{ id: string; name: string; starts_at: string; publication_status: string; slug: string }>
 
       const statsNext: DashboardStats = {
-        registeredUsers: usersResult.count ?? 0,
-        totalTeams: teamsResult.count ?? 0,
+        registeredUsers: Number(usersResult.data?.[0]?.total_count ?? 0),
+        totalTeams: Number(teamsResult.data?.[0]?.total_count ?? 0),
         totalTournaments: tournamentsResult.count ?? 0,
         activeTournaments: activeTournamentsResult.count ?? 0,
-        pendingRegistrations: pendingRegistrationsResult.count ?? 0,
+        pendingRegistrations: Number(pendingRegistrationsResult.data?.[0]?.total_count ?? 0),
         scheduledMatches: scheduledMatchesResult.count ?? 0,
         liveMatches: liveMatchesResult.count ?? 0,
         completedMatches: completedMatchesResult.count ?? 0,
         publishedResults: publishedResultsResult.count ?? 0,
-        adminUnreadNotifications: 'Unavailable',
       }
 
       setStats(statsNext)
       setTrends({
-        newUsers: trendUsersResult.count ?? 0,
-        newTeams: trendTeamsResult.count ?? 0,
-        newTournaments: trendTournamentsResult.count ?? 0,
-        newRegistrations: trendRegistrationsResult.count ?? 0,
+        newUsers: Number(trendMetricsResult.data?.[0]?.new_users ?? 0),
+        newTeams: Number(trendMetricsResult.data?.[0]?.new_teams ?? 0),
+        newTournaments: Number(trendMetricsResult.data?.[0]?.new_tournaments ?? 0),
+        newRegistrations: Number(trendMetricsResult.data?.[0]?.new_registrations ?? 0),
       })
       setUpcomingTournaments(nextTournaments)
       setUpcomingMatches(nextMatches)
@@ -181,16 +169,15 @@ function AdminDashboardPage() {
   useEffect(() => { void loadDashboard() }, [loadDashboard])
 
   const cards = useMemo<SummaryCard[]>(() => [
-    { label: 'Registered users', value: stats.registeredUsers.toLocaleString(), detail: 'Profiles on the platform', icon: UserRound, link: '/admin/tournaments' },
-    { label: 'Teams', value: stats.totalTeams.toLocaleString(), detail: 'Active rosters on file', icon: Users, link: '/teams' },
+    { label: 'Registered users', value: stats.registeredUsers.toLocaleString(), detail: 'Accounts on the platform', icon: UserRound, link: '/admin/members' },
+    { label: 'Teams', value: stats.totalTeams.toLocaleString(), detail: 'Registered team rosters', icon: Users, link: '/admin/teams' },
     { label: 'Tournaments', value: stats.totalTournaments.toLocaleString(), detail: 'Total created', icon: Trophy, link: '/admin/tournaments' },
     { label: 'Active tournaments', value: stats.activeTournaments.toLocaleString(), detail: 'Published and in-flight', icon: Activity, link: '/admin/tournaments' },
-    { label: 'Pending registrations', value: stats.pendingRegistrations.toLocaleString(), detail: 'Awaiting review', icon: ShieldCheck, link: '/admin/tournaments' },
+    { label: 'Pending registrations', value: stats.pendingRegistrations.toLocaleString(), detail: 'Awaiting review', icon: ShieldCheck, link: '/admin/registrations' },
     { label: 'Scheduled matches', value: stats.scheduledMatches.toLocaleString(), detail: 'Awaiting kickoff', icon: CalendarRange, link: '/admin/tournaments' },
     { label: 'Live matches', value: stats.liveMatches.toLocaleString(), detail: 'Currently live', icon: Gauge, link: '/matches' },
     { label: 'Completed matches', value: stats.completedMatches.toLocaleString(), detail: 'Finished events', icon: Trophy, link: '/matches' },
     { label: 'Published results', value: stats.publishedResults.toLocaleString(), detail: 'Official rankings locked', icon: BellRing, link: '/leaderboard' },
-    { label: 'Unread admin alerts', value: stats.adminUnreadNotifications, detail: 'Dedicated admin inbox not yet deployed', icon: BellRing, link: '/dashboard/notifications' },
   ], [stats])
 
   return (

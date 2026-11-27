@@ -1,0 +1,947 @@
+.tournament-admin-shell {
+  --color-bg: #f8fafc;
+  --color-surface: #ffffff;
+  --color-surface-raised: #f1f5f9;
+  --color-primary: #0f766e;
+  --color-primary-hover: #0e7490;
+  --color-cyan: #0e7490;
+  --color-magenta: #be185d;
+  --color-gold: #a16207;
+  --color-text: #111827;
+  --color-text-muted: #526174;
+  --color-border: #dbe3eb;
+  --color-success: #15803d;
+  --color-warning: #a16207;
+  --color-danger: #b91c1c;
+  --color-info: #0369a1;
+  min-height: 100vh;
+  color-scheme: light;
+  background: #f8fafc;
+  color: #111827;
+}
+
+.tournament-admin-sidebar {
+  position: fixed;
+  z-index: 30;
+  inset: 0 auto 0 0;
+  display: flex;
+  width: 252px;
+  flex-direction: column;
+  padding: 22px 14px 14px;
+  border-right: 1px solid #dbe3eb;
+  background: #fff;
+}
+
+.admin-sidebar-brand {
+  display: flex;
+  min-height: 44px;
+  align-items: center;
+  gap: 10px;
+  padding: 0 9px;
+  color: #111827;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-decoration: none;
+}
+
+.admin-sidebar-brand svg {
+  width: 27px;
+  height: 27px;
+  flex: 0 0 auto;
+  color: #0f766e;
+}
+
+.admin-sidebar-brand span {
+  line-height: 1.35;
+}
+
+.admin-sidebar-brand b {
+  display: block;
+  color: #0f766e;
+}
+
+.admin-sidebar-label {
+  margin: 27px 9px 8px;
+  color: #68778a;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.admin-sidebar-label--tools {
+  margin-top: 21px;
+}
+
+.admin-sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.admin-sidebar-nav a {
+  display: flex;
+  min-height: 40px;
+  align-items: center;
+  gap: 11px;
+  padding: 0 10px;
+  border: 1px solid transparent;
+  color: #3e4b5c;
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background-color 120ms ease, color 120ms ease, border-color 120ms ease;
+}
+
+.admin-sidebar-nav a svg {
+  flex: 0 0 auto;
+  color: #68778a;
+}
+
+.admin-sidebar-nav a:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+.admin-sidebar-nav a.active {
+  border-color: #b7ddd7;
+  background: #eaf5f3;
+  color: #115e59;
+}
+
+.admin-sidebar-nav a.active svg {
+  color: #0f766e;
+}
+
+.admin-sidebar-nav--secondary a {
+  min-height: 34px;
+  font-size: 11px;
+}
+
+.admin-sidebar-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: 1px solid #e5eaf0;
+}
+
+.admin-sidebar-footer a,
+.admin-sidebar-footer button {
+  min-height: 36px;
+  padding: 0 10px;
+  border: 0;
+  background: transparent;
+  color: #526174;
+  cursor: pointer;
+  font: inherit;
+  font-size: 11px;
+  text-align: left;
+  text-decoration: none;
+}
+
+.admin-sidebar-footer a:hover,
+.admin-sidebar-footer button:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+.tournament-admin-workspace {
+  min-width: 0;
+  min-height: 100vh;
+  margin-left: 252px;
+}
+
+.admin-topbar {
+  position: sticky;
+  z-index: 20;
+  top: 0;
+  display: flex;
+  min-height: 64px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 0 32px;
+  border-bottom: 1px solid #dbe3eb;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(12px);
+}
+
+.admin-topbar > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.admin-topbar span {
+  color: #68778a;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.admin-topbar strong {
+  color: #111827;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.admin-topbar > a {
+  color: #0f766e;
+  font-size: 11px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.tournament-admin-content {
+  width: min(100%, 1480px);
+  margin-inline: auto;
+  padding: 28px 32px 64px;
+}
+
+.tournament-admin-content :is(h1, h2, h3, h4) {
+  color: #111827;
+  letter-spacing: 0;
+}
+
+.tournament-admin-content :is(p, small) {
+  color: #526174;
+}
+
+.tournament-admin-content a:not(.admin-sidebar-brand) {
+  text-decoration-thickness: 1px;
+}
+
+.tournament-admin-content .section-heading__eyebrow {
+  color: #0f766e;
+}
+
+.tournament-admin-content .admin-work-page,
+.tournament-admin-content .admin-dashboard-page,
+.tournament-admin-content .admin-tournament-list,
+.tournament-admin-content .admin-registration-page {
+  color: #111827;
+}
+
+.admin-work-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 22px;
+}
+
+.admin-work-heading h1 {
+  margin: 0;
+  color: #111827;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 34px;
+  line-height: 1.05;
+}
+
+.admin-work-heading p:last-child {
+  margin: 7px 0 0;
+  color: #526174;
+  font-size: 12px;
+}
+
+.admin-directory-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 13px;
+}
+
+.admin-directory-search {
+  display: flex;
+  width: min(100%, 520px);
+  min-height: 40px;
+  align-items: center;
+  gap: 9px;
+  padding: 0 11px;
+  border: 1px solid #cbd5e1;
+  background: #fff;
+  color: #64748b;
+}
+
+.admin-directory-search:focus-within {
+  border-color: #0f766e;
+  box-shadow: 0 0 0 2px rgba(15, 118, 110, 0.12);
+}
+
+.admin-directory-search input {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: #111827;
+  font: inherit;
+  font-size: 12px;
+}
+
+.admin-directory-search input::placeholder {
+  color: #7b8795;
+}
+
+.admin-directory-total {
+  color: #526174;
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.admin-data-table-wrap {
+  width: 100%;
+  overflow: auto;
+  border: 1px solid #dbe3eb;
+  background: #fff;
+}
+
+.admin-data-table {
+  width: 100%;
+  border-collapse: collapse;
+  color: #253244;
+  font-size: 11px;
+  text-align: left;
+}
+
+.admin-data-table th,
+.admin-data-table td {
+  min-width: 110px;
+  padding: 12px 13px;
+  border-bottom: 1px solid #e5eaf0;
+  vertical-align: top;
+}
+
+.admin-data-table thead th {
+  background: #f1f5f9;
+  color: #526174;
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.admin-data-table tbody th {
+  color: #111827;
+  font-weight: 650;
+}
+
+.admin-data-table tbody tr:last-child > * {
+  border-bottom: 0;
+}
+
+.admin-data-table tbody tr:hover {
+  background: #f8fafc;
+}
+
+.admin-data-table small,
+.admin-table-subline {
+  display: block;
+  margin-top: 4px;
+  color: #64748b;
+  font-size: 10px;
+  font-weight: 400;
+}
+
+.admin-role-label {
+  display: inline-flex;
+  padding: 3px 7px;
+  border: 1px solid #d1dce7;
+  background: #f8fafc;
+  color: #334155;
+  font-size: 10px;
+  text-transform: capitalize;
+}
+
+.admin-directory-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 14px;
+  color: #526174;
+  font-size: 11px;
+}
+
+.admin-directory-pagination button {
+  min-height: 34px;
+  padding: 0 11px;
+  border: 1px solid #cbd5e1;
+  background: #fff;
+  color: #334155;
+  cursor: pointer;
+  font: inherit;
+}
+
+.admin-directory-pagination button:hover:not(:disabled) {
+  border-color: #0f766e;
+  color: #0f766e;
+}
+
+.admin-directory-pagination button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.admin-team-identity {
+  display: flex;
+  min-width: 190px;
+  align-items: center;
+  gap: 9px;
+}
+
+.admin-team-identity .team-logo {
+  width: 36px;
+  height: 36px;
+  flex: 0 0 auto;
+  border-color: #dbe3eb;
+  background: #f1f5f9;
+  color: #0f766e;
+}
+
+.admin-team-identity > div,
+.admin-team-identity small {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.admin-roster-details {
+  min-width: 145px;
+}
+
+.admin-roster-details summary {
+  display: inline-flex;
+  min-height: 30px;
+  align-items: center;
+  gap: 6px;
+  color: #0f766e;
+  cursor: pointer;
+  font-size: 10px;
+  font-weight: 650;
+  list-style: none;
+}
+
+.admin-roster-details summary::-webkit-details-marker {
+  display: none;
+}
+
+.admin-roster-list {
+  display: grid;
+  min-width: min(360px, 72vw);
+  gap: 7px;
+  margin-top: 8px;
+}
+
+.admin-roster-list article {
+  display: grid;
+  gap: 2px;
+  padding: 8px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+}
+
+.admin-roster-list article b {
+  color: #111827;
+  font-size: 11px;
+}
+
+.admin-roster-list article span,
+.admin-roster-list article small {
+  color: #526174;
+  font-size: 10px;
+}
+
+.admin-pending-list {
+  display: grid;
+  gap: 12px;
+}
+
+.admin-pending-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 15px;
+  padding: 15px;
+  border: 1px solid #dbe3eb;
+  background: #fff;
+}
+
+.admin-pending-card__main {
+  display: grid;
+  min-width: 0;
+  grid-template-columns: minmax(220px, 1.2fr) minmax(210px, 0.9fr);
+  gap: 13px 20px;
+}
+
+.admin-pending-card__identity {
+  display: flex;
+  min-width: 0;
+  align-items: flex-start;
+  gap: 11px;
+}
+
+.admin-pending-card__identity .team-logo {
+  width: 44px;
+  height: 44px;
+  flex: 0 0 auto;
+  border-color: #dbe3eb;
+  background: #f1f5f9;
+  color: #0f766e;
+}
+
+.admin-pending-card__identity h2 {
+  margin: 2px 0 4px;
+  color: #111827;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 21px;
+  line-height: 1.1;
+}
+
+.admin-pending-card__identity p:not(.section-heading__eyebrow) {
+  margin: 0 0 3px;
+  color: #334155;
+  font-size: 11px;
+}
+
+.admin-pending-card__identity small {
+  color: #64748b;
+  font-size: 10px;
+}
+
+.admin-pending-card__facts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-content: start;
+  gap: 8px;
+}
+
+.admin-pending-card__facts span {
+  display: grid;
+  gap: 4px;
+}
+
+.admin-pending-card__facts small,
+.admin-pending-payment > b {
+  color: #68778a;
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.admin-pending-card__facts b {
+  color: #172033;
+  font-size: 11px;
+}
+
+.admin-pending-payment {
+  display: flex;
+  grid-column: 1 / -1;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 13px;
+  padding: 9px 10px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  color: #526174;
+  font-size: 10px;
+}
+
+.admin-pending-payment strong {
+  color: #172033;
+  font-variant-numeric: tabular-nums;
+}
+
+.admin-pending-card__main > .admin-roster-details {
+  grid-column: 1 / -1;
+}
+
+.admin-pending-card__actions {
+  display: flex;
+  width: 106px;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+  gap: 7px;
+}
+
+.admin-pending-card__actions button {
+  display: inline-flex;
+  min-height: 34px;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 1px solid #0f766e;
+  background: #0f766e;
+  color: #fff;
+  cursor: pointer;
+  font: inherit;
+  font-size: 10px;
+  font-weight: 650;
+}
+
+.admin-pending-card__actions button.is-danger {
+  border-color: #fecaca;
+  background: #fff;
+  color: #b91c1c;
+}
+
+.admin-pending-card__actions button:disabled {
+  opacity: 0.48;
+  cursor: not-allowed;
+}
+
+.admin-pending-card__actions small {
+  color: #64748b;
+  font-size: 9px;
+  line-height: 1.4;
+}
+
+.tournament-admin-shell .admin-dashboard-card,
+.tournament-admin-shell .admin-dashboard-panel,
+.tournament-admin-shell .admin-tournament-row,
+.tournament-admin-shell .admin-registration-card,
+.tournament-admin-shell .admin-match-form,
+.tournament-admin-shell .admin-quick-match,
+.tournament-admin-shell .admin-form-section,
+.tournament-admin-shell .admin-registration-card__details {
+  border-color: #dbe3eb;
+  background: #fff;
+  color: #253244;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+.tournament-admin-shell .admin-dashboard-card__head,
+.tournament-admin-shell .admin-dashboard-panel__head,
+.tournament-admin-shell .admin-dashboard-list__item,
+.tournament-admin-shell .admin-registration-card__summary {
+  border-color: #e5eaf0;
+  color: #526174;
+}
+
+.tournament-admin-shell .admin-dashboard-card__icon {
+  border-color: #cde5e1;
+  background: #eaf5f3;
+  color: #0f766e;
+}
+
+.tournament-admin-shell .admin-dashboard-card strong,
+.tournament-admin-shell .admin-dashboard-list__item strong,
+.tournament-admin-shell .admin-registration-card__summary h2,
+.tournament-admin-shell .admin-tournament-row__title h2 {
+  color: #111827;
+}
+
+.tournament-admin-shell .admin-dashboard-card p,
+.tournament-admin-shell .admin-dashboard-list__item small,
+.tournament-admin-shell .admin-tournament-row__main > p,
+.tournament-admin-shell .admin-tournament-row__main > small {
+  color: #526174;
+}
+
+.tournament-admin-shell .admin-dashboard-trends > div,
+.tournament-admin-shell .admin-dashboard-range select,
+.tournament-admin-shell .admin-registration-controls select,
+.tournament-admin-shell .admin-form-field input,
+.tournament-admin-shell .admin-form-field select,
+.tournament-admin-shell .admin-form-field textarea,
+.tournament-admin-shell .form-field input,
+.tournament-admin-shell .form-field select,
+.tournament-admin-shell .form-field textarea {
+  border-color: #cbd5e1;
+  background: #fff;
+  color: #111827;
+}
+
+.tournament-admin-shell .admin-dashboard-trends span,
+.tournament-admin-shell .admin-dashboard-trends strong {
+  color: #334155;
+}
+
+.tournament-admin-shell .admin-refresh-button,
+.tournament-admin-shell .admin-registration-expand,
+.tournament-admin-shell .admin-tournament-row__actions > button,
+.tournament-admin-shell .admin-tournament-row__actions > a {
+  border-color: #cbd5e1;
+  background: #fff;
+  color: #334155;
+}
+
+.tournament-admin-shell .admin-refresh-button:hover,
+.tournament-admin-shell .admin-tournament-row__actions > button:hover:not(:disabled),
+.tournament-admin-shell .admin-tournament-row__actions > a:hover {
+  border-color: #0f766e;
+  color: #0f766e;
+}
+
+.tournament-admin-shell .admin-tournament-row__actions > button.is-danger:hover:not(:disabled) {
+  border-color: #b91c1c;
+  color: #b91c1c;
+}
+
+.tournament-admin-shell .admin-form-error {
+  border-color: #fecaca;
+  background: #fef2f2;
+  color: #991b1b;
+}
+
+.tournament-admin-shell .admin-notice {
+  border-color: #bbf7d0;
+  background: #f0fdf4;
+  color: #166534;
+}
+
+.tournament-admin-shell .registration-status {
+  border-color: #cbd5e1;
+  background: #f1f5f9;
+  color: #334155;
+}
+
+.tournament-admin-shell .registration-status--pending,
+.tournament-admin-shell .registration-status--pending_payment,
+.tournament-admin-shell .registration-status--payment_rejected {
+  border-color: #fde68a;
+  background: #fffbeb;
+  color: #92400e;
+}
+
+.tournament-admin-shell .registration-status--approved,
+.tournament-admin-shell .registration-status--confirmed {
+  border-color: #bbf7d0;
+  background: #f0fdf4;
+  color: #166534;
+}
+
+.tournament-admin-shell .registration-status--rejected {
+  border-color: #fecaca;
+  background: #fef2f2;
+  color: #991b1b;
+}
+
+.tournament-admin-shell .arena-state {
+  border-color: #dbe3eb;
+  background: #fff;
+  color: #526174;
+}
+
+.tournament-admin-shell .arena-state h2,
+.tournament-admin-shell .arena-state h3 {
+  color: #111827;
+}
+
+.tournament-admin-shell .admin-payment-search,
+.tournament-admin-shell .admin-payment-status-filter {
+  border-color: #cbd5e1;
+  background: #fff;
+  color: #111827;
+}
+
+.tournament-admin-shell .admin-payment-search input {
+  color: #111827;
+}
+
+.tournament-admin-shell .admin-payment-count,
+.tournament-admin-shell .admin-payment-reviewed {
+  color: #526174;
+}
+
+.tournament-admin-shell .results-page--admin {
+  min-height: 0;
+  padding: 0;
+  background: transparent;
+  color: #111827;
+}
+
+.tournament-admin-shell .results-page--admin .page-width {
+  width: 100%;
+  max-width: none;
+  padding: 0;
+}
+
+.tournament-admin-shell .results-page--admin .results-page__heading h1 {
+  color: #111827;
+}
+
+.tournament-admin-shell .results-page--admin .results-page__heading p:not(.section-heading__eyebrow) {
+  color: #526174;
+}
+
+.tournament-admin-shell .results-page--admin .results-controls,
+.tournament-admin-shell .results-page--admin .results-table-wrap {
+  border-color: #dbe3eb;
+  background: #fff;
+}
+
+.tournament-admin-shell .results-page--admin .results-search,
+.tournament-admin-shell .results-page--admin .results-filter select {
+  border-color: #cbd5e1;
+  background: #fff;
+  color: #111827;
+}
+
+.tournament-admin-shell .results-page--admin .results-table th,
+.tournament-admin-shell .results-page--admin .results-table td {
+  border-color: #e5eaf0;
+  color: #334155;
+}
+
+.tournament-admin-shell .results-page--admin .results-table thead {
+  background: #f1f5f9;
+}
+
+.tournament-admin-shell .results-page--admin .results-table thead th {
+  color: #526174;
+}
+
+.tournament-admin-shell .results-page--admin .results-table tbody tr {
+  background: #fff;
+}
+
+.tournament-admin-shell .results-page--admin .results-table tbody tr:hover {
+  background: #f8fafc;
+}
+
+.tournament-admin-shell .results-page--admin .results-table .results-total-points {
+  color: #0f766e;
+}
+
+.tournament-admin-shell .results-page--admin .arena-pagination button {
+  border-color: #cbd5e1;
+  background: #fff;
+  color: #334155;
+}
+
+@media (max-width: 1020px) {
+  .tournament-admin-sidebar {
+    width: 224px;
+  }
+
+  .tournament-admin-workspace {
+    margin-left: 224px;
+  }
+
+  .tournament-admin-content {
+    padding-inline: 22px;
+  }
+
+  .admin-pending-card__main {
+    grid-template-columns: minmax(180px, 1fr);
+  }
+}
+
+@media (max-width: 760px) {
+  .tournament-admin-sidebar {
+    position: static;
+    width: 100%;
+    padding: 10px 12px;
+    border-right: 0;
+    border-bottom: 1px solid #dbe3eb;
+  }
+
+  .admin-sidebar-brand {
+    min-height: 36px;
+  }
+
+  .admin-sidebar-label {
+    margin: 10px 8px 5px;
+  }
+
+  .admin-sidebar-nav,
+  .admin-sidebar-nav--secondary {
+    flex-direction: row;
+    overflow-x: auto;
+    padding-bottom: 3px;
+  }
+
+  .admin-sidebar-nav a,
+  .admin-sidebar-nav--secondary a {
+    min-height: 36px;
+    flex: 0 0 auto;
+    gap: 7px;
+    padding: 0 9px;
+    font-size: 10px;
+  }
+
+  .admin-sidebar-footer {
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    flex-direction: row;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+
+  .admin-sidebar-footer a {
+    display: none;
+  }
+
+  .admin-sidebar-footer button {
+    min-height: 32px;
+    padding: 0 8px;
+  }
+
+  .tournament-admin-workspace {
+    margin-left: 0;
+  }
+
+  .admin-topbar {
+    display: none;
+  }
+
+  .tournament-admin-content {
+    padding: 21px 14px 42px;
+  }
+
+  .admin-work-heading {
+    align-items: flex-start;
+  }
+
+  .admin-work-heading h1 {
+    font-size: 29px;
+  }
+
+  .admin-pending-card {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .admin-pending-card__actions {
+    width: auto;
+    flex-direction: row;
+    justify-content: flex-start;
+  }
+
+  .admin-pending-card__actions button {
+    min-width: 96px;
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-directory-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .admin-directory-search {
+    width: 100%;
+  }
+
+  .admin-directory-total {
+    align-self: flex-end;
+  }
+
+  .admin-pending-card__facts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .admin-pending-card__identity h2 {
+    overflow-wrap: anywhere;
+    font-size: 19px;
+  }
+
+  .admin-pending-payment {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
