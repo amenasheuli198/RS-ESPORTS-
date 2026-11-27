@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { CheckCircle2, RotateCw, Search, ShieldAlert, XCircle } from 'lucide-react'
+import { getAdminRequestErrorMessage } from '../admin/requestError'
 import { useAuth } from '../auth/AuthProvider'
 import { formatTournamentDate, formatTournamentMoney } from '../tournaments/format'
 
@@ -47,19 +48,14 @@ function AdminPaymentsPage() {
     try {
       const { data, error } = await client.rpc('get_admin_bkash_payment_queue_v2')
       if (error) {
-        if (error.message.includes('PAYMENT_REVIEWER_REQUIRED') || error.code === '42501') {
-          throw new Error('PAYMENT_REVIEWER_REQUIRED')
-        }
-        throw new Error(error.code === 'PGRST202' ? 'PAYMENT_QUEUE_RPC_MISSING' : 'PAYMENT_QUEUE_LOAD_FAILED')
+        setIsError(true)
+        setMessage(getAdminRequestErrorMessage(error, 'Payment review data could not be loaded. Check your connection and refresh.'))
+        return
       }
       setItems((data ?? []) as PaymentQueueItem[])
     } catch (error) {
       setIsError(true)
-      setMessage(error instanceof Error && error.message === 'PAYMENT_REVIEWER_REQUIRED'
-        ? 'Your account does not have payment-review access. Ask a super administrator to grant the admin or payment_reviewer role, then sign in again.'
-        : error instanceof Error && error.message === 'PAYMENT_QUEUE_RPC_MISSING'
-          ? 'The payment queue database function is missing. Apply the latest Supabase payment migration.'
-          : 'Payment review data could not be loaded. Check your connection and refresh.')
+      setMessage(getAdminRequestErrorMessage(error, 'Payment review data could not be loaded. Check your connection and refresh.'))
     } finally {
       setIsLoading(false)
     }
@@ -99,9 +95,7 @@ function AdminPaymentsPage() {
         setIsError(true)
         setMessage(error.message === 'PAYMENT_NOT_PENDING'
           ? 'This payment is no longer pending review. Refresh the queue to see its current status.'
-          : error.message === 'PAYMENT_REVIEWER_REQUIRED' || error.code === '42501'
-            ? 'Your account does not have permission to review payments. Ask a super administrator to grant payment-review access.'
-            : 'The payment state could not be updated. Refresh and try again.')
+          : getAdminRequestErrorMessage(error, 'The payment state could not be updated. Refresh and try again.'))
       } else {
         setIsError(false)
         setMessage(decision === 'approved' ? 'Payment approved.' : 'Payment rejected.')

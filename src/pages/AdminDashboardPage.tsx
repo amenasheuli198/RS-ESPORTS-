@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Activity, BellRing, CalendarRange, Gauge, ShieldCheck, Trophy, UserRound, Users } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import { getAdminRequestErrorMessage } from '../admin/requestError'
 import { useAuth } from '../auth/AuthProvider'
 import { getSupabaseConfigurationError } from '../services/supabase/client'
 import { formatTournamentDate, formatTournamentMoney } from '../tournaments/format'
@@ -136,9 +137,7 @@ function AdminDashboardPage() {
         setPartialErrorMessage('Overview metrics loaded, but one or more detail panels could not be refreshed.')
       }
     } catch (error) {
-      setErrorMessage(error instanceof Error && (error.message.includes('ADMIN_REQUIRED') || error.message.includes('42501'))
-        ? 'Your session does not include the administrator role required for dashboard data. Sign out and back in after an administrator updates your role.'
-        : 'Overview metrics could not be loaded. Check Supabase connectivity and refresh.')
+      setErrorMessage(getAdminRequestErrorMessage(error, 'Overview metrics could not be loaded. Check Supabase connectivity and refresh.'))
     } finally {
       setLoading(false)
     }

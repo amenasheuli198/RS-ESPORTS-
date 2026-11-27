@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { RotateCw, Search, Users } from 'lucide-react'
+import { getAdminRequestErrorMessage } from '../admin/requestError'
 import { useAuth } from '../auth/AuthProvider'
 import TeamLogo from '../components/team/TeamLogo'
 import { formatTournamentDate } from '../tournaments/format'
@@ -65,9 +66,7 @@ function AdminTeamsPage() {
       setTotalCount(Number(rows[0]?.total_count ?? 0))
     } catch (error) {
       setIsError(true)
-      setMessage(error instanceof Error && error.message.includes('ADMIN_REQUIRED')
-        ? 'Your account does not have administrator access to the team directory.'
-        : 'Team records could not be loaded. Check your connection and refresh.')
+      setMessage(getAdminRequestErrorMessage(error, 'Team records could not be loaded. Check your connection and refresh.'))
       setItems([])
       setTotalCount(0)
     } finally {

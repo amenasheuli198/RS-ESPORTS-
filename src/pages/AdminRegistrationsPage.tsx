@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { RotateCw, Search, ShieldCheck, Users } from 'lucide-react'
+import { getAdminRequestErrorMessage } from '../admin/requestError'
 import { useAuth } from '../auth/AuthProvider'
 import TeamLogo from '../components/team/TeamLogo'
 import { formatTournamentDate, formatTournamentMoney } from '../tournaments/format'
@@ -74,9 +75,7 @@ function AdminRegistrationsPage() {
       setTotalCount(Number(rows[0]?.total_count ?? 0))
     } catch (error) {
       setIsError(true)
-      setMessage(error instanceof Error && error.message.includes('ADMIN_REQUIRED')
-        ? 'Your account does not have administrator access to pending registrations.'
-        : 'Pending registrations could not be loaded. Check your connection and refresh.')
+      setMessage(getAdminRequestErrorMessage(error, 'Pending registrations could not be loaded. Check your connection and refresh.'))
       setItems([])
       setTotalCount(0)
     } finally {

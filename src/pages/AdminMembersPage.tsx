@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { RotateCw, Search } from 'lucide-react'
+import { getAdminRequestErrorMessage } from '../admin/requestError'
 import { useAuth } from '../auth/AuthProvider'
 import { formatTournamentDate } from '../tournaments/format'
 
@@ -50,9 +51,7 @@ function AdminMembersPage() {
       setTotalCount(Number(rows[0]?.total_count ?? 0))
     } catch (error) {
       setIsError(true)
-      setMessage(error instanceof Error && error.message.includes('ADMIN_REQUIRED')
-        ? 'Your account does not have administrator access to member records.'
-        : 'Member records could not be loaded. Check your connection and refresh.')
+      setMessage(getAdminRequestErrorMessage(error, 'Member records could not be loaded. Check your connection and refresh.'))
       setItems([])
       setTotalCount(0)
     } finally {
